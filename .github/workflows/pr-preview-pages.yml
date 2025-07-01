@@ -24,7 +24,7 @@ jobs:
           issue_number: ${{github.event.number}}
           head_sha: ${{github.event.pull_request.head.sha}}
       - name: Checkout SmartCharts Champion
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: deriv-com/smartcharts-champion
           path: smartcharts-champion
@@ -32,7 +32,7 @@ jobs:
 
       - name: Custom flutter-chart
         id: flutter_chart
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: 'deriv-com/flutter-chart'
           path: flutter-chart
