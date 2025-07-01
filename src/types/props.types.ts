@@ -104,8 +104,18 @@ export type TGetQuotesResult = {
     };
 };
 
-export type TGetQuotes = (params: { symbol: string; granularity: number; count: number; start?: number; end?: number; style?: string }) => Promise<TGetQuotesResult>;
-export type TSubscribeQuotes = (params: { symbol: string, granularity: TGranularity}, callback: (quote: TQuote) => void) => (() => void);
+export type TGetQuotes = (params: {
+    symbol: string;
+    granularity: number;
+    count: number;
+    start?: number;
+    end?: number;
+    style?: string;
+}) => Promise<TGetQuotesResult>;
+export type TSubscribeQuotes = (
+    params: { symbol: string; granularity: TGranularity },
+    callback: (quote: TQuote) => void
+) => () => void;
 export type TNetworkConfig = {
     class: string;
     tooltip: string;
@@ -199,7 +209,6 @@ export type TBarrierUpdateProps = {
 };
 
 export type TChartProps = {
-    ref: React.RefObject<{ hasPredictionIndicators(): void; triggerPopup(arg: () => void): void }>;
     unsubscribeQuotes: BinaryAPI['unsubscribeQuotes'];
     getQuotes?: TGetQuotes;
     subscribeQuotes?: TSubscribeQuotes;
