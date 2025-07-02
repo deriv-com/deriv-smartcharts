@@ -1,9 +1,9 @@
 import 'package:chart_app/src/models/chart_config.dart';
 import 'package:chart_app/src/models/chart_feed.dart';
 import 'package:chart_app/src/series/custom_line_series.dart';
-import 'package:deriv_chart/deriv_chart.dart' hide CandleSeries;
+import 'package:deriv_chart/deriv_chart.dart';
+import 'package:deriv_chart/src/deriv_chart/chart/data_visualization/chart_series/ohlc_series/candle/candle_series.dart';
 import 'package:flutter/material.dart';
-import '../series/candle_series.dart';
 
 /// Gets the data series
 DataSeries<Tick> getDataSeries(
