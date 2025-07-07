@@ -54,14 +54,12 @@ jobs:
                   cache: 'npm'
             
             - name: Install dependencies
-              run: | 
-                pwd
-                npm ci --ignore-scripts
+              run: |
+                npm ci
     
             - name: Build SmartCharts Champion
               run: |
-                pwd
-                npx rimraf dist && npx cross-env NODE_ENV=production npx webpack --mode=production --progress
+                npm run build
             - name: Generate test link
               run: |
                 echo "Generating test link for PR #${{ github.event.pull_request.number }}"
