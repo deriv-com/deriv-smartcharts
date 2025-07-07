@@ -129,7 +129,7 @@
         "prettier": "^2.1.2",
         "regenerator-runtime": "^0.13.3",
         "resize-observer-polyfill": "^1.5.1",
-        "rimraf": "^2.6.3",
+        "rimraf": "^5.0.5",
         "sass": "^1.62.1",
         "sass-loader": "^13.2.2",
         "sinon": "^7.4.1",
