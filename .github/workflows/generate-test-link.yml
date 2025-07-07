@@ -56,9 +56,7 @@ jobs:
             
             - name: Install dependencies
               run: |
-                npm config set ignore-scripts true
                 npm ci
-                npm config set ignore-scripts false
     
             - name: Build SmartCharts Champion
               run: |
