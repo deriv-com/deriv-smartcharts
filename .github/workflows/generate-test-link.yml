@@ -56,7 +56,7 @@ jobs:
             - name: Install dependencies
               run: | 
                 pwd
-                npm ci --ignore-scripts
+                npm ci
     
             - name: Build SmartCharts Champion
               run: |
