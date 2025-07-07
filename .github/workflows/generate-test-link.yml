@@ -60,7 +60,6 @@ jobs:
               run: |
                 pwd
                 ls -la
-                cd smartcharts-champion
                 npm run build
             - name: Generate test link
               run: |
