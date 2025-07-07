@@ -13,6 +13,7 @@ env:
     FLUTTER_WEB_RENDERER: 'html'
     NODE_ENV: 'production'
     HUSKY: 0
+    HUSKY_SKIP_INSTALL: 1
     CI: true
 
 jobs:
