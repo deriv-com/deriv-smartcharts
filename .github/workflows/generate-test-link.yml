@@ -1,0 +1,66 @@
+name: Generate Test Link
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+
+concurrency:
+    group: github-pages-build-${{ github.head_ref || github.ref_name }}
+    cancel-in-progress: true
+
+env:
+    FLUTTER_VERSION: '3.24.1'
+    NODE_VERSION: '18.x'
+    FLUTTER_WEB_RENDERER: 'html'
+    NODE_ENV: 'production'
+
+jobs:
+    build_and_deploy:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            checks: write
+            pull-requests: write
+            pages: write
+        steps:
+            - name: Checkout PR branch
+              uses: actions/checkout@v4
+              with:
+                  repository: ${{ github.event.pull_request.head.repo.full_name }}
+                  ref: ${{ github.event.pull_request.head.ref }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Verify checkout
+              run: |
+                  echo "Current branch: $(git branch --show-current)"
+                  echo "Last commit: $(git log -1 --oneline)"
+
+            # Add your build steps here
+            - name: Setup Flutter
+              uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa
+              with:
+                  flutter-version: ${{ env.FLUTTER_VERSION }}
+
+            - name: Build Flutter web
+              run: |
+                cd chart_app
+                flutter pub get
+                flutter build web --web-renderer=${{ env.FLUTTER_WEB_RENDERER }} --release
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'npm'
+            
+            - name: Install dependencies
+              run: npm ci
+    
+            - name: Build SmartCharts Champion
+              run: npm run build
+            - name: Generate test link
+              run: |
+                echo "Generating test link for PR #${{ github.event.pull_request.number }}"
+                echo "Test link: https://smartcharts-champion.vercel.app/pr/${{ github.event.pull_request.number }}"
+                echo "Test link: https://smartcharts-champion.vercel.app/pr/${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+                BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
+                npm run gh-pages:folder -- "$BRANCH_NAME"
