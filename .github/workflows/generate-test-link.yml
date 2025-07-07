@@ -13,6 +13,7 @@ env:
     FLUTTER_WEB_RENDERER: 'html'
     NODE_ENV: 'production'
     HUSKY: 0
+    CI: true
 
 jobs:
     build_and_deploy:
@@ -55,7 +56,9 @@ jobs:
             
             - name: Install dependencies
               run: |
+                npm config set ignore-scripts true
                 npm ci
+                npm config set ignore-scripts false
     
             - name: Build SmartCharts Champion
               run: |
