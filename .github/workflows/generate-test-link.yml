@@ -65,8 +65,8 @@ jobs:
             - name: Configure Git
               shell: bash
               run: |
-                git config --global user.name "GitHub Actions"
-                git config --global user.email "github-actions@users.noreply.github.com"
+                git config --global user.name "${{ github.event.pull_request.user.login }}"
+                git config --global user.email "${{ github.event.pull_request.user.login }}@users.noreply.github.com"
                 git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
 
             - name: Deploy to GitHub Pages
@@ -106,7 +106,7 @@ jobs:
                   --src '{index.html,manifest.json,sw.js,dist/**,CNAME,Dockerfile,.dockerignore,default.conf,.circleci/**}' \
                   --dest "$BRANCH_NAME" \
                   --dotfiles \
-                  --user "GitHub Actions <github-actions@users.noreply.github.com>" \
+                  --user "${{ github.event.pull_request.user.login }} <${{ github.event.pull_request.user.login }}@users.noreply.github.com>" \
                   --message "Deploy PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}"
                 
                 if [ $? -eq 0 ]; then
