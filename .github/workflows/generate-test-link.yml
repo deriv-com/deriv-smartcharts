@@ -67,16 +67,17 @@ jobs:
               run: |
                 git config --global user.name "${{ github.event.pull_request.user.login }}"
                 git config --global user.email "${{ github.event.pull_request.user.login }}@users.noreply.github.com"
-                git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+                # Deploy to the base repository instead (where the workflow is running)
+                git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
 
             - name: Deploy to GitHub Pages
               shell: bash
               run: |
                 echo "🚀 Generating test link for PR #${{ github.event.pull_request.number }}"
                 BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
-                HEAD_REPO_OWNER="${{ github.event.pull_request.head.repo.owner.login }}"
-                HEAD_REPO_NAME="${{ github.event.pull_request.head.repo.name }}"
-                TEST_LINK="https://${HEAD_REPO_OWNER}.github.io/${HEAD_REPO_NAME}/pr/${{ github.event.pull_request.number }}"
+                BASE_REPO_OWNER="${{ github.repository_owner }}"
+                BASE_REPO_NAME="${{ github.event.repository.name }}"
+                TEST_LINK="https://${BASE_REPO_OWNER}.github.io/${BASE_REPO_NAME}/pr/${{ github.event.pull_request.number }}"
                 
                 # Set environment variables for later steps
                 echo "TEST_LINK=$TEST_LINK" >> $GITHUB_ENV
@@ -84,7 +85,7 @@ jobs:
                 
                 echo "📦 Deploying to branch: $BRANCH_NAME"
                 echo "🔗 Target URL: $TEST_LINK"
-                echo "📍 Deploying to repository: ${HEAD_REPO_OWNER}/${HEAD_REPO_NAME}"
+                echo "📍 Deploying to repository: ${BASE_REPO_OWNER}/${BASE_REPO_NAME}"
                 
                 # Verify build artifacts exist
                 if [ ! -f "index.html" ]; then
