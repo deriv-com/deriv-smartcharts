@@ -67,8 +67,8 @@ jobs:
               run: |
                 git config --global user.name "GitHub Actions"
                 git config --global user.email "github-actions@users.noreply.github.com"
-                # Set origin to the head repository (where we have write permissions)
-                git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+                # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
+                git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
 
             - name: Deploy to GitHub Pages
               shell: bash
