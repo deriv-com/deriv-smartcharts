@@ -11,7 +11,7 @@ env:
     FLUTTER_VERSION: '3.24.1'
     NODE_VERSION: '18.x'
     FLUTTER_WEB_RENDERER: 'html'
-    NODE_ENV: 'production'
+    NODE_ENV: 'development'
     HUSKY: 0
     CI: true
 
@@ -61,7 +61,7 @@ jobs:
             - name: Build SmartCharts Champion
               shell: bash
               run: |
-                npm run build
+                npm run build:app
             - name: Generate test link
               run: |
                 echo "Generating test link for PR #${{ github.event.pull_request.number }}"
