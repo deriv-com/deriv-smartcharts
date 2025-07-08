@@ -29,7 +29,7 @@ jobs:
               with:
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
                   ref: ${{ github.event.pull_request.head.ref }}
-                  token: ${{ secrets.GITHUB_TOKEN }}
+                  token: ${{ github.token }}
 
             - name: Verify checkout
               run: |
@@ -67,7 +67,6 @@ jobs:
               run: |
                 git config --global user.name "GitHub Actions"
                 git config --global user.email "github-actions@users.noreply.github.com"
-                # git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
                 git remote set-url origin https://x-access-token:${{ github.token }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git
 
             - name: Deploy to GitHub Pages
@@ -121,7 +120,7 @@ jobs:
             - name: Comment PR with test link
               uses: actions/github-script@v7
               with:
-                github-token: ${{ secrets.GITHUB_TOKEN }}
+                github-token: ${{ github.token }}
                 script: |
                   const testLink = process.env.TEST_LINK;
                   const prNumber = context.payload.pull_request.number;
