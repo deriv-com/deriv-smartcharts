@@ -1,0 +1,137 @@
+# Preview deployment workflow
+# Cancels previous deployments when new commits are pushed to PR
+
+name: Deploy Preview
+
+on:
+  pull_request_target:
+    branches:
+      - master
+    types: [opened, synchronize, reopened]
+
+# Cancel outdated deployments per PR
+concurrency:
+  group: deploy-preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.24.1'
+  FLUTTER_WEB_RENDERER: 'html'
+  NODE_VERSION: '20.x'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Generate branch slug
+        id: branch-slug
+        run: |
+          BRANCH_SLUG=$(echo "${{ github.event.pull_request.head.ref }}" | sed 's|/|-|g' | sed 's|[^a-zA-Z0-9_-]||g' | tr '[:upper:]' '[:lower:]')
+          # Ensure branch slug is not empty and has max length for Cloudflare
+          if [ -z "$BRANCH_SLUG" ]; then
+            BRANCH_SLUG="pr-${{ github.event.number }}"
+          fi
+          BRANCH_SLUG=$(echo "$BRANCH_SLUG" | cut -c1-63)
+          echo "branch_slug=$BRANCH_SLUG" >> $GITHUB_OUTPUT
+          echo "Generated branch slug: $BRANCH_SLUG"
+
+      - name: Deploy to Cloudflare Pages
+        id: deploy
+        uses: "./.github/actions/build-and-deploy"
+        with:
+          cloudflare_api_token: ${{ secrets.CLOUDFLARE_TEST_LINKS_API_TOKEN }}
+          cloudflare_account_id: ${{ secrets.CLOUDFLARE_TEST_LINKS_ACCOUNT_ID }}
+          project_name: 'smartcharts-champion'
+          branch_name: ${{ steps.branch-slug.outputs.branch_slug }}
+          node_version: ${{ env.NODE_VERSION }}
+          flutter_version: ${{ env.FLUTTER_VERSION }}
+          flutter_web_renderer: ${{ env.FLUTTER_WEB_RENDERER }}
+          environment: 'preview'
+          commit_hash: ${{ github.event.pull_request.head.sha }}
+
+      - name: Comment PR with deployment URL
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request_target'
+        with:
+          script: |
+            const previewUrl = '${{ steps.deploy.outputs.preview_url }}' || '';
+            const branchUrl = '${{ steps.deploy.outputs.branch_url }}' || '';
+            const primaryUrl = '${{ steps.deploy.outputs.deployment_url }}' || '';
+            const commitHash = '${{ github.event.pull_request.head.sha }}';
+            const shortCommit = commitHash.substring(0, 8);
+
+            console.log('🔍 Preview URL:', previewUrl);
+            console.log('🔍 Branch URL:', branchUrl);
+            console.log('🔍 Primary URL:', primaryUrl);
+
+            if (!previewUrl && !branchUrl && !primaryUrl) {
+              console.log('❌ No deployment URLs available to comment.');
+              return;
+            }
+
+            // Build the comment body with proper formatting
+            let commentBody = `🚀 **Deploy Preview Ready!**
+
+            | Property | Value |
+            | ------- | ----- |
+            | Commit | \`${shortCommit}\` |
+            | Status | ✅ Deploy successful |`;
+
+                        // Add preview URL if it exists
+                        if (previewUrl) {
+                          commentBody += `
+            | Preview URL | [${previewUrl}](${previewUrl}) |`;
+                        }
+
+                        // Add branch URL if it exists
+                        if (branchUrl) {
+                          commentBody += `
+            | Branch URL | [${branchUrl}](${branchUrl}) |`;
+                        }
+
+                        // If no specific URLs, fall back to primary
+                        if (!previewUrl && !branchUrl && primaryUrl) {
+                          commentBody += `
+            | Deployment URL | [${primaryUrl}](${primaryUrl}) |`;
+                        }
+
+                        const { data: comments } = await github.rest.issues.listComments({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: context.payload.pull_request.number
+                        });
+
+                        const existingComment = comments.find(comment =>
+                          comment.user.login === 'github-actions[bot]' &&
+                          (comment.body.includes('🚀 **Deploy Preview Ready!**') ||
+                          comment.body.includes('Preview URL') ||
+                          comment.body.includes('Branch URL') ||
+                          comment.body.includes('Deployment URL'))
+                        );
+
+                        if (existingComment) {
+                          await github.rest.issues.updateComment({
+                            owner: context.repo.owner,
+                            repo: context.repo.repo,
+                            comment_id: existingComment.id,
+                            body: commentBody
+                          });
+              console.log('🔁 Updated existing deployment comment.');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: commentBody
+              });
+              console.log('✅ Created new deployment comment.');
+            }

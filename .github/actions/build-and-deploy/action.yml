@@ -1,0 +1,225 @@
+# Reusable action for building and deploying to Cloudflare Pages
+# Handles both Flutter chart component and main application builds
+name: "Build and Deploy to Cloudflare Pages"
+description: "Reusable action to build and deploy the application to Cloudflare Pages"
+
+inputs:
+  cloudflare_api_token:
+    description: "Cloudflare API Token"
+    required: true
+  cloudflare_account_id:
+    description: "Cloudflare Account ID"
+    required: true
+  project_name:
+    description: "Cloudflare Pages project name"
+    required: true
+  branch_name:
+    description: "Branch name for deployment"
+    required: true
+  node_version:
+    description: "Node.js version"
+    required: false
+    default: "20.x"
+  flutter_version:
+    description: "Flutter version"
+    required: false
+    default: "3.24.1"
+  flutter_web_renderer:
+    description: "Flutter web renderer"
+    required: false
+    default: "html"
+  environment:
+    description: "Deployment environment (production/preview)"
+    required: false
+    default: "preview"
+  commit_hash:
+    description: "Commit hash for deployment"
+    required: true
+
+outputs:
+  deployment_url:
+    description: "Primary deployment URL"
+    value: ${{ steps.deploy.outputs.deployment_url }}
+  all_urls:
+    description: "All URLs found in Cloudflare output"
+    value: ${{ steps.deploy.outputs.all_urls }}
+  preview_url:
+    description: "Preview URL (commit-based)"
+    value: ${{ steps.deploy.outputs.preview_url }}
+  branch_url:
+    description: "Branch URL (branch-based)"
+    value: ${{ steps.deploy.outputs.branch_url }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Full history needed for proper commit tracking
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node_version }}
+        cache: "npm"
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ inputs.flutter_version }}
+        channel: stable
+
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+
+    - name: Build Flutter chart component
+      shell: bash
+      run: |
+        cd chart_app
+        flutter pub get
+        flutter build web --web-renderer ${{ inputs.flutter_web_renderer }} --release
+        cd ..
+
+    - name: Build application
+      shell: bash
+      run: npm run build:app
+
+    - name: Validate build output
+      shell: bash
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "Error: dist directory not found. Build may have failed."
+          exit 1
+        fi
+        if [ ! -f "index.html" ]; then
+          echo "Error: index.html not found."
+          exit 1
+        fi
+        echo "Build validation passed"
+
+    - name: Prepare deployment files
+      shell: bash
+      run: |
+        mkdir -p deploy
+        cp index.html manifest.json sw.js nojs-smartcharts.css deploy/
+        cp -r dist deploy/ # This is intentional, because of the way the paths are structured
+        cp -r dist/* deploy/
+        if [ -d "sass/favicons" ]; then
+          mkdir -p deploy/sass
+          cp -r sass/favicons deploy/sass/
+        fi
+        echo "Deployment files prepared successfully"
+
+    - name: Install Wrangler
+      shell: bash
+      run: npm install -g wrangler@latest
+
+    - name: Deploy to Cloudflare Pages
+      id: deploy
+      shell: bash
+      run: |
+        set -e
+        echo "Starting deployment to Cloudflare Pages..."
+
+        # Run the deployment and capture output
+        DEPLOY_OUTPUT=$(wrangler pages deploy deploy \
+          --project-name=${{ inputs.project_name }} \
+          --branch ${{ inputs.branch_name }} \
+          --commit-hash=${{ inputs.commit_hash }} 2>&1)
+
+        # Output the result of the deployment
+        echo "$DEPLOY_OUTPUT"
+
+        # Extract ALL URLs from Cloudflare output
+        echo "=== Extracting URLs from Cloudflare output ==="
+
+        # Find all URLs in the output (both deriv.cloud and pages.dev)
+        ALL_FOUND_URLS=$(echo "$DEPLOY_OUTPUT" | grep -oE 'https://[^[:space:]]+\.(deriv\.cloud|pages\.dev)[^[:space:]]*' | sort -u || true)
+
+        echo "All found URLs:"
+        echo "$ALL_FOUND_URLS"
+
+        # Separate by domain
+        DERIV_CLOUD_URLS=$(echo "$ALL_FOUND_URLS" | grep '\.deriv\.cloud' || true)
+        PAGES_DEV_URLS=$(echo "$ALL_FOUND_URLS" | grep '\.pages\.dev' || true)
+
+        echo "Deriv Cloud URLs found:"
+        echo "$DERIV_CLOUD_URLS"
+        echo "Pages Dev URLs found:"
+        echo "$PAGES_DEV_URLS"
+
+        # Process URLs based on what we found
+        PREVIEW_URL=""
+        BRANCH_URL=""
+        BRANCH_NAME="${{ inputs.branch_name }}"
+
+        # Choose which set of URLs to process (prefer deriv.cloud)
+        URLS_TO_PROCESS=""
+        if [[ -n "$DERIV_CLOUD_URLS" ]]; then
+          URLS_TO_PROCESS="$DERIV_CLOUD_URLS"
+          echo "Processing deriv.cloud URLs"
+        elif [[ -n "$PAGES_DEV_URLS" ]]; then
+          URLS_TO_PROCESS="$PAGES_DEV_URLS"
+          echo "Processing pages.dev URLs"
+        fi
+
+        # Process the URLs
+        if [[ -n "$URLS_TO_PROCESS" ]]; then
+          # Convert to array by reading line by line
+          URL_COUNT=0
+          while IFS= read -r url; do
+            if [[ -n "$url" ]]; then
+              URL_COUNT=$((URL_COUNT + 1))
+              if [[ "$url" == *"$BRANCH_NAME"* ]]; then
+                BRANCH_URL="$url"
+                echo "Found branch URL: $BRANCH_URL"
+              else
+                PREVIEW_URL="$url"
+                echo "Found preview URL: $PREVIEW_URL"
+              fi
+            fi
+          done <<< "$URLS_TO_PROCESS"
+          
+          echo "Processed $URL_COUNT URLs"
+        else
+          echo "Warning: No URLs found in Cloudflare output"
+        fi
+
+        # Set primary URL (prefer preview, fallback to branch)
+        PRIMARY_URL=""
+        if [[ -n "$PREVIEW_URL" ]]; then
+          PRIMARY_URL="$PREVIEW_URL"
+        elif [[ -n "$BRANCH_URL" ]]; then
+          PRIMARY_URL="$BRANCH_URL"
+        fi
+
+        # Create comma-separated list of all URLs
+        ALL_URLS_LIST=""
+        if [[ -n "$PREVIEW_URL" ]]; then
+          ALL_URLS_LIST="$PREVIEW_URL"
+        fi
+        if [[ -n "$BRANCH_URL" ]]; then
+          if [[ -n "$ALL_URLS_LIST" ]]; then
+            ALL_URLS_LIST="$ALL_URLS_LIST,$BRANCH_URL"
+          else
+            ALL_URLS_LIST="$BRANCH_URL"
+          fi
+        fi
+
+        echo "Final Preview URL: $PREVIEW_URL"
+        echo "Final Branch URL: $BRANCH_URL"
+        echo "Final Primary URL: $PRIMARY_URL"
+        echo "Final all URLs: $ALL_URLS_LIST"
+
+        # Set outputs
+        echo "deployment_url=$PRIMARY_URL" >> $GITHUB_OUTPUT
+        echo "all_urls=$ALL_URLS_LIST" >> $GITHUB_OUTPUT
+        echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+        echo "branch_url=$BRANCH_URL" >> $GITHUB_OUTPUT
+
+        echo "=== Outputs set successfully ==="
+      env:
+        CLOUDFLARE_API_TOKEN: ${{ inputs.cloudflare_api_token }}
+        CLOUDFLARE_ACCOUNT_ID: ${{ inputs.cloudflare_account_id }}
