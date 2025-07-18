@@ -151,6 +151,7 @@ export type TSettings = {
     enabledNavigationWidget?: boolean;
     isAutoScale?: boolean;
     isHighestLowestMarkerEnabled?: boolean;
+    isSmoothChartEnabled?: boolean;
     theme?: string;
     activeLanguages?: Array<string | TLanguage> | null;
     whitespace?: number;
@@ -386,6 +387,7 @@ export type TNewChartPayload = {
     msPerPx?: number;
     pipSize?: number;
     isMobile: boolean;
+    isSmoothChartEnabled?: boolean;
     yAxisMargin?: {
         top: number;
         bottom: number;
