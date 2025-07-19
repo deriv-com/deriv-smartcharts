@@ -6,7 +6,7 @@ name: Deploy Preview
 on:
   pull_request:
     branches:
-      - master
+      - "**"
     types: [opened, synchronize, reopened]
 
 # Cancel outdated deployments per PR
@@ -57,7 +57,7 @@ jobs:
         with:
           cloudflare_api_token: ${{ secrets.CLOUDFLARE_TEST_LINKS_API_TOKEN }}
           cloudflare_account_id: ${{ secrets.CLOUDFLARE_TEST_LINKS_ACCOUNT_ID }}
-          project_name: 'smartcharts-champion-gg'
+          project_name: 'smartcharts-champion'
           branch_name: ${{ steps.branch-slug.outputs.branch_slug }}
           node_version: ${{ env.NODE_VERSION }}
           flutter_version: ${{ env.FLUTTER_VERSION }}
