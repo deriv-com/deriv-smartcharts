@@ -34,7 +34,7 @@ jobs:
                   token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
             - name: Checkout repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
               with:
                   # Pin to specific commit for security
                   ref: ${{ github.event.pull_request.head.sha }}
