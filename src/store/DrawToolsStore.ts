@@ -127,9 +127,6 @@ export default class DrawToolsStore {
     get stateStore() {
         return this.mainStore.state;
     }
-    get crosshairStore() {
-        return this.mainStore.crosshair;
-    }
 
     getDrawToolsItems = () => {
         const drawTools = getDrawTools();
