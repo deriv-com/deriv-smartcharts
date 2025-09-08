@@ -248,7 +248,6 @@ export type TChartProps = {
     allTicks?: NonNullable<AuditDetailsForExpiredContract>['all_ticks'];
     contractInfo?: ProposalOpenContract;
     maxTick?: number | null;
-    crosshairTooltipLeftAllow?: number | null;
     zoom?: number;
     yAxisMargin?: { bottom: number; top: number };
     enableScroll?: boolean | null;
@@ -262,7 +261,6 @@ export type TChartProps = {
     margin?: number;
     isStaticChart?: ChartState['isStaticChart'];
     enabledNavigationWidget?: boolean;
-    onCrosshairChange?: (state?: number) => void;
     onGranularityChange?: (granularity?: TGranularity) => void;
     onChartTypeChange?: (chartType?: string) => void;
     crosshairState?: number | null;
@@ -472,14 +470,6 @@ export type JSInterop = {
     onMainSeriesPaint: (currentTickPercent: number) => void;
     onVisibleAreaChanged: (leftEpoch: number, rightEpoch: number) => void;
     onQuoteAreaChanged: (topQuote: number, bottomQuote: number) => void;
-    onCrosshairDisappeared: () => void;
-    onCrosshairHover: (
-        dx: number,
-        dy: number,
-        dxLocal: number,
-        dyLocal: number,
-        indicatorIndex: number | undefined
-    ) => void;
     loadHistory: (request: TLoadHistoryParams) => void;
     indicators: {
         onRemove: (index: number) => void;

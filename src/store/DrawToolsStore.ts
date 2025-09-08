@@ -142,7 +142,7 @@ export default class DrawToolsStore {
             .map(item => safeParse(item))
             .filter(item => item)
             .filter(item => {
-                return !(item.drawingData.isDrawingFinished == false);
+                return !(item.drawingData.isDrawingFinished === false);
             });
     };
 
@@ -204,7 +204,7 @@ export default class DrawToolsStore {
                     if (params.path) {
                         if (['lineStyle', 'fillStyle'].includes(params.path)) {
                             params.value = intToHexColor(item[params.path]?.color?.value ?? item[params.path]?.color);
-                        } else if (params.path == 'enableLabel') {
+                        } else if (params.path === 'enableLabel') {
                             params.value = item[params.path];
                         }
                     }
@@ -244,7 +244,7 @@ export default class DrawToolsStore {
     clearAll() {
         this.activeToolsGroup = [];
         window.flutterChart?.drawingTool.clearDrawingTool();
-        //this.mainStore.state.saveDrawings();
+        // this.mainStore.state.saveDrawings();
         logEvent(LogCategories.ChartControl, LogActions.DrawTools, 'Clear All');
     }
 
@@ -447,9 +447,9 @@ export default class DrawToolsStore {
             if (!item.path) {
                 return;
             }
-            if (item.type == 'colorpicker') {
+            if (item.type === 'colorpicker') {
                 selectedConfig[item.path].color = hexToInt(item.value as string);
-            } else if (item.type == 'switch') {
+            } else if (item.type === 'switch') {
                 selectedConfig[item.path] = item.value;
             }
         });
@@ -461,7 +461,6 @@ export default class DrawToolsStore {
         if (index !== undefined) {
             this.mainStore.chartAdapter.flutterChart?.drawingTool.removeDrawingTool(index);
             this.onUpdate();
-            this.mainStore.crosshair.removeDrawingToolToolTip();
             /// Log the event
             if (index) {
                 logEvent(LogCategories.ChartControl, LogActions.DrawTools, `Remove ${index}`);

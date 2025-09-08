@@ -75,7 +75,6 @@ class ChartState {
     prevChartType?: string;
     isChartScrollingToEpoch = false;
     crosshairState?: number = 1;
-    crosshairTooltipLeftAllow: number | null = null;
     maxTick?: number;
     enableScroll: boolean | null = true;
     enableZoom: boolean | null = true;
@@ -136,7 +135,6 @@ class ChartState {
             prevChartType: observable,
             isChartScrollingToEpoch: observable,
             crosshairState: observable,
-            crosshairTooltipLeftAllow: observable,
             maxTick: observable,
             enableScroll: observable,
             enableZoom: observable,
@@ -196,7 +194,6 @@ class ChartState {
         crosshairState,
         zoom,
         maxTick,
-        crosshairTooltipLeftAllow,
         yAxisMargin,
         enableScroll = null,
         enableZoom = null,
@@ -365,10 +362,6 @@ class ChartState {
         if (crosshairState !== undefined && crosshairState !== null && crosshairState !== this.crosshairState) {
             this.mainStore.crosshair.setCrosshairState(crosshairState);
             this.crosshairState = crosshairState;
-        }
-
-        if (crosshairTooltipLeftAllow !== undefined && this.crosshairTooltipLeftAllow !== crosshairTooltipLeftAllow) {
-            this.crosshairTooltipLeftAllow = crosshairTooltipLeftAllow;
         }
 
         if (zoom) {

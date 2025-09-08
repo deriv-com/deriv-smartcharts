@@ -204,9 +204,9 @@ export default class ViewStore {
 
         this.mainStore.studies.restoreStudies(layout.studyItems || []);
 
-        if (typeof layout.crosshair === 'number') {
-            this.mainStore.crosshair.setLayoutCrosshair(layout.crosshair);
-        }
+        // if (typeof layout.crosshair === 'number') {
+        //     this.mainStore.crosshair.setLayoutCrosshair(layout.crosshair);
+        // }
 
         finishImportLayout();
     }

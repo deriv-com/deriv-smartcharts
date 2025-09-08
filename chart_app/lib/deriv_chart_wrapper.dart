@@ -333,9 +333,12 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                       drawingTools: drawingToolModel.drawingTools,
                       indicatorsRepo: indicatorsModel.indicatorsRepo,
                       dataFitEnabled: configModel.startWithDataFitMode,
+                      useDrawingToolsV2: true,
                       showCrosshair: configModel.showCrosshair,
+                      crosshairVariant: configModel.isMobile
+                          ? CrosshairVariant.smallScreen
+                          : CrosshairVariant.largeScreen,
                       isLive: configModel.isLive,
-                      onCrosshairDisappeared: JsInterop.onCrosshairDisappeared,
                       onCrosshairHover: _onCrosshairHover,
                       chartAxisConfig: ChartAxisConfig(
                         maxCurrentTickOffset:
