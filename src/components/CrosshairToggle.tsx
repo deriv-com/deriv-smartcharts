@@ -1,38 +1,21 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
-import { CrosshairOffIcon, CrosshairOnIcon, CrosshairTooltipIcon } from './Icons';
+import { CrosshairOffIcon, CrosshairOnIcon } from './Icons';
 import { Toggle } from './Form';
 import Tooltip from './Tooltip';
 
-type TCrosshairToggleProps = {
-    isVisible?: boolean;
-};
-
-const CrosshairToggle = ({ isVisible = true }: TCrosshairToggleProps) => {
-    const { crosshair, chart } = useStores();
-    const { setCrosshairState } = crosshair;
+const CrosshairToggle = () => {
+    const { chart, crosshair } = useStores();
     const { isMobile } = chart;
 
-    const state = typeof crosshair.state !== 'number' ? 0 : crosshair.state;
+    const CrosshairIcon = [CrosshairOffIcon, CrosshairOnIcon][crosshair.isEnabled ? 1 : 0];
 
-    const CrosshairIcon = [CrosshairOffIcon, CrosshairOnIcon, CrosshairTooltipIcon][state];
-
-    const labels = [
-        t.translate("Don't show price info on chart"),
-        t.translate('Show price info on x & y axes'),
-        t.translate('Show price info on chart'),
-    ];
-
-    const onCrosshairToggle = () => {
-        setCrosshairState((state + 1) % 3);
-    };
-
-    if (!isVisible) return null;
+    const crosshairLabel = crosshair.isEnabled ? 'Hide Crosshair' : 'Show Crosshair';
 
     return (
-        <Tooltip content={labels[state]} enabled={!isMobile} position='right'>
-            <Toggle active={state !== 0} onChange={onCrosshairToggle}>
+        <Tooltip content={crosshairLabel} enabled={!isMobile} position='right'>
+            <Toggle active={crosshair.isEnabled} onChange={(value: boolean) => crosshair.updateEnabledState(value)}>
                 <CrosshairIcon />
             </Toggle>
         </Tooltip>

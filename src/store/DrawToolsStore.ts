@@ -235,9 +235,7 @@ export default class DrawToolsStore {
     }
 
     drawingFinished() {
-        if (this.stateStore) {
-            this.crosshairStore.setCrosshairState(this.stateStore.crosshairState);
-        }
+    // TODO: Remove this when handling drawing tools
     }
 
     // Callback to remove all drawings

@@ -29,10 +29,9 @@ const Chart = React.forwardRef<
     { hasPredictionIndicators(): boolean; triggerPopup(cancelCallback: () => void): void },
     TChartProps
 >((props, ref) => {
-    const { chart, drawTools, studies, chartSetting, chartType, state, loader, chartAdapter, crosshair, timeperiod } =
+    const { chart, drawTools, studies, chartSetting, chartType, state, loader, chartAdapter, timeperiod } =
         useStores();
     const { chartId, init, destroy, isChartAvailable, chartContainerHeight, containerWidth } = chart;
-    const { setCrosshairState } = crosshair;
     const { settingsDialog: studiesSettingsDialog, restoreStudies, activeItems } = studies;
     const { settingsDialog: drawToolsSettingsDialog } = drawTools;
     const { settingsDialog: chartTypeSettingsDialog, isCandle, isSpline } = chartType;
@@ -121,11 +120,6 @@ const Chart = React.forwardRef<
     React.useEffect(() => {
         chartAdapter.updateContracts(contracts_array);
     }, [contracts_array]);
-
-    // to always show price info on mobile screen
-    if (isMobile && crosshair.state !== 2) {
-        setCrosshairState(2);
-    }
 
     return (
         <div

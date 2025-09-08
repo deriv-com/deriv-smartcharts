@@ -360,7 +360,6 @@ class ChartState {
         }
 
         if (crosshairState !== undefined && crosshairState !== null && crosshairState !== this.crosshairState) {
-            this.mainStore.crosshair.setCrosshairState(crosshairState);
             this.crosshairState = crosshairState;
         }
 
@@ -551,9 +550,6 @@ class ChartState {
         if (!this.clearChart || !this.isChartReady) return;
 
         this.mainStore.studies.deleteAllStudies();
-
-        // TODO: use constant
-        this.mainStore.crosshair.onCrosshairChanged(2);
     }
 
     debouncedStateChange = debounce((state: string, option: TStateChangeOption) => {
