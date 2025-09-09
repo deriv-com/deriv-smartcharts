@@ -9,7 +9,7 @@ const CrosshairToggle = () => {
     const { chart, crosshair } = useStores();
     const { isMobile } = chart;
 
-    const CrosshairIcon = [CrosshairOffIcon, CrosshairOnIcon][crosshair.isEnabled ? 1 : 0];
+    const CrosshairIcon = crosshair.isEnabled ? CrosshairOnIcon : CrosshairOffIcon;
 
     const crosshairLabel = crosshair.isEnabled ? 'Hide Crosshair' : 'Show Crosshair';
 
