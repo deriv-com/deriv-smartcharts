@@ -263,7 +263,6 @@ export type TChartProps = {
     enabledNavigationWidget?: boolean;
     onGranularityChange?: (granularity?: TGranularity) => void;
     onChartTypeChange?: (chartType?: string) => void;
-    crosshairState?: number | null;
     children?: React.ReactNode;
     historical?: boolean;
     contracts_array?: any[];
@@ -457,12 +456,6 @@ export type TFlutterChart = {
         clearDrawingToolSelect: () => void;
         editDrawing: (config: string, index: number) => void;
     };
-    crosshair: {
-        getXFromEpoch: (epoch: number) => number;
-        getYFromQuote: (quote: number) => number;
-        getEpochFromX: (x: number) => number;
-        getQuoteFromY: (y: number) => number;
-    };
 };
 
 export type JSInterop = {
@@ -501,7 +494,6 @@ export type TLayout = {
     timeUnit?: string | number;
     granularity?: TGranularity;
     studyItems?: TActiveItem[];
-    crosshair?: number;
     drawTools?: TActiveDrawingToolItem[];
     msPerPx?: number;
 };

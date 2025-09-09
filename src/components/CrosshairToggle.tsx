@@ -11,7 +11,7 @@ const CrosshairToggle = () => {
 
     const CrosshairIcon = crosshair.isEnabled ? CrosshairOnIcon : CrosshairOffIcon;
 
-    const crosshairLabel = crosshair.isEnabled ? 'Hide Crosshair' : 'Show Crosshair';
+    const crosshairLabel = crosshair.isEnabled ? t.translate('Disable Crosshair') : t.translate('Enable Crosshair');
 
     return (
         <Tooltip content={crosshairLabel} enabled={!isMobile} position='right'>
