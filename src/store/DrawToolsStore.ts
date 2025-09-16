@@ -121,10 +121,8 @@ export default class DrawToolsStore {
             hideDrawingConfirmation: action.bound,
             hideDeletionSnackbar: action.bound,
             showDeletionSnackbarWithToolId: action.bound,
-            // [AI]
             findToolIdByIndex: action.bound,
             showDeletionSnackbarForIndex: action.bound,
-            // [/AI]
             cancelDrawingTool: action.bound,
             updateAddingState: action.bound,
             resetAddingState: action.bound,
@@ -159,9 +157,6 @@ export default class DrawToolsStore {
 
     get stateStore() {
         return this.mainStore.state;
-    }
-    get crosshairStore() {
-        return this.mainStore.crosshair;
     }
 
     getDrawToolsItems = () => {
@@ -264,9 +259,6 @@ export default class DrawToolsStore {
     }
 
     drawingFinished() {
-        if (this.stateStore) {
-            this.crosshairStore.setCrosshairState(this.stateStore.crosshairState);
-        }
         // Hide confirmation toast when drawing is finished
         // This will also clear the selected tool
         this.hideDrawingConfirmation();
@@ -468,7 +460,6 @@ export default class DrawToolsStore {
         this.showDeletionSnackbar = true;
     };
 
-    // [AI]
     findToolIdByIndex = (index: number): string => {
         for (const group of this.activeToolsGroup) {
             const foundItem = group.items.find(item => item.index === index);
@@ -485,7 +476,6 @@ export default class DrawToolsStore {
             this.showDeletionSnackbarWithToolId(deletedToolId);
         }
     };
-    // [/AI]
 
     cancelDrawingTool = () => {
         // Cancel current drawing operation
