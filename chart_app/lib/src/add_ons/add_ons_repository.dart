@@ -41,6 +41,8 @@ class AddOnsRepository<T extends AddOnConfig> extends ChangeNotifier
     this.getKey,
   }) : _addOns = <T>[];
 
+  final List<bool> _hiddenStatus = <bool>[];
+
   final List<T> _addOns;
 
   /// List of indicators or drawing tools.
@@ -134,8 +136,6 @@ class AddOnsRepository<T extends AddOnConfig> extends ChangeNotifier
   @override
   void removeAt(int index) {
     _removeAtIndex(index);
-    _writeToPrefs();
-    onRemoveCallback?.call(index);
   }
 
   /// Removes indicator/drawing tool at [index] from repository.
@@ -145,13 +145,17 @@ class AddOnsRepository<T extends AddOnConfig> extends ChangeNotifier
     }
     _addOns.removeAt(index);
 
+    _writeToPrefs();
+    onRemoveCallback?.call(index);
+
     notifyListeners();
   }
 
   /// Removes a specific indicator or drawing tool from the repository.
   @override
   void remove(T config) {
-    final int index = _addOns.indexOf(config);
+    final int index =
+        _addOns.indexWhere((item) => item.configId == config.configId);
     if (index != -1) {
       _removeAtIndex(index);
     }
@@ -184,18 +188,16 @@ class AddOnsRepository<T extends AddOnConfig> extends ChangeNotifier
   }
 
   @override
-  bool getHiddenStatus(int index) {
-    // TODO(Jim): implement getHiddenStatus
-    throw UnimplementedError();
-  }
+  bool getHiddenStatus(int index) => _hiddenStatus[index];
 
   @override
   void update() {
-    // TODO(Jim): implement update
+    notifyListeners();
   }
 
   @override
   void updateHiddenStatus({required int index, required bool hidden}) {
-    // TODO(Jim): implement updateHiddenStatus
+    _hiddenStatus[index] = hidden;
+    notifyListeners();
   }
 }

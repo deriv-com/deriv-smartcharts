@@ -333,6 +333,8 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                       drawingTools: drawingToolModel.drawingTools,
                       indicatorsRepo: indicatorsModel.indicatorsRepo,
                       dataFitEnabled: configModel.startWithDataFitMode,
+                      useDrawingToolsV2: true,
+                      interactiveLayerBehaviour: app.interactiveLayerBehaviour,
                       showCrosshair: configModel.showCrosshair,
                       isLive: configModel.isLive,
                       onCrosshairDisappeared: JsInterop.onCrosshairDisappeared,

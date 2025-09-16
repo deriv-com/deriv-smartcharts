@@ -182,21 +182,27 @@ export default class ChartAdapterStore {
                 },
             },
             drawingTool: {
-                onAdd: () => {
-                    this.mainStore.drawTools.onCreation();
-                },
                 onUpdate: () => {
                     this.mainStore.drawTools.onUpdate();
                 },
                 onLoad: (items: []) => {
                     this.mainStore.drawTools.onLoad(items);
                 },
+                onRemove: (index: number) => {
+                    // [AI]
+                    // Show deletion snackbar using abstracted method
+                    this.mainStore.drawTools.showDeletionSnackbarForIndex(index);
+                },
+                // [/AI]
                 onMouseEnter: (index: number) => {
                     this.drawingHoverIndex = index;
                 },
                 onMouseExit: () => {
                     this.drawingHoverIndex = null;
                     this.mainStore.crosshair.removeDrawingToolToolTip();
+                },
+                onStateChanged: (currentStep: number, totalSteps: number) => {
+                    this.mainStore.drawTools.updateAddingState(currentStep, totalSteps);
                 },
             },
         };

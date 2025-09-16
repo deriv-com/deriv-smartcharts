@@ -171,6 +171,9 @@ class JsIndicators {
 /// Called when an addOn is created
 typedef OnAddDrawingCallback = void Function();
 
+/// Called when drawing tool state changes
+typedef OnStateChangedCallback = void Function(int currentStep, int totalSteps);
+
 @JS()
 @anonymous
 
@@ -199,6 +202,9 @@ class JsDrawings {
 
   /// Callback to notify mouse exit over the addon.
   external OnMouseExitCallback? onMouseExit;
+
+  /// Called when drawing tool state changes
+  external OnStateChangedCallback? onStateChanged;
 }
 
 @JS()

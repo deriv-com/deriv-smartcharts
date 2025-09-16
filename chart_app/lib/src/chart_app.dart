@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 class ChartApp {
   /// Constructor
   ChartApp(this.configModel, this.feedModel, this.indicatorsModel,
-      this.drawingToolModel);
+      this.drawingToolModel, this.interactiveLayerBehaviour);
 
   /// ChartConfigModel
   ChartConfigModel configModel;
@@ -30,6 +30,9 @@ class ChartApp {
 
   /// WrappedController
   WrappedController wrappedController = WrappedController();
+
+  /// InteractiveLayerBehaviour
+  final InteractiveLayerBehaviour interactiveLayerBehaviour;
 
   bool _prevShowChart = false;
 

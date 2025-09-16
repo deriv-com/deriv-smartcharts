@@ -205,6 +205,7 @@ class ChartState {
         isLive,
         startWithDataFitMode,
         leftMargin,
+        drawingToolFloatingMenuPosition,
     }: TChartProps) {
         let isSymbolChanged = false;
         let isGranularityChanged = false;
@@ -226,8 +227,10 @@ class ChartState {
             // Process active symbols directly
             if (this.mainStore.chart.processedSymbols && chartData?.activeSymbols) {
                 this.mainStore.chart.processedSymbols = processSymbols(chartData.activeSymbols);
-                this.mainStore.chart.categorizedSymbols = categorizeActiveSymbols(this.mainStore.chart.processedSymbols);
-                
+                this.mainStore.chart.categorizedSymbols = categorizeActiveSymbols(
+                    this.mainStore.chart.processedSymbols
+                );
+
                 // Create symbol map for quick lookup
                 this.mainStore.chart.symbolMap = {};
                 for (const symbolObj of this.mainStore.chart.processedSymbols) {
@@ -318,7 +321,7 @@ class ChartState {
                 const processedSymbols = processSymbols(chartData.activeSymbols);
                 this.mainStore.chart.processedSymbols = processedSymbols;
                 this.mainStore.chart.categorizedSymbols = categorizeActiveSymbols(processedSymbols);
-                
+
                 // Create symbol map for quick lookup
                 this.mainStore.chart.symbolMap = {};
                 for (const symbolObj of processedSymbols) {
@@ -431,6 +434,11 @@ class ChartState {
             this.mainStore.chart.leftMargin = leftMargin;
             this.mainStore.chartAdapter.updateLeftMargin(leftMargin);
         }
+
+        // Update DrawToolsStore with drawing tool specific props
+        this.mainStore.drawTools.updateProps({
+            drawingToolFloatingMenuPosition,
+        });
     }
 
     setIsChartScrollingToEpoch(isScrollingToEpoch: boolean) {

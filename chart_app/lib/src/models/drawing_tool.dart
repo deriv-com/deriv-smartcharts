@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:js/js.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
 import 'package:deriv_chart/deriv_chart.dart' hide AddOnsRepository;
@@ -6,23 +8,28 @@ import 'package:chart_app/src/add_ons/add_ons_repository.dart';
 
 /// State and methods of chart web adapter config.
 class DrawingToolModel {
+  late final InteractiveLayerBehaviour interactiveLayerBehaviour;
+
   /// Initialize
-  DrawingToolModel() {
+  DrawingToolModel({required this.interactiveLayerBehaviour}) {
+    // Initialize drawing tools and repository
     drawingToolsRepo = AddOnsRepository<DrawingToolConfig>(
       createAddOn: (Map<String, dynamic> map) =>
           DrawingToolConfig.fromJson(map),
       onAddCallback: (AddOnConfig config) {
-        final DrawingToolConfig drawingToolConfig = config as DrawingToolConfig;
-        if (drawingToolConfig.drawingData != null &&
-            drawingToolConfig.drawingData!.isDrawingFinished) {
-          JsInterop.drawingTool?.onAdd?.call();
-        }
+        // Sync with external preferences after adding a tool
+        _loadSavedDrawingTools();
       },
       onLoadCallback: (List<dynamic> items) {
         JsInterop.drawingTool?.onLoad?.call(items);
       },
       onUpdateCallback: (int index, AddOnConfig config) {
         JsInterop.drawingTool?.onUpdate?.call(index, config);
+      },
+      onRemoveCallback: (int index) {
+        // Call the JavaScript onRemove callback to trigger the snackbar
+        JsInterop.drawingTool?.onRemove?.call(index);
+        _loadSavedDrawingTools();
       },
       getKey: () => 'drawings_$symbol',
     );
@@ -33,6 +40,7 @@ class DrawingToolModel {
       onMouseExitCallback: (int index) =>
           JsInterop.drawingTool?.onMouseExit?.call(index),
     )..drawingToolsRepo = drawingToolsRepo;
+    interactiveLayerBehaviour.controller.addListener(_onControllerStateChanged);
   }
 
   /// Symbol of the chart
@@ -43,6 +51,9 @@ class DrawingToolModel {
 
   /// DrawingTools
   late DrawingTools drawingTools;
+
+  InteractiveLayerController get interactiveLayerController =>
+      interactiveLayerBehaviour.controller;
 
   /// Initialize new chart
   void newChart(JSNewChart payload) {
@@ -67,12 +78,34 @@ class DrawingToolModel {
   List<String> getDrawingToolsRepoItems() =>
       drawingToolsRepo.items.map((e) => jsonEncode(e)).toList();
 
-  /// To add a drawing
-  void addOrUpdateDrawing(String dataString) {
-    final Map<String, dynamic> config = json.decode(dataString)..remove('id');
-    final DrawingToolConfig drawingToolConfig =
-        DrawingToolConfig.fromJson(config);
-    drawingTools.onDrawingToolSelection(drawingToolConfig);
+  updateFloatingMenuPosition(double x, double y) {
+    interactiveLayerController.floatingMenuPosition = Offset(x, y);
+  }
+
+  void startAddingNewTool(String type) {
+    final DrawingToolConfig config = getConfigFromType(type);
+    interactiveLayerController.startAddingNewTool(config);
+  }
+
+  void cancelAddingNewTool() {
+    interactiveLayerController.cancelAdding();
+  }
+
+  void _onControllerStateChanged() {
+    if (interactiveLayerController.currentState is InteractiveAddingToolState) {
+      final addingState =
+          interactiveLayerController.currentState as InteractiveAddingToolState;
+      final stepInfo = addingState.addingStateInfo;
+
+      // Notify TypeScript about state change
+      if (stepInfo != null) {
+        JsInterop.drawingTool?.onStateChanged?.call(
+          stepInfo.currentStep,
+          stepInfo.totalSteps,
+        );
+      }
+    }
+
   }
 
   /// To remove an existing drawing tool
@@ -80,48 +113,30 @@ class DrawingToolModel {
     drawingToolsRepo.removeAt(index);
   }
 
-  /// To get the tool name from config
-  String getTypeOfSelectedDrawingTool(DrawingToolConfig config) {
-    if (config is VerticalDrawingToolConfig) {
-      return 'vertical';
-    } else if (config is LineDrawingToolConfig) {
-      return 'line';
-    } else if (config is RayDrawingToolConfig) {
-      return 'ray';
-    } else if (config is ContinuousDrawingToolConfig) {
-      return 'continuous';
-    } else if (config is TrendDrawingToolConfig) {
-      return 'trend';
-    } else if (config is HorizontalDrawingToolConfig) {
-      return 'Horizontal';
-    } else if (config is ChannelDrawingToolConfig) {
-      return 'channel';
-    } else if (config is FibfanDrawingToolConfig) {
-      return 'fibfan';
-    } else if (config is RectangleDrawingToolConfig) {
-      return 'rectangle';
-    } else {
-      return '';
+  DrawingToolConfig getConfigFromType(String type) {
+    // TODO(Anyone): Uncomment the below cases when their implementations are done.
+    switch (type) {
+      // case 'vertical':
+      //   return const VerticalDrawingToolConfig();
+      case 'line':
+        return const LineDrawingToolConfig();
+      // case 'ray':
+      //   return const RayDrawingToolConfig();
+      // case 'continuous':
+      //   return const ContinuousDrawingToolConfig();
+      // case 'trend':
+      //   return const TrendDrawingToolConfig();
+      case 'horizontal':
+        return const HorizontalDrawingToolConfig();
+      // case 'channel':
+      //   return const ChannelDrawingToolConfig();
+      // case 'fibfan':
+      //   return const FibfanDrawingToolConfig();
+      // case 'rectangle':
+      //   return const RectangleDrawingToolConfig();
+      default:
+        throw Exception('Unknown drawing tool type: $type');
     }
-  }
-
-  /// To edit a drawing
-  void editDrawing(String dataString, int index) {
-    final Map<String, dynamic> config = json.decode(dataString)..remove('id');
-
-    DrawingToolConfig? drawingToolConfig = DrawingToolConfig.fromJson(config);
-
-    drawingToolConfig = drawingToolConfig.copyWith(
-      configId: drawingToolConfig.configId,
-      edgePoints: drawingToolConfig.edgePoints,
-      drawingData: DrawingData(
-        id: drawingToolConfig.configId!,
-        drawingParts: drawingToolConfig.drawingData!.drawingParts,
-        isDrawingFinished: true,
-      ),
-    );
-
-    drawingToolsRepo.updateAt(index, drawingToolConfig);
   }
 
   /// To clear the selection of drawing tool
