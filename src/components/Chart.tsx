@@ -218,9 +218,9 @@ const Chart = React.forwardRef<
                 <SettingsDialog store={studiesSettingsDialog} />
                 <IndicatorPredictionDialog />
                 <DrawingConfirmationToast />
-                {/* // [AI] */}
+                {/* // [AI]  */}
                 <DeletionSnackbar />
-                {/* // [/AI] */}
+                {/* // [/AI]  */}
                 <div id='smartcharts_modal' className='ciq-modal' />
             </div>
         </div>
