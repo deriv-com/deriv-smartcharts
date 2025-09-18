@@ -76,6 +76,13 @@
                 outline-color: themed('DeletionSnackbarFocusOutline');
             }
         }
+
+        // Ensure SVG icons inherit the color
+        .ic-icon > svg {
+            @include themify($themes) {
+                fill: themed('DeletionSnackbarCloseText');
+            }
+        }
     }
 
     // Mobile responsive

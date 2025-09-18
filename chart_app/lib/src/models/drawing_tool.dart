@@ -1,37 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:js/js.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
-import 'package:deriv_chart/deriv_chart.dart' hide AddOnsRepository;
-import 'package:chart_app/src/add_ons/add_ons_repository.dart';
+import 'package:deriv_chart/deriv_chart.dart';
 
 /// State and methods of chart web adapter config.
 class DrawingToolModel {
-  late final InteractiveLayerBehaviour interactiveLayerBehaviour;
-
   /// Initialize
-  DrawingToolModel({required this.interactiveLayerBehaviour}) {
+  DrawingToolModel() {
     // Initialize drawing tools and repository
     drawingToolsRepo = AddOnsRepository<DrawingToolConfig>(
       createAddOn: (Map<String, dynamic> map) =>
           DrawingToolConfig.fromJson(map),
-      onAddCallback: (AddOnConfig config) {
-        // Sync with external preferences after adding a tool
-        _loadSavedDrawingTools();
+      onDeleteCallback: (AddOnConfig item) {
+        JsInterop.drawingTool?.onRemove?.call(item.runtimeType.toString());
       },
-      onLoadCallback: (List<dynamic> items) {
-        JsInterop.drawingTool?.onLoad?.call(items);
-      },
-      onUpdateCallback: (int index, AddOnConfig config) {
-        JsInterop.drawingTool?.onUpdate?.call(index, config);
-      },
-      onRemoveCallback: (int index) {
-        // Call the JavaScript onRemove callback to trigger the snackbar
-        JsInterop.drawingTool?.onRemove?.call(index);
-        _loadSavedDrawingTools();
-      },
-      getKey: () => 'drawings_$symbol',
+      sharedPrefKey: 'drawing_tools',
     );
 
     drawingTools = DrawingTools(
@@ -40,8 +24,15 @@ class DrawingToolModel {
       onMouseExitCallback: (int index) =>
           JsInterop.drawingTool?.onMouseExit?.call(index),
     )..drawingToolsRepo = drawingToolsRepo;
+
     interactiveLayerBehaviour.controller.addListener(_onControllerStateChanged);
+
+    // Add listener to the repository to detect when drawing tools are added/removed
+    drawingToolsRepo.addListener(_onDrawingToolsRepoChanged);
   }
+
+  InteractiveLayerBehaviour interactiveLayerBehaviour =
+      InteractiveLayerDesktopBehaviour();
 
   /// Symbol of the chart
   String symbol = '';
@@ -58,12 +49,30 @@ class DrawingToolModel {
   /// Initialize new chart
   void newChart(JSNewChart payload) {
     symbol = payload.symbol ?? '';
-    _loadSavedDrawingTools();
+
+    // Wait for the chart to be fully initialized before loading drawing tools
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Wait for chart initialization to complete
+      await Future.delayed(const Duration(milliseconds: 500));
+      await _loadSavedDrawingTools();
+    });
   }
 
   Future<void> _loadSavedDrawingTools() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    drawingToolsRepo.loadFromPrefs(prefs);
+    drawingToolsRepo.loadFromPrefs(prefs, symbol);
+
+    // Use WidgetsBinding to ensure the UI is ready and then notify JavaScript
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Add a delay to ensure the chart is fully initialized and ready to render
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      final List<String> drawingToolsJson = getDrawingToolsRepoItems();
+      if (drawingToolsJson.isNotEmpty) {
+        // Notify JavaScript side that drawing tools have been loaded
+        JsInterop.drawingTool?.onLoad?.call(drawingToolsJson);
+      }
+    });
   }
 
   /// To select a drawing
@@ -103,18 +112,48 @@ class DrawingToolModel {
           stepInfo.currentStep,
           stepInfo.totalSteps,
         );
+
+        // If we've completed all steps, sync the drawing tools with JavaScript
+        if (stepInfo.currentStep == stepInfo.totalSteps) {
+          // Use WidgetsBinding to ensure proper timing
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            // Ensure the drawing tool is properly saved before notifying
+            await Future.delayed(const Duration(milliseconds: 150));
+
+            // The native repository should automatically save to SharedPreferences
+            // Just sync with JavaScript side by calling onLoad with current items
+            final List<String> drawingToolsJson = getDrawingToolsRepoItems();
+            JsInterop.drawingTool?.onLoad?.call(drawingToolsJson);
+
+            // Trigger update to refresh the UI count and display
+            JsInterop.drawingTool?.onUpdate?.call();
+          });
+        }
       }
     }
+  }
 
+  void _onDrawingToolsRepoChanged() {
+    // Notify JavaScript side when drawing tools repository changes
+    // This triggers a refresh of the UI to show the updated drawing tools count
+    JsInterop.drawingTool?.onUpdate?.call();
   }
 
   /// To remove an existing drawing tool
-  void removeDrawingTool(int index) {
-    drawingToolsRepo.removeAt(index);
+  void removeDrawingTool(DrawingToolConfig config) {
+    drawingToolsRepo.remove(config);
+  }
+
+    updateInteractiveLayerBehaviour(InteractiveLayerBehaviour newBehaviour) {
+    if (interactiveLayerBehaviour.runtimeType != newBehaviour.runtimeType) {
+      interactiveLayerBehaviour = newBehaviour;
+      interactiveLayerBehaviour.controller.addListener(_onControllerStateChanged);
+    }
   }
 
   DrawingToolConfig getConfigFromType(String type) {
-    // TODO(Anyone): Uncomment the below cases when their implementations are done.
+    // TODO(Anyone): Uncomment the below cases when their implementations
+    // are done.
     switch (type) {
       // case 'vertical':
       //   return const VerticalDrawingToolConfig();

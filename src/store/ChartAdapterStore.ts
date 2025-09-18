@@ -20,7 +20,6 @@ export default class ChartAdapterStore {
     };
     isFeedLoaded = false;
     msPerPx?: number;
-    drawingHoverIndex: number | undefined | null = null;
     isDataFitModeEnabled = false;
     isXScrollBlocked = false;
     painter = new Painter();
@@ -128,15 +127,8 @@ export default class ChartAdapterStore {
                 onLoad: (items: []) => {
                     this.mainStore.drawTools.onLoad(items);
                 },
-                onRemove: (index: number) => {
-                    // Show deletion snackbar using abstracted method
-                    this.mainStore.drawTools.showDeletionSnackbarForIndex(index);
-                },
-                onMouseEnter: (index: number) => {
-                    this.drawingHoverIndex = index;
-                },
-                onMouseExit: () => {
-                    this.drawingHoverIndex = null;
+                onRemove: (configType: string) => {
+                    this.mainStore.drawTools.showDeletionSnackbarForConfigType(configType);
                 },
                 onStateChanged: (currentStep: number, totalSteps: number) => {
                     this.mainStore.drawTools.updateAddingState(currentStep, totalSteps);
@@ -296,9 +288,7 @@ export default class ChartAdapterStore {
     };
 
     onDoubleClick = () => {
-        if (this.drawingHoverIndex != null) {
-            this.mainStore.drawTools.onSetting(this.drawingHoverIndex);
-        } else if (this.mainStore.studies.currentHoverIndex != null) {
+        if (this.mainStore.studies.currentHoverIndex != null) {
             this.mainStore.studies.editStudyByIndex(this.mainStore.studies.currentHoverIndex);
             this.mainStore.studies.clearHoverItem(this.mainStore.studies.currentHoverIndex);
         }

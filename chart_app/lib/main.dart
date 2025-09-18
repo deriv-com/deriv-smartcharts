@@ -44,30 +44,23 @@ class _DerivChartWebAdapter extends StatefulWidget {
 }
 
 class _DerivChartWebAdapterState extends State<_DerivChartWebAdapter> {
-  final ChartFeedModel feedModel = ChartFeedModel();
-  final ChartConfigModel configModel = ChartConfigModel();
-  final IndicatorsModel indicatorsModel = IndicatorsModel();
-  late final DrawingToolModel drawingToolModel;
-
-  late ChartApp app;
-
   _DerivChartWebAdapterState() {
-    final InteractiveLayerBehaviour interactiveLayerBehaviour =
-        configModel.isMobile
-            ? InteractiveLayerMobileBehaviour()
-            : InteractiveLayerDesktopBehaviour();
-    drawingToolModel =
-        DrawingToolModel(interactiveLayerBehaviour: interactiveLayerBehaviour);
     app = ChartApp(
       configModel,
       feedModel,
       indicatorsModel,
       drawingToolModel,
-      interactiveLayerBehaviour,
     );
     initDartInterop(app);
     JsInterop.onChartLoad();
   }
+
+  final ChartFeedModel feedModel = ChartFeedModel();
+  final ChartConfigModel configModel = ChartConfigModel();
+  final IndicatorsModel indicatorsModel = IndicatorsModel();
+  final DrawingToolModel drawingToolModel = DrawingToolModel();
+
+  late ChartApp app;
   int? leftBoundEpoch, rightBoundEpoch;
   bool isFollowMode = false;
 

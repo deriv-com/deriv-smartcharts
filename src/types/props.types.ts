@@ -451,7 +451,7 @@ export type TFlutterChart = {
         updateFloatingMenuPosition: (x: number, y: number) => void;
         startAddingNewTool: (config: string, index?: number) => void;
         cancelAddingNewTool: () => void;
-        removeDrawingTool: (index: number) => void;
+        removeDrawingTool: (config: Record<string, unknown>) => void;
         clearDrawingTool: () => void;
         // eslint-disable-next-line @typescript-eslint/ban-types
         getDrawingToolsRepoItems: () => string[];
@@ -473,9 +473,7 @@ export type JSInterop = {
     drawingTool: {
         onUpdate: (index: number, config: TDrawingToolConfig) => void;
         onLoad: (drawings: []) => void;
-        onRemove: (index: number) => void;
-        onMouseEnter: (index: number) => void;
-        onMouseExit: (index: number) => void;
+        onRemove: (configType: string) => void;
         onStateChanged: (currentStep: number, totalSteps: number) => void;
     };
 };

@@ -249,12 +249,14 @@ JsObject _exposeIndicatorsModel(IndicatorsModel model) {
 JsObject _exposeDrawingToolModel(DrawingToolModel model) {
   final JsObject chartConfig = JsObject(context['Object']);
 
-  setProperty(chartConfig, 'updateFloatingMenuPosition', allowInterop(model.updateFloatingMenuPosition));
+  setProperty(chartConfig, 'updateFloatingMenuPosition',
+      allowInterop(model.updateFloatingMenuPosition));
 
-  setProperty(chartConfig, 'startAddingNewTool', allowInterop(model.startAddingNewTool));
+  setProperty(chartConfig, 'startAddingNewTool',
+      allowInterop(model.startAddingNewTool));
 
-  setProperty(chartConfig, 'cancelAddingNewTool', allowInterop(model.cancelAddingNewTool));
-
+  setProperty(chartConfig, 'cancelAddingNewTool',
+      allowInterop(model.cancelAddingNewTool));
 
   setProperty(
     chartConfig,

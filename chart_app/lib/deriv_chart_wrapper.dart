@@ -233,6 +233,11 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                     final int? rightPadding = _getRightPadding(
                         isTickGranularity, granularity, constraints.maxWidth);
 
+                    drawingToolModel.updateInteractiveLayerBehaviour(
+                        configModel.isMobile
+                            ? InteractiveLayerMobileBehaviour()
+                            : InteractiveLayerDesktopBehaviour());
+
                     return DerivChart(
                       activeSymbol: configModel.symbol,
                       mainSeries: mainSeries,
@@ -298,7 +303,7 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                       indicatorsRepo: indicatorsModel.indicatorsRepo,
                       dataFitEnabled: configModel.startWithDataFitMode,
                       useDrawingToolsV2: true,
-                      interactiveLayerBehaviour: app.interactiveLayerBehaviour,
+                      interactiveLayerBehaviour: drawingToolModel.interactiveLayerBehaviour,
                       showCrosshair: configModel.showCrosshair,
                       crosshairVariant: configModel.isMobile
                           ? CrosshairVariant.smallScreen

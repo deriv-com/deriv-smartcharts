@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStores } from '../store';
 import { getDrawTools } from '../Constant';
+import { CloseIcon } from './Icons';
 
 type TDeletionSnackbarProps = {
     className?: string;
@@ -14,23 +15,24 @@ const DeletionSnackbar = observer(({ className }: TDeletionSnackbarProps) => {
     const snackbarRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const { showDeletionSnackbar: isVisible, deletedToolId, hideDeletionSnackbar: onDismiss } = drawTools;
+    const { showDeletionSnackbar: isVisible, deletedConfigType, hideDeletionSnackbar: onDismiss } = drawTools;
 
     // Generate dynamic message based on deleted tool type
     const getDeletionMessage = useCallback(() => {
-        if (!deletedToolId) {
+        if (!deletedConfigType) {
             return;
         }
 
         const drawToolsConfig = getDrawTools();
-        const tool = drawToolsConfig[deletedToolId];
+        // Find tool by configType
+        const tool = Object.values(drawToolsConfig).find(t => t.configType === deletedConfigType);
 
         if (tool) {
             // Extract the tool name from the text, removing [num] placeholder
             const toolName = tool.text.replace(' [num]', '');
             return `${toolName} ${t.translate('removed')}`;
         }
-    }, [deletedToolId]);
+    }, [deletedConfigType]);
 
     // Auto-dismiss after 4 seconds
     useEffect(() => {
@@ -93,7 +95,7 @@ const DeletionSnackbar = observer(({ className }: TDeletionSnackbarProps) => {
                     aria-label={t.translate('Close')}
                     type='button'
                 >
-                    ×
+                    <CloseIcon />
                 </button>
             </div>
         </div>

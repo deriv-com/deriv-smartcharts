@@ -10,8 +10,8 @@ import {
 import set from 'lodash-es/set';
 import { capitalize, hexToInt, intToHexColor } from 'src/components/ui/utils';
 import MainStore from '.';
-import { defaultdrawToolsConfigs, getDefaultDrawingConfig, getDrawTools } from '../Constant';
-import { clone, formatCamelCase, isLiteralObject, safeParse, transformStudiesforTheme } from '../utils';
+import { getDefaultDrawingConfig, getDrawTools } from '../Constant';
+import { clone, isLiteralObject, safeParse, transformStudiesforTheme } from '../utils';
 import { LogActions, LogCategories, logEvent } from '../utils/ga';
 import MenuStore from './MenuStore';
 import SettingsDialogStore from './SettingsDialogStore';
@@ -93,7 +93,7 @@ export default class DrawToolsStore {
     showConfirmationToast = false;
     confirmationMessage = '';
     showDeletionSnackbar = false;
-    deletedToolId = '';
+    deletedConfigType = '';
     addingStateInfo: TAddingStateInfo = { currentStep: 0, totalSteps: 0, isFinished: true };
     floatingMenuPosition?: TFloatingMenuPositionOffset;
 
@@ -105,7 +105,7 @@ export default class DrawToolsStore {
             showConfirmationToast: observable,
             confirmationMessage: observable,
             showDeletionSnackbar: observable,
-            deletedToolId: observable,
+            deletedConfigType: observable,
             addingStateInfo: observable,
             floatingMenuPosition: observable,
             activeToolsNo: computed,
@@ -113,16 +113,12 @@ export default class DrawToolsStore {
             drawingFinished: action.bound,
             clearAll: action.bound,
             updateActiveToolsGroup: action.bound,
-            showDrawToolDialog: action.bound,
             onDeleted: action.bound,
-            onSetting: action.bound,
             updatePortalNode: action.bound,
             onLoad: action.bound,
             hideDrawingConfirmation: action.bound,
             hideDeletionSnackbar: action.bound,
-            showDeletionSnackbarWithToolId: action.bound,
-            findToolIdByIndex: action.bound,
-            showDeletionSnackbarForIndex: action.bound,
+            showDeletionSnackbarForConfigType: action.bound,
             cancelDrawingTool: action.bound,
             updateAddingState: action.bound,
             resetAddingState: action.bound,
@@ -236,26 +232,6 @@ export default class DrawToolsStore {
                 this.updateActiveToolsGroup(finalItem);
             }
         });
-    }
-
-    // Function that show the setting dialog for drawing tool
-    showDrawToolDialog(drawing: TActiveDrawingItem) {
-        logEvent(LogCategories.ChartControl, LogActions.DrawTools, `Edit ${drawing.name}`);
-        if (drawing) {
-            let title = formatCamelCase(drawing.name || '');
-
-            const parameters = defaultdrawToolsConfigs[drawing.id]().parameters;
-            parameters.map(p => (p.value = clone(p.defaultValue)));
-
-            title = `${drawing.title} ${drawing.num || ''}`;
-            this.settingsDialog.title = title;
-            this.settingsDialog.dialogPortalNodeId = this.portalNodeIdChanged;
-            this.settingsDialog.items = drawing.parameters;
-            this.settingsDialog.formTitle = t.translate('Result');
-            this.settingsDialog.id = drawing.config.configId;
-            this.settingsDialog.formClassname = 'form--drawing-tool';
-            this.settingsDialog.setOpen(true);
-        }
     }
 
     drawingFinished() {
@@ -408,31 +384,14 @@ export default class DrawToolsStore {
     /// Callback that runs when drawingTool is Deleted
     onDeleted(index?: number) {
         if (index !== undefined) {
-            this.mainStore.chartAdapter.flutterChart?.drawingTool.removeDrawingTool(index);
-            this.onUpdate();
-
-            // Show deletion snackbar using abstracted method
-            this.showDeletionSnackbarForIndex(index);
-
+            const drawToolsItem = this.drawingToolsRepoArray();
+            const config = drawToolsItem ? drawToolsItem[index] : null;
+            if (config) {
+                this.mainStore.chartAdapter.flutterChart?.drawingTool.removeDrawingTool(config);
+            }
             /// Log the event
-            if (index) {
+            if (index && config) {
                 logEvent(LogCategories.ChartControl, LogActions.DrawTools, `Remove ${index}`);
-            }
-        }
-    }
-
-    /// When the settings are opened for a drawing tools
-    onSetting(index?: number) {
-        if (index !== undefined) {
-            let targetItem;
-            for (const group of this.activeToolsGroup) {
-                const foundItem = group.items.find(item => item.index === index);
-                if (foundItem) {
-                    targetItem = foundItem;
-                }
-            }
-            if (targetItem) {
-                this.showDrawToolDialog(targetItem);
             }
         }
     }
@@ -452,29 +411,12 @@ export default class DrawToolsStore {
 
     hideDeletionSnackbar = () => {
         this.showDeletionSnackbar = false;
-        this.deletedToolId = '';
+        this.deletedConfigType = '';
     };
 
-    showDeletionSnackbarWithToolId = (toolId: string) => {
-        this.deletedToolId = toolId;
+    showDeletionSnackbarForConfigType = (configType: string) => {
+        this.deletedConfigType = configType;
         this.showDeletionSnackbar = true;
-    };
-
-    findToolIdByIndex = (index: number): string => {
-        for (const group of this.activeToolsGroup) {
-            const foundItem = group.items.find(item => item.index === index);
-            if (foundItem) {
-                return foundItem.id;
-            }
-        }
-        return '';
-    };
-
-    showDeletionSnackbarForIndex = (index: number) => {
-        const deletedToolId = this.findToolIdByIndex(index);
-        if (deletedToolId) {
-            this.showDeletionSnackbarWithToolId(deletedToolId);
-        }
     };
 
     cancelDrawingTool = () => {
