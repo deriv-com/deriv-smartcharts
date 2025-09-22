@@ -93,7 +93,7 @@ export default class DrawToolsStore {
     showConfirmationToast = false;
     confirmationMessage = '';
     showDeletionSnackbar = false;
-    deletedConfigType = '';
+    deletedToolName = '';
     addingStateInfo: TAddingStateInfo = { currentStep: 0, totalSteps: 0, isFinished: true };
     floatingMenuPosition?: TFloatingMenuPositionOffset;
 
@@ -105,7 +105,7 @@ export default class DrawToolsStore {
             showConfirmationToast: observable,
             confirmationMessage: observable,
             showDeletionSnackbar: observable,
-            deletedConfigType: observable,
+            deletedToolName: observable,
             addingStateInfo: observable,
             floatingMenuPosition: observable,
             activeToolsNo: computed,
@@ -118,7 +118,7 @@ export default class DrawToolsStore {
             onLoad: action.bound,
             hideDrawingConfirmation: action.bound,
             hideDeletionSnackbar: action.bound,
-            showDeletionSnackbarForConfigType: action.bound,
+            showDeletionSnackbarForDeletedTool: action.bound,
             cancelDrawingTool: action.bound,
             updateAddingState: action.bound,
             resetAddingState: action.bound,
@@ -387,7 +387,7 @@ export default class DrawToolsStore {
             const drawToolsItem = this.drawingToolsRepoArray();
             const config = drawToolsItem ? drawToolsItem[index] : null;
             if (config) {
-                this.mainStore.chartAdapter.flutterChart?.drawingTool.removeDrawingTool(config);
+                this.mainStore.chartAdapter.flutterChart?.drawingTool.removeDrawingTool(index);
             }
             /// Log the event
             if (index && config) {
@@ -411,11 +411,11 @@ export default class DrawToolsStore {
 
     hideDeletionSnackbar = () => {
         this.showDeletionSnackbar = false;
-        this.deletedConfigType = '';
+        this.deletedToolName = '';
     };
 
-    showDeletionSnackbarForConfigType = (configType: string) => {
-        this.deletedConfigType = configType;
+    showDeletionSnackbarForDeletedTool = (deletedToolName: string) => {
+        this.deletedToolName = deletedToolName;
         this.showDeletionSnackbar = true;
     };
 

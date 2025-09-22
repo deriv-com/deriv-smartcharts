@@ -15,27 +15,23 @@ const DeletionSnackbar = observer(({ className }: TDeletionSnackbarProps) => {
     const snackbarRef = useRef<HTMLDivElement>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const { showDeletionSnackbar: isVisible, deletedConfigType, hideDeletionSnackbar: onDismiss } = drawTools;
+    const { showDeletionSnackbar: isVisible, deletedToolName, hideDeletionSnackbar: onDismiss } = drawTools;
 
     // Generate dynamic message based on deleted tool type
     const getDeletionMessage = useCallback(() => {
-        if (!deletedConfigType) {
+        if (!deletedToolName) {
             return;
         }
 
         const drawToolsConfig = getDrawTools();
-        // Find tool by configType
-        const tool = Object.values(drawToolsConfig).find(t => t.configType === deletedConfigType);
-        console.log('Deleted config type:', deletedConfigType);
-        console.log('Deleted tool:', tool);
+        // Find tool by deletedToolName
+        const tool = Object.values(drawToolsConfig).find(t => t.id === deletedToolName.replace('dt_', ''));
         if (tool) {
             // Extract the tool name from the text, removing [num] placeholder
             const toolName = tool.text.replace(' [num]', '');
-            console.log('Tool name:', toolName);
-            console.log('Tool message:', `${toolName} ${t.translate('removed')}`);
             return `${toolName} ${t.translate('removed')}`;
         }
-    }, [deletedConfigType]);
+    }, [deletedToolName]);
 
     // Auto-dismiss after 4 seconds
     useEffect(() => {

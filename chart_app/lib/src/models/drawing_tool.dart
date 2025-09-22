@@ -13,7 +13,7 @@ class DrawingToolModel {
       createAddOn: (Map<String, dynamic> map) =>
           DrawingToolConfig.fromJson(map),
       onDeleteCallback: (AddOnConfig item) {
-        JsInterop.drawingTool?.onRemove?.call(item.runtimeType.toString());
+        JsInterop.drawingTool?.onRemove?.call(item.toJson()["name"]);
       },
       sharedPrefKey: 'drawing_tools',
     );
@@ -140,8 +140,8 @@ class DrawingToolModel {
   }
 
   /// To remove an existing drawing tool
-  void removeDrawingTool(DrawingToolConfig config) {
-    drawingToolsRepo.remove(config);
+  void removeDrawingTool(int index) {
+    drawingToolsRepo.removeAt(index);
   }
 
   updateInteractiveLayerBehaviour(InteractiveLayerBehaviour newBehaviour) {

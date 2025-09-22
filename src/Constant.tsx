@@ -65,13 +65,13 @@ export const getDrawTools: () => TDrawTools = () => ({
     // channel: { id: 'channel', text: t.translate('Channel [num]'), icon: DrawToolsChannelIcon },
     // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsContinuousIcon },
     // fibfan: { id: 'fibfan', text: t.translate('Fib Fan [num]'), icon: FibfanDrawingToolConfig },
-    horizontal: { id: 'horizontal', text: t.translate('Horizontal line [num]'), icon: DrawToolsHorizontalIcon, configType: 'HorizontalDrawingToolConfig' },
-    line: { id: 'line', text: t.translate('Trend line [num]'), icon: DrawToolsLineIcon, configType: 'LineDrawingToolConfig' },
-    // ray: { id: 'ray', text: t.translate('Ray [num]'), icon: DrawToolsRayIcon, configType: 'RayDrawingToolConfig' },
-    // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsRayIcon, configType: 'ContinuousDrawingToolConfig' },
-    // rectangle: { id: 'rectangle', text: t.translate('Rectangle [num]'), icon: DrawToolsRectangleIcon, configType: 'RectangleDrawingToolConfig' },
-    // trend: { id: 'trend', text: t.translate('Trend [num]'), icon: DrawToolsTrendIcon, configType: 'TrendDrawingToolConfig' },
-    // vertical: { id: 'vertical', text: t.translate('Vertical [num]'), icon: DrawToolsVerticalIcon, configType: 'VerticalDrawingToolConfig' },
+    horizontal: { id: 'horizontal', text: t.translate('Horizontal line [num]'), icon: DrawToolsHorizontalIcon },
+    line: { id: 'line', text: t.translate('Trend line [num]'), icon: DrawToolsLineIcon },
+    // ray: { id: 'ray', text: t.translate('Ray [num]'), icon: DrawToolsRayIcon },
+    // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsRayIcon },
+    // rectangle: { id: 'rectangle', text: t.translate('Rectangle [num]'), icon: DrawToolsRectangleIcon },
+    // trend: { id: 'trend', text: t.translate('Trend [num]'), icon: DrawToolsTrendIcon },
+    // vertical: { id: 'vertical', text: t.translate('Vertical [num]'), icon: DrawToolsVerticalIcon },
 });
 
 export const getTooltipLabels = (key: string, activeItem?: TActiveItem) => {

@@ -127,8 +127,8 @@ export default class ChartAdapterStore {
                 onLoad: (items: []) => {
                     this.mainStore.drawTools.onLoad(items);
                 },
-                onRemove: (configType: string) => {
-                    this.mainStore.drawTools.showDeletionSnackbarForConfigType(configType);
+                onRemove: (deletedToolName: string) => {
+                    this.mainStore.drawTools.showDeletionSnackbarForDeletedTool(deletedToolName);
                 },
                 onStateChanged: (currentStep: number, totalSteps: number) => {
                     this.mainStore.drawTools.updateAddingState(currentStep, totalSteps);
