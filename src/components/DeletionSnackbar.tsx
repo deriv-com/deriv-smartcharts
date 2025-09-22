@@ -26,10 +26,13 @@ const DeletionSnackbar = observer(({ className }: TDeletionSnackbarProps) => {
         const drawToolsConfig = getDrawTools();
         // Find tool by configType
         const tool = Object.values(drawToolsConfig).find(t => t.configType === deletedConfigType);
-
+        console.log('Deleted config type:', deletedConfigType);
+        console.log('Deleted tool:', tool);
         if (tool) {
             // Extract the tool name from the text, removing [num] placeholder
             const toolName = tool.text.replace(' [num]', '');
+            console.log('Tool name:', toolName);
+            console.log('Tool message:', `${toolName} ${t.translate('removed')}`);
             return `${toolName} ${t.translate('removed')}`;
         }
     }, [deletedConfigType]);
