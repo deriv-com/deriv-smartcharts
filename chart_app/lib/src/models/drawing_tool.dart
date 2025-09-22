@@ -144,10 +144,11 @@ class DrawingToolModel {
     drawingToolsRepo.remove(config);
   }
 
-    updateInteractiveLayerBehaviour(InteractiveLayerBehaviour newBehaviour) {
+  updateInteractiveLayerBehaviour(InteractiveLayerBehaviour newBehaviour) {
     if (interactiveLayerBehaviour.runtimeType != newBehaviour.runtimeType) {
       interactiveLayerBehaviour = newBehaviour;
-      interactiveLayerBehaviour.controller.addListener(_onControllerStateChanged);
+      interactiveLayerBehaviour.controller
+          .addListener(_onControllerStateChanged);
     }
   }
 
