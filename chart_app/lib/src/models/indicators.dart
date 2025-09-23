@@ -20,6 +20,10 @@ class IndicatorsModel {
     createAddOn: (Map<String, dynamic> map) => IndicatorConfig.fromJson(map),
     sharedPrefKey: 'indicators',
     onEditCallback: (int i) => JsInterop.indicators?.onEdit?.call(i),
+    onDeleteCallback: (AddOnConfig item, int index) {
+      JsInterop.indicators?.onRemove?.call(index);
+    },
+    onSwapCallback: (int x, int y) => JsInterop.indicators?.onSwap?.call(x, y),
   );
 
   /// To add or update an indicator

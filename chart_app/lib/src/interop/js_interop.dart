@@ -176,7 +176,7 @@ class JsIndicators {
 typedef OnAddDrawingCallback = void Function();
 
 /// Called when a drawing tool is removed with JSON data
-typedef OnRemoveDrawingCallback = void Function(String jsonData);
+typedef OnRemoveDrawingCallback = void Function(String deletedToolName);
 
 /// Called when drawing tool state changes
 typedef OnStateChangedCallback = void Function(int currentStep, int totalSteps);

@@ -12,8 +12,8 @@ class DrawingToolModel {
     drawingToolsRepo = AddOnsRepository<DrawingToolConfig>(
       createAddOn: (Map<String, dynamic> map) =>
           DrawingToolConfig.fromJson(map),
-      onDeleteCallback: (AddOnConfig item) {
-        JsInterop.drawingTool?.onRemove?.call(item.toJson()["name"]);
+      onDeleteCallback: (AddOnConfig item, int index) {
+        JsInterop.drawingTool?.onRemove?.call(item.toJson()['name']);
       },
       sharedPrefKey: 'drawing_tools',
     );
