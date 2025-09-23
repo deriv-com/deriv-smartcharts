@@ -52,6 +52,7 @@ class DrawingToolModel {
 
     // Wait for the chart to be fully initialized before loading drawing tools
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // TODO(Jim): Find a better way to ensure the chart is ready
       // Wait for chart initialization to complete
       await Future.delayed(const Duration(milliseconds: 500));
       await _loadSavedDrawingTools();
@@ -64,6 +65,7 @@ class DrawingToolModel {
 
     // Use WidgetsBinding to ensure the UI is ready and then notify JavaScript
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // TODO(Jim): Find a better way to ensure the chart is ready
       // Add a delay to ensure the chart is fully initialized and ready to render
       await Future.delayed(const Duration(milliseconds: 300));
 
@@ -117,6 +119,7 @@ class DrawingToolModel {
         if (stepInfo.currentStep == stepInfo.totalSteps) {
           // Use WidgetsBinding to ensure proper timing
           WidgetsBinding.instance.addPostFrameCallback((_) async {
+            // TODO(Jim): Find a better way to ensure the chart is ready
             // Ensure the drawing tool is properly saved before notifying
             await Future.delayed(const Duration(milliseconds: 150));
 
