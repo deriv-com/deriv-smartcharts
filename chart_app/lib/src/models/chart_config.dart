@@ -127,7 +127,12 @@ class ChartConfigModel extends ChangeNotifier {
           ),
           props: MarkerProps(
               hasPersistentBorders:
-                  _getProperty(_markerGroup.props, 'hasPersistentBorders')),
+                  _getProperty(_markerGroup.props, 'hasPersistentBorders'),
+              isProfit: _getProperty(_markerGroup.props, 'isProfit'),
+              isRunning: _getProperty(_markerGroup.props, 'isRunning'),
+              markerLabel: _getProperty(_markerGroup.props, 'markerLabel'),
+              contractMarkerLeftPadding: _getProperty(
+                  _markerGroup.props, 'contractMarkerLeftPadding')),
         ),
       );
     }
