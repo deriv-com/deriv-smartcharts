@@ -98,13 +98,15 @@ class ChartConfigModel extends ChangeNotifier {
       for (final JsMarker _marker in _markerGroup.markers) {
         if (_marker.quote != null &&
             _marker.epoch != null &&
-            _marker.type != null) {
+            _marker.type != null &&
+            _marker.direction != null) {
           markers.add(ChartMarker(
             quote: _marker.quote!,
             epoch: _marker.epoch! * 1000,
             text: _marker.text,
             markerType: MarkerType.values.byName(_marker.type!),
-            direction: MarkerDirection.up,
+            direction: MarkerDirection.values.byName(
+                _marker.direction ?? 'up'), // Default to 'up' if null
             color: _marker.color != null
                 ? getColorFromString(_marker.color!)
                 : null,
