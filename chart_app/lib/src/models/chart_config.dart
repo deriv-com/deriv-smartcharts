@@ -98,8 +98,7 @@ class ChartConfigModel extends ChangeNotifier {
       for (final JsMarker _marker in _markerGroup.markers) {
         if (_marker.quote != null &&
             _marker.epoch != null &&
-            _marker.type != null &&
-            _marker.direction != null) {
+            _marker.type != null) {
           markers.add(ChartMarker(
             quote: _marker.quote!,
             epoch: _marker.epoch! * 1000,
