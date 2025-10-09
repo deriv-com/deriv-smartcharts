@@ -166,7 +166,13 @@ const DrawTools = ({ portalNodeId }: DrawToolsProps) => {
             </Menu.Title>
 
             <Menu.Body>
-                <Tabs className={`tabs--${!isMobile ? 'vertical' : 'horizontal'}`}>
+                <Tabs
+                    className={classNames({
+                        'tabs--vertical': !isMobile,
+                        'tabs--horizontal': isMobile,
+                    })}
+                >
+                    {' '}
                     <TabList>
                         <Tab>
                             <ActiveIcon />
