@@ -39,6 +39,7 @@ jobs:
                   git rev-parse --is-inside-work-tree
                   git log -1 --oneline
 
+            # Automatically review PR with Claude
             - name: Run Claude Code Action
               uses: anthropics/claude-code-action@v1
               timeout-minutes: 60
