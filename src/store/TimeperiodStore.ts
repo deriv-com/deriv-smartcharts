@@ -177,6 +177,24 @@ export default class TimeperiodStore {
         } else {
             this.onGranularityChange(interval);
         }
+
+        const symbol = this.mainStore.chart.currentActiveSymbol?.symbol;
+        if (symbol) {
+            // Create a new chart payload to trigger the drawing tool reload
+            window.flutterChart?.app.newChart({
+                symbol,
+                granularity: this.mainStore.chartAdapter.getGranularityInMs(),
+                chartType: this.mainStore.state.chartType,
+                isLive: this.mainStore.chart.isLive || false,
+                startWithDataFitMode: this.mainStore.chartAdapter.isDataFitModeEnabled,
+                theme: this.mainStore.chartSetting.theme,
+                msPerPx: this.mainStore.chartAdapter.msPerPx,
+                pipSize: this.mainStore.chart.pip,
+                isMobile: this.mainStore.chart.isMobile || false,
+                isSmoothChartEnabled: this.mainStore.chartSetting.isSmoothChartEnabled,
+                yAxisMargin: this.mainStore.state.yAxisMargin,
+            });
+        }
     }
 
     remainLabelY = () => {
