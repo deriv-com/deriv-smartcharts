@@ -39,8 +39,8 @@ const isSessionAvailable = (
     should_only_check_hour = false
 ) => {
     const offset = new Date().getTimezoneOffset() * 60 * 1000;
-    const end_compare = should_only_check_hour ? end_moment.clone().minute(0).second(0) : end_moment;
-    const start_compare = end_compare.clone().subtract(1, 'year');
+    const end_compare = should_only_check_hour ? end_moment.minute(0).second(0) : end_moment;
+    const start_compare = end_compare.subtract(1, 'year');
     const end_time = end_compare.valueOf() + offset;
     const start_time = start_compare.valueOf() + offset;
     return end_time - compare_moment.valueOf() > 0 && compare_moment.valueOf() - start_time > 0;
@@ -70,7 +70,7 @@ const TimePickerDropdown = React.memo(
             if (is_enabled) {
                 const [prev_hour, prev_minute] = (value || '00:00').split(':');
                 const start_moment = dayjs(start_date * 1000 || undefined);
-                const start_moment_clone = start_moment.clone().minute(0).second(0);
+                const start_moment_clone = start_moment.minute(0).second(0);
                 if ((type === 'h' && new_value !== prev_hour) || (type === 'm' && new_value !== prev_minute)) {
                     setLastUpdatedType(type);
                     type === 'h' ? setIsHourSelected(true) : setIsMinuteSelected(true);
@@ -104,7 +104,7 @@ const TimePickerDropdown = React.memo(
             setIsMinuteSelected(false);
         };
         const start_moment = dayjs(start_date * 1000 || undefined);
-        const start_moment_clone = start_moment.clone().minute(0).second(0);
+        const start_moment_clone = start_moment.minute(0).second(0);
         const end_moment = dayjs().utc();
         let [hour, minute] = ['00', '00'];
         if (value.match(/^([0-9]|[0-1][0-9]|2[0-3]):([0-9]|[0-5][0-9])(:([0-9]|[0-5][0-9]))?$/)) {
@@ -228,7 +228,7 @@ const TimePicker = (props: TTimerPickerProps) => {
         if (focus) {
             const [prev_hour, prev_minute] = (prev_value || '00:00').split(':');
             const start_moment = dayjs(start_date * 1000 || undefined);
-            const start_moment_clone = start_moment.clone().minute(0).second(0);
+            const start_moment_clone = start_moment.minute(0).second(0);
             const desire_time = start_moment_clone.hour(parseInt(prev_hour)).minute(parseInt(prev_minute));
             if (!isSessionAvailable(desire_time)) {
                 findAvailabeTime(start_moment_clone);
@@ -241,7 +241,7 @@ const TimePicker = (props: TTimerPickerProps) => {
             {is_nativepicker ? (
                 <input type='time' id={`${prefix_class}-input`} value={value} onChange={handleChange} name={name} />
             ) : (
-                <React.Fragment>
+                <>
                     <span className='time-picker-container' onClick={toggleDropDown}>
                         <input
                             type='text'
@@ -262,7 +262,7 @@ const TimePicker = (props: TTimerPickerProps) => {
                         start_date={start_date}
                         value={value}
                     />
-                </React.Fragment>
+                </>
             )}
         </div>
     );

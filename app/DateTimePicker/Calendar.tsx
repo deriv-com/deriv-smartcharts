@@ -79,14 +79,14 @@ type TCalendarHeaderProps = {
 
 const CalendarButton = ({ children, className, is_hidden, label, onClick }: TCalendarButtonProps) => {
     return (
-        <React.Fragment>
+        <>
             {!is_hidden && (
                 <span className={className} onClick={onClick}>
                     {label}
                     {children}
                 </span>
             )}
-        </React.Fragment>
+        </>
     );
 };
 
@@ -152,13 +152,13 @@ const CalendarHeader = ({
         <div className='calendar-header'>
             <CalendarButton
                 className={`calendar-prev-year-btn ${
-                    isPeriodDisabled(moment_date.clone().subtract(1, 'month'), 'month') ? 'hidden' : ''
+                    isPeriodDisabled(moment_date.subtract(1, 'month'), 'month') ? 'hidden' : ''
                 }`}
                 onClick={onPreviousYearClick}
             />
             <CalendarButton
                 className={`calendar-prev-month-btn ${
-                    isPeriodDisabled(moment_date.clone().subtract(1, 'month'), 'month') ? 'hidden' : ''
+                    isPeriodDisabled(moment_date.subtract(1, 'month'), 'month') ? 'hidden' : ''
                 }`}
                 is_hidden={!is_date_view}
                 onClick={onClick.previousMonth}
@@ -176,28 +176,22 @@ const CalendarHeader = ({
                 <CalendarButton className='calendar-select-year-btn' onClick={onSelectYearClick}>
                     {(is_date_view || is_month_view) && moment_date.year()}
                     {is_year_view &&
-                        `${moment_date.clone().subtract(1, 'years').year()}-${moment_date
-                            .clone()
-                            .add(10, 'years')
-                            .year()}`}
+                        `${moment_date.subtract(1, 'years').year()}-${moment_date.add(10, 'years').year()}`}
                     {is_decade_view &&
-                        `${moment_date.clone().subtract(10, 'years').year()}-${moment_date
-                            .clone()
-                            .add(109, 'years')
-                            .year()}`}
+                        `${moment_date.subtract(10, 'years').year()}-${moment_date.add(109, 'years').year()}`}
                 </CalendarButton>
             </div>
 
             <CalendarButton
                 className={`calendar-next-month-btn ${
-                    isPeriodDisabled(moment_date.clone().add(1, 'month'), 'month') ? 'hidden' : ''
+                    isPeriodDisabled(moment_date.add(1, 'month'), 'month') ? 'hidden' : ''
                 }`}
                 is_hidden={!is_date_view}
                 onClick={onClick.nextMonth}
             />
             <CalendarButton
                 className={`calendar-next-year-btn ${
-                    isPeriodDisabled(moment_date.clone().add(1, 'month'), 'month') ? 'hidden' : ''
+                    isPeriodDisabled(moment_date.add(1, 'month'), 'month') ? 'hidden' : ''
                 }`}
                 onClick={onNextYearClick}
             />
