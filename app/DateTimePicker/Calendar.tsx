@@ -1,5 +1,6 @@
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import React from 'react';
+import dayjs from '../../src/utils/dayjs-config';
 import { Wrapper } from '../../src/components/Icons';
 import CalendarICInfo from '../icons/ic-calendar-info.svg';
 import { CalendarDays, CalendarMonths, CalendarYears, CalendarDecades } from './panels/index';

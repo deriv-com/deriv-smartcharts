@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import classNames from 'classnames';
-import dayjs from 'dayjs';
 import React from 'react';
+import dayjs from '../../../src/utils/dayjs-config';
 
 type TCalendarProps = {
     date_format: string;

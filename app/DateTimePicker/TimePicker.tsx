@@ -3,8 +3,9 @@
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react/no-unused-state */
 import { observer } from 'mobx-react-lite';
-import dayjs, { Dayjs } from 'dayjs';
+import { Dayjs } from 'dayjs';
 import React from 'react';
+import dayjs from '../../src/utils/dayjs-config';
 import './time-picker.scss';
 import { Wrapper } from '../../src/components/Icons';
 import Time from '../icons/ic-time.svg';

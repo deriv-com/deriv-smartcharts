@@ -1,5 +1,5 @@
 import React from 'react';
-import dayjs from 'dayjs';
+import dayjs from '../../src/utils/dayjs-config';
 import Calendar, { TCalendarRefProps } from './Calendar';
 import './date-picker.scss';
 import { Wrapper } from '../../src/components/Icons';

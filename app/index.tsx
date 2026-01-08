@@ -17,11 +17,8 @@ import {
 } from '@deriv-com/smartcharts'; // eslint-disable-line import/no-unresolved
 import whyDidYouRender from '@welldone-software/why-did-you-render';
 import { configure } from 'mobx';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import dayjs from '../src/utils/dayjs-config';
 import React from 'react';
-
-dayjs.extend(utc);
 import { createRoot } from 'react-dom/client';
 import { TNotification } from 'src/store/Notifier';
 import {

@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import dayjs from 'dayjs';
+import dayjs from '../../../src/utils/dayjs-config';
 import { TCalendarViewProps } from '../calendar.props';
 
 export const CalendarYears = ({ calendar_date, isPeriodDisabled, onClick, selected_date }: TCalendarViewProps) => {

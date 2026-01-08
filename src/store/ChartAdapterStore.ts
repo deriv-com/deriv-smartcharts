@@ -1,9 +1,6 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import dayjs from '../utils/dayjs-config';
 import debounce from 'lodash-es/debounce';
-
-dayjs.extend(utc);
 import { TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
 import { createChartElement, runChartApp } from 'src/flutter-chart';
 import Painter from 'src/flutter-chart/painter';

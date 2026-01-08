@@ -1,7 +1,7 @@
 /* eslint-disable prefer-rest-params */
 /* eslint-disable @typescript-eslint/no-this-alias */
 import { action, computed, observable, reaction, makeObservable } from 'mobx';
-import dayjs from 'dayjs';
+import dayjs from '../utils/dayjs-config';
 import MainStore from '.';
 import { BinaryAPI, TradingTimes } from '../binaryapi';
 import { TProcessedSymbolItem } from '../types/active-symbols.types';

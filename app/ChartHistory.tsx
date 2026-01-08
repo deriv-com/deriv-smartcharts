@@ -1,5 +1,5 @@
 import React from 'react';
-import dayjs from 'dayjs';
+import dayjs from '../src/utils/dayjs-config';
 import DatePicker from './DateTimePicker/DatePicker';
 import TimePicker from './DateTimePicker/TimePicker';
 import './chart-history.scss';
