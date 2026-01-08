@@ -1,4 +1,4 @@
-import moment from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
 import { Wrapper } from '../../src/components/Icons';
 import CalendarICInfo from '../icons/ic-calendar-info.svg';
@@ -52,7 +52,7 @@ type TCalendarPanelProps = {
     min_date: string;
     start_date?: number;
     calendar_date: string;
-    isPeriodDisabled: (date: moment.Moment, unit: moment.unitOfTime.StartOf) => boolean;
+    isPeriodDisabled: (date: Dayjs | string, unit: dayjs.OpUnitType) => boolean;
 };
 
 type TCalendarHeaderProps = {
@@ -125,7 +125,7 @@ const CalendarHeader = ({
     const is_month_view = calendar_view === 'month';
     const is_year_view = calendar_view === 'year';
     const is_decade_view = calendar_view === 'decade';
-    const moment_date = moment.utc(calendar_date);
+    const moment_date = dayjs.utc(calendar_date);
     const onPreviousYearClick = () => {
         if (is_date_view || is_month_view) onClick.previousYear();
 
@@ -214,13 +214,13 @@ const Calendar = React.forwardRef<TCalendarRefProps, TCalendarProps>(
             id,
             date_format = 'YYYY-MM-DD',
             start_date,
-            max_date = moment().utc().add(120, 'y').format('YYYY-MM-DD'), // by default, max_date is set to 120 years after today
-            min_date = moment(0).utc().format('YYYY-MM-DD'), // by default, min_date is set to Unix Epoch (January 1st 1970)
+            max_date = dayjs().utc().add(120, 'y').format('YYYY-MM-DD'), // by default, max_date is set to 120 years after today
+            min_date = dayjs(0).utc().format('YYYY-MM-DD'), // by default, min_date is set to Unix Epoch (January 1st 1970)
             onSelect,
         }: TCalendarProps,
         ref
     ) => {
-        const [calendar_date, setCalendarDate] = React.useState(moment.utc(start_date).format(date_format));
+        const [calendar_date, setCalendarDate] = React.useState(dayjs.utc(start_date).format(date_format));
         const [selected_date, setSelectedDate] = React.useState('');
         const [calendar_view, setCalendarView] = React.useState('date');
 
@@ -289,19 +289,19 @@ const Calendar = React.forwardRef<TCalendarRefProps, TCalendarProps>(
             },
         };
 
-        const navigateTo = (value: number, unit: moment.unitOfTime.DurationConstructor, is_add: boolean) => {
-            let new_date = moment
+        const navigateTo = (value: number, unit: dayjs.ManipulateType, is_add: boolean) => {
+            let new_date = dayjs
                 .utc(calendar_date, date_format)
                 [is_add ? 'add' : 'subtract'](value, unit)
                 .format(date_format);
 
             if (unit === 'months' && isPeriodDisabled(new_date, 'month')) return;
 
-            if (unit === 'years' && isPeriodDisabled(new_date, 'years')) {
+            if (unit === 'years' && isPeriodDisabled(new_date, 'year')) {
                 new_date = is_add ? max_date : min_date;
             }
 
-            setCalendarDate(moment.utc(new_date, date_format).format(date_format)); // formatted date
+            setCalendarDate(dayjs.utc(new_date, date_format).format(date_format)); // formatted date
         };
 
         const updateSelectedDate = (e: React.SyntheticEvent<HTMLElement>, is_disabled: boolean) => {
@@ -313,9 +313,9 @@ const Calendar = React.forwardRef<TCalendarRefProps, TCalendarProps>(
                 return;
             }
 
-            const moment_date = moment.utc(e.target.dataset.date).startOf('day');
-            const is_before = moment_date.isBefore(moment.utc(min_date));
-            const is_after = moment_date.isAfter(moment.utc(max_date));
+            const moment_date = dayjs.utc(e.target.dataset.date).startOf('day');
+            const is_before = moment_date.isBefore(dayjs.utc(min_date));
+            const is_after = moment_date.isAfter(dayjs.utc(max_date));
 
             if (is_before || is_after) {
                 return;
@@ -344,20 +344,26 @@ const Calendar = React.forwardRef<TCalendarRefProps, TCalendarProps>(
 
             const text = e.target.dataset?.[type]?.split('-')[0] || '';
 
-            const moment_date = moment
-                .utc(calendar_date, date_format)
-                [type === 'decade' ? 'year' : type](text) as moment.Moment;
+            let moment_date = dayjs.utc(calendar_date, date_format);
+
+            if (type === 'decade') {
+                moment_date = moment_date.year(Number(text));
+            } else if (type === 'year') {
+                moment_date = moment_date.year(Number(text));
+            } else if (type === 'month') {
+                moment_date = moment_date.month(Number(text));
+            }
 
             const date = moment_date.format(date_format);
 
-            if (isPeriodDisabled(date, type === 'decade' ? null : type)) return;
+            if (isPeriodDisabled(date, type === 'decade' ? 'year' : type)) return;
 
             setCalendarDate(date);
             setCalendarView(view_map[type as keyof typeof view_map]);
         };
 
         const setToday = () => {
-            const now = moment().utc().format(date_format);
+            const now = dayjs().utc().format(date_format);
 
             setCalendarDate(now);
             setSelectedDate(now);
@@ -368,10 +374,10 @@ const Calendar = React.forwardRef<TCalendarRefProps, TCalendarProps>(
             }
         };
 
-        const isPeriodDisabled = (date: moment.Moment | string, unit: moment.unitOfTime.StartOf) => {
-            const start_of_period = moment.utc(date).startOf(unit);
-            const end_of_period = moment.utc(date).endOf(unit);
-            return end_of_period.isBefore(moment.utc(min_date)) || start_of_period.isAfter(moment.utc(max_date));
+        const isPeriodDisabled = (date: Dayjs | string, unit: dayjs.OpUnitType) => {
+            const start_of_period = dayjs.utc(date).startOf(unit);
+            const end_of_period = dayjs.utc(date).endOf(unit);
+            return end_of_period.isBefore(dayjs.utc(min_date)) || start_of_period.isAfter(dayjs.utc(max_date));
         };
 
         return (

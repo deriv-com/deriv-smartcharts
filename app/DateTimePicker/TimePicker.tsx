@@ -3,7 +3,7 @@
 /* eslint-disable react/no-did-update-set-state */
 /* eslint-disable react/no-unused-state */
 import { observer } from 'mobx-react-lite';
-import moment from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
 import './time-picker.scss';
 import { Wrapper } from '../../src/components/Icons';
@@ -34,8 +34,8 @@ type TTimerPickerProps = {
 
 const TimeIcon = Wrapper(Time);
 const isSessionAvailable = (
-    compare_moment = moment().utc(),
-    end_moment = moment().utc(),
+    compare_moment = dayjs().utc(),
+    end_moment = dayjs().utc(),
     should_only_check_hour = false
 ) => {
     const offset = new Date().getTimezoneOffset() * 60 * 1000;
@@ -69,7 +69,7 @@ const TimePickerDropdown = React.memo(
         const selectOption = (type: string, new_value: string, is_enabled = true) => {
             if (is_enabled) {
                 const [prev_hour, prev_minute] = (value || '00:00').split(':');
-                const start_moment = moment(start_date * 1000 || undefined);
+                const start_moment = dayjs(start_date * 1000 || undefined);
                 const start_moment_clone = start_moment.clone().minute(0).second(0);
                 if ((type === 'h' && new_value !== prev_hour) || (type === 'm' && new_value !== prev_minute)) {
                     setLastUpdatedType(type);
@@ -103,9 +103,9 @@ const TimePickerDropdown = React.memo(
             setIsHourSelected(false);
             setIsMinuteSelected(false);
         };
-        const start_moment = moment(start_date * 1000 || undefined);
+        const start_moment = dayjs(start_date * 1000 || undefined);
         const start_moment_clone = start_moment.clone().minute(0).second(0);
-        const end_moment = moment().utc();
+        const end_moment = dayjs().utc();
         let [hour, minute] = ['00', '00'];
         if (value.match(/^([0-9]|[0-1][0-9]|2[0-3]):([0-9]|[0-5][0-9])(:([0-9]|[0-5][0-9]))?$/)) {
             [hour, minute] = value.split(':');
@@ -210,9 +210,9 @@ const TimePicker = (props: TTimerPickerProps) => {
         [name, onChange, props.value]
     );
     React.useEffect(() => {
-        const findAvailabeTime = (start_moment_clone: moment.Moment) => {
+        const findAvailabeTime = (start_moment_clone: Dayjs) => {
             let last_available_min, desire_time;
-            const hour = moment().utc().format('HH');
+            const hour = dayjs().utc().format('HH');
             minutes.forEach(min => {
                 desire_time = start_moment_clone.hour(+hour).minute(+min);
                 if (isSessionAvailable(desire_time)) {
@@ -227,7 +227,7 @@ const TimePicker = (props: TTimerPickerProps) => {
         }
         if (focus) {
             const [prev_hour, prev_minute] = (prev_value || '00:00').split(':');
-            const start_moment = moment(start_date * 1000 || undefined);
+            const start_moment = dayjs(start_date * 1000 || undefined);
             const start_moment_clone = start_moment.clone().minute(0).second(0);
             const desire_time = start_moment_clone.hour(parseInt(prev_hour)).minute(parseInt(prev_minute));
             if (!isSessionAvailable(desire_time)) {

@@ -1,6 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 import classNames from 'classnames';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 
 type TCalendarProps = {
@@ -37,16 +37,16 @@ const getDays = ({
 }: TCalendarProps) => {
     const dates = [];
     const days: React.ReactElement[] = [];
-    const moment_today = moment().utc().startOf('day');
-    const moment_cur_date = moment.utc(calendar_date);
+    const moment_today = dayjs().utc().startOf('day');
+    const moment_cur_date = dayjs.utc(calendar_date);
     const num_of_days = moment_cur_date.daysInMonth() + 1;
     const moment_month_start = moment_cur_date.clone().startOf('month');
     const moment_month_end = moment_cur_date.clone().endOf('month');
-    const first_day = calcDayIndexFromMonday(moment_month_start.day()); // moment.js method '.day()' return index the day of the week, with Sunday as 0 and Saturday as 6.
+    const first_day = calcDayIndexFromMonday(moment_month_start.day()); // dayjs method '.day()' return index the day of the week, with Sunday as 0 and Saturday as 6.
     const last_day = calcDayIndexFromMonday(moment_month_end.day());
-    const moment_min_date = moment.utc(min_date);
-    const moment_max_date = moment.utc(max_date);
-    const moment_selected = moment.utc(selected_date);
+    const moment_min_date = dayjs.utc(min_date);
+    const moment_max_date = dayjs.utc(max_date);
+    const moment_selected = dayjs.utc(selected_date);
 
     for (let i = first_day; i > 0; i--) {
         dates.push(moment_month_start.clone().subtract(i, 'day').format(date_format));
@@ -58,12 +58,12 @@ const getDays = ({
         dates.push(moment_month_end.clone().add(i, 'day').format(date_format));
     }
 
-    const moment_start_date = moment
+    const moment_start_date = dayjs
         .unix(start_date || 0)
         .utc()
         .startOf('day');
     dates.map(date => {
-        const moment_date = moment.utc(date).startOf('day');
+        const moment_date = dayjs.utc(date).startOf('day');
         const is_active = selected_date && moment_date.isSame(moment_selected);
         const is_today = moment_date.isSame(moment_today, 'day');
         const is_disabled: boolean =

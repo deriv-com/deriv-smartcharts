@@ -1,6 +1,8 @@
+import dayjs, { Dayjs } from 'dayjs';
+
 export type TCalendarViewProps = {
     calendar_date: string;
-    isPeriodDisabled: (date: moment.Moment, unit: moment.unitOfTime.StartOf) => boolean;
+    isPeriodDisabled: (date: Dayjs | string, unit: dayjs.OpUnitType) => boolean;
     selected_date: string;
     onClick: {
         date: (e: React.SyntheticEvent<HTMLElement>, is_disabled: boolean) => void;
