@@ -1,4 +1,5 @@
-import dayjs, { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
+import dayjs from '../../src/utils/dayjs-config';
 
 export type TCalendarViewProps = {
     calendar_date: string;
