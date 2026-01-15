@@ -42,12 +42,11 @@ jobs:
                   ref: ${{ github.head_ref }}
 
             - name: Checkout derivatives-trader
-              uses: 'actions/checkout@v4'
+              uses: actions/checkout@v4
               with:
-                  repository: deriv-com/derivatives-trader
+                  repository: vinu-deriv/derivatives-trader
                   path: derivatives-trader
                   ref: master
-                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
             - name: Setup Flutter
               uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf
