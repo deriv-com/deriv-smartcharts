@@ -42,14 +42,12 @@ jobs:
                   ref: ${{ github.head_ref }}
 
             - name: Checkout derivatives-trader
-              id: derivatives_trader
-              uses: 'deriv-com/SmartCharts/.github/actions/checkout@master'
+              uses: 'actions/checkout@v4'
               with:
                   repository: deriv-com/derivatives-trader
                   path: derivatives-trader
-                  ref: ${{ github.head_ref }}
-                  alternate_repository: 'deriv-com/derivatives-trader'
-                  alternate_ref: master
+                  ref: master
+                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
             - name: Setup Flutter
               uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf
