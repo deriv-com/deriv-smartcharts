@@ -44,9 +44,10 @@ jobs:
             - name: Checkout derivatives-trader
               uses: actions/checkout@v4
               with:
-                  repository: vinu-deriv/derivatives-trader
+                  repository: deriv-com/derivatives-trader
                   path: derivatives-trader
                   ref: master
+                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
             - name: Setup Flutter
               uses: subosito/flutter-action@62f096cacda5168a3bd7b95793373be14fa4fbaf
