@@ -1,5 +1,5 @@
 # Preview deployment workflow
-# Builds SmartCharts and integrates with derivatives-trader for preview
+# Builds SmartCharts-champion and integrates with derivatives-trader for preview
 
 name: Deploy Preview
 
