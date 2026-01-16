@@ -82,7 +82,7 @@ jobs:
 
             - name: Build derivatives-trader
               env:
-                  NODE_ENV: 'production'
+                  NODE_ENV: 'staging'
               run: cd derivatives-trader && npm run build:all
 
             - name: Setup Node for Cloudflare
