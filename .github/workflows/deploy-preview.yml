@@ -63,7 +63,7 @@ jobs:
               run: |
                   cd smartcharts-champion/chart_app
                   flutter pub get
-                  flutter build web --web-renderer html --profile --dart-define=Dart2jsOptimization=00 --no-tree-shake-icons
+                  flutter build web --web-renderer html --release
 
             - name: Setup Node
               uses: actions/setup-node@v4
