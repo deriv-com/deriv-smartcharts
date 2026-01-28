@@ -116,13 +116,7 @@ export default class BarrierStore {
             this._drawShadedArea
         );
 
-        // Note: _drawShadedArea is intentionally NOT registered with the painter.
-        // It doesn't use currentTickPercent and is already triggered by:
-        // 1. MobX reaction above (when epochBounds/quoteBounds change)
-        // 2. PriceLineStore.onPriceChanged events (lines 93-94 in constructor)
-        // Registering it with painter caused barrier fluctuation when multiple
-        // contracts were open on tick charts, as it consumed callback slots
-        // meant for drawBarrier animation.
+        this.mainStore.chartAdapter.painter.registerCallback(this._drawShadedArea);
     };
 
     init(): void {
@@ -216,6 +210,8 @@ export default class BarrierStore {
         this._low_barrier.destructor();
 
         this.disposeDrawReaction?.();
+
+        this.mainStore.chartAdapter.painter.unregisterCallback(this._drawShadedArea);
 
         const i = this.mainStore.chart._barriers.findIndex((b: BarrierStore) => b === this);
         if (i !== -1) {
