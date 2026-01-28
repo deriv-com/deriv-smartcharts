@@ -213,6 +213,7 @@ export default class BarrierStore {
 
         this.mainStore.chartAdapter.painter.unregisterCallback(this._drawShadedArea);
 
+
         const i = this.mainStore.chart._barriers.findIndex((b: BarrierStore) => b === this);
         if (i !== -1) {
             this.mainStore.chart._barriers.splice(i, 1);
