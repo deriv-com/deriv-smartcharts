@@ -245,6 +245,39 @@ import DrawToolsRectangle from '../../sass/icons/draw-tools/ic-rectangle.svg';
 import DrawToolsTrend from '../../sass/icons/draw-tools/ic-trend.svg';
 import DrawToolsVertical from '../../sass/icons/draw-tools/ic-vertical.svg';
 
+// Indicator icons moved to IndicatorIcons.tsx for lazy loading
+// Re-export from there for backwards compatibility
+export {
+    IndicatorCatMomentumIcon,
+    IndicatorCatTrendLightIcon,
+    IndicatorCatTrendDarkIcon,
+    IndicatorCatVolatilityIcon,
+    IndicatorCatAveragesIcon,
+    IndicatorCatOtherIcon,
+    IndicatorAwesomeOscillatorIcon,
+    IndicatorDTrendedIcon,
+    IndicatorGatorIcon,
+    IndicatorMacdIcon,
+    IndicatorRateChangeIcon,
+    IndicatorRSIIcon,
+    IndicatorStochasticOscillatorIcon,
+    IndicatorStochasticMomentumIcon,
+    IndicatorWilliamPercentIcon,
+    IndicatorAroonIcon,
+    IndicatorAdxIcon,
+    IndicatorCommodityChannelIndexIcon,
+    IndicatorIchimokuIcon,
+    IndicatorParabolicIcon,
+    IndicatorZigZagIcon,
+    IndicatorBollingerIcon,
+    IndicatorDonchianIcon,
+    IndicatorAveragesIcon,
+    IndicatorEnvelopeIcon,
+    IndicatorAlligatorIcon,
+    IndicatorFractalChaosIcon,
+    IndicatorRainbowIcon,
+} from './IndicatorIcons';
+
 export const Wrapper = (SvgLogo: React.SVGAttributes<SVGElement>) => {
     const InnerWrapper = (props: TIconProps) => {
         let { className, 'tooltip-title': tooltip, ...p } = props; // eslint-disable-line prefer-const

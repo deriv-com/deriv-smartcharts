@@ -192,6 +192,8 @@ const config = {
         }),
         new ForkTsCheckerWebpackPlugin(),
     ],
+    // Externals configuration - library mode externalizes all deps
+    // App mode will override this to bundle mobx-react-lite (avoids UMD shim issues)
     externals: {
         react: {
             root: 'React',
@@ -292,6 +294,12 @@ if (process.env.ANALYZE_BUNDLE) {
 
 if (isApp) {
     config.entry = path.resolve(__dirname, `./app/${appEntryFile}.tsx`);
+
+    // Remove mobx-react-lite from externals in app mode
+    // This lets webpack bundle it with its use-sync-external-store dependency
+    // avoiding the UMD shim compatibility issue with React 18
+    delete config.externals['mobx-react-lite'];
+
     config.plugins.push(
         new CopyWebpackPlugin({
             patterns: [
@@ -317,12 +325,8 @@ if (isApp) {
                         : './node_modules/mobx/dist/mobx.umd.development.js',
                     to: 'mobx.js',
                 },
-                {
-                    from: production
-                        ? './node_modules/mobx-react-lite/dist/mobxreactlite.umd.production.min.js'
-                        : './node_modules/mobx-react-lite/dist/mobxreactlite.umd.development.js',
-                    to: 'mobx-react-lite.js',
-                },
+                // mobx-react-lite UMD removed - now bundled by webpack to avoid
+                // use-sync-external-store shim compatibility issues with React 18
                 {
                     from: './node_modules/react-transition-group/dist/react-transition-group.js',
                     to: 'react-transition-group.js',
