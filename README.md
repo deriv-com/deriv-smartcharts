@@ -2,10 +2,6 @@
   SmartCharts
 </h1>
 
-SmartCharts is both the name of the app ([charts.binary.com](https://charts.binary.com/)) and the charting library.
-
-[![npm](https://img.shields.io/badge/npm->=9-blue)](https://www.npmjs.com/package/@deriv/deriv-charts) ![node](https://img.shields.io/badge/node-%3E%3D18-blue.svg)
-
 ## In this document:
 
 -   [Pre-installation](#pre-installation)
@@ -33,7 +29,7 @@ Before running or contribute to this project, you need to have the setup of the 
 2.  **Clone using SSH**
 
     ```sh
-    git clone git@github.com:deriv-com/SmartCharts.git
+    git@github.com:deriv-com/smartcharts-champion.git
     ```
 
 3.  **Enter project directory**
@@ -61,7 +57,7 @@ In the `app` folder, we provide a working webpack project that uses the smartcha
 - use `npm install` to install dependencies
 - use `npm start` to launch webpack dev server
 - use `npm run build` to build the library
-- use `npm run build:app` to build the [charts.binary.com](https://charts.binary.com/) app
+- use `npm run build:app` to build the app
 - use `npm run analyze` to run webpack-bundle-analyzer
 - use `npm run test` to run unit tests
 - use `npm run coverage` to see test coverage
@@ -75,42 +71,45 @@ You can install the library using one of the following commands:
 Using npm:
 
 ```bash
-$ npm install @deriv/deriv-chart
+$ npm install @deriv-com/smartcharts-champion
 ```
 
 Using yarn:
 
 ```bash
-$ yarn add @deriv/deriv-chart
+$ yarn add @deriv-com/smartcharts-champion
 ```
 
-**Important Note:** the license for the library is tied to the `binary.com` domain name; it will not work in github pages.
 
-You can add the library to your project using the following commands:
-
-    yarn add @deriv/deriv-chart      # Release
-    yarn add @deriv/deriv-chart@beta # Beta
-
-You can refer to library usage inside `app/index.jsx`:
+You can refer to library usage inside `app/index.tsx`:
 
 ```jsx
-import { SmartChart } from '@deriv/deriv-chart';
+import { SmartChart } from '@deriv-com/smartcharts-champion';
 
 class App extends React.Component {
     render() {
         return (
             <SmartChart
-                requestSubscribe={({ tick_history, granularity, ... }, cb) => {}}   // Passes the whole request object
-                requestForget={({ tick_history, granularity, ... }, cb) => {}}      // request object and cb is exactly the same reference passed to subscribe
-                // for active_symbols, trading_times, ... (NOT streaming)
-                requestAPI={({...}) => Promise} // whole request object, shouldn't contain req_id
+                // For handling history data
+                getQuotes={({ symbol, granularity, count, start, end, style }) => Promise}
+                // For subscribing to real-time quotes
+                subscribeQuotes={({ symbol, granularity }, callback) => unsubscribeFunction}
+                // For forgetting subscriptions
+                unsubscribeQuotes={(request) => {}}
+                // Optional: Pass chart data for updates
+                chartData={{
+                    tradingTimes: {...},
+                    activeSymbols: [...]
+                }}
+                // Control whether to fetch data from API
+                feedCall={{ activeSymbols: false, tradingTimes: false }}
             />
         );
     }
 };
 ```
 
-SmartCharts expects library user to provide `requestSubscribe`, `requestForget` and `requestAPI`. Refer to [API](#api) for more details.
+SmartCharts expects library user to provide `getQuotes`, `subscribeQuotes` and `unsubscribeQuotes`. Refer to [API](#api) for more details.
 
 The job of loading the active symbols or trading times or stream data from cache or retrieving from websocket is therefore NOT the responsibility of SmartCharts but the host application. SmartCharts simply makes the requests and expect a response in return.
 
@@ -120,20 +119,25 @@ Some important notes on your webpack.config.js (refer to `app/webpack.config.js`
 - smartcharts consist of a few chunks (which has filenames `*.smartcharts.*`), which it downloads asynchronously during runtime. Therefore, it needs to know where the library user places its chunks via the `setSmartChartsPublicPath` function:
 
 ```js
-import { setSmartChartsPublicPath } from "@deriv/deriv-chart";
+import { setSmartChartsPublicPath } from "@deriv-com/smartcharts-champion";
 
 // SmartCharts chunk are deployed to https://mysite.com/dist/*
 setSmartChartsPublicPath("/dist/");
+// or 
+setSmartChartsPublicPath("node_modules/@deriv-com/smartcharts-champion/dist/")
 ```
 
-We can use the `copy-webpack-plugin` webpack plugin to copy over SmartCharts chunks:
+You can use the `copy-webpack-plugin` webpack plugin to copy over SmartCharts chunks:
 
 ```js
 new CopyWebpackPlugin([
-  { from: "./node_modules/@deriv/deriv-chart/dist/*.smartcharts.*" },
-  { from: "./node_modules/@deriv/deriv-chart/dist/smartcharts.css" },
+  { from: "./node_modules/@deriv-com/smartcharts-champion/dist/*.smartcharts.*" },
+  { from: "./node_modules/@deriv-com/smartcharts-champion/dist/smartcharts.css" },
 ]);
 ```
+
+You would also need to copy `node_modules/@deriv-com/smartcharts-champion/dist/chart/assets` to assets folder in the root of the project using CopyWebpackPlugin.
+
 ### API
 
 > Note: Props will take precedence over values set by the library.
@@ -142,14 +146,14 @@ Props marked with `*` are **mandatory**:
 
 | Props                     | Description                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| requestAPI\*              | SmartCharts will make single API calls by passing the request input directly to this method, and expects a `Promise` to be returned.                                                                                                                                                                                                                             |
-| requestSubscribe\*        | SmartCharts will make streaming calls via this method. `requestSubscribe` expects 2 parameters `(request, callback) => {}`: the `request` input and a `callback` in which response will be passed to for each time a response is available. Keep track of this `callback` as SmartCharts will pass this to you to forget the subscription (via `requestForget`). |
-| requestForget\*           | When SmartCharts no longer needs a subscription (made via `requestSubscribe`), it will call this method (passing in `request` and `callback` passed from `requestSubscribe`) to halt the subscription.                                                                                                                                                           |
+| getQuotes\*         | Function to fetch historical tick data. Expects parameters `{ symbol, granularity, count, start?, end?, style? }` and returns a Promise with candles or history data.                                                                                                                                                                                            |
+| subscribeQuotes\*               | Function to subscribe to real-time quotes. Expects parameters `({ symbol, granularity }, callback)` and returns an unsubscribe function.                                                                                                                                                                                                                         |
+| unsubscribeQuotes\*           | When SmartCharts no longer needs a subscription, it will call this method (passing in the request object) to halt the subscription.                                                                                                                                                                                                                              |
 | id                        | Uniquely identifies a chart's indicators, symbol and layout; saving them to local storage and loading them when page refresh. If not set, SmartCharts renders a fresh chart with default values on each refresh. Defaults to `undefined`.                                                                                                           |
 | getMarketsOrder           | Callback function to set/order the active symbols category. `active_symbols` is passed to the callback and an array of markets is expected in return. Allowed values are `forex`, `basket_index`, `indices`, `stocks`, `commodities`, `synthetic_index` and `cryptocurrency`. Defaults to `undefined`                                                                                                 |
 | getIndicatorHeightRatio           | Callback function to set/order the height of the active indicators that attach to the bottom of the chart. The chart pass two parameters, `chart_height` and `indicator_count` and the callback should return an object that contains two parameters, `height` and `percent` which `height` present the height of each indicator in pixel and the `percent` present the percentage of height compare to chart height. Example:  `getIndicatorHeightRatio: (chart_height, indicator_count) => ({height, percent})` . Defaults to `undefined`                                                                                       |
-| symbol                    | Sets the main chart symbol. Defaults to `R_100`. Refer [Props vs UI](#props-vs-ui) for usage details.                                                                                                                                                                                                                                                            |
-| initialData               | Set initial data that the library requires for booting up. Refer [initialData](#initial-data) for usage details.                                                                                                                                                                                                                                                      |
+| symbol                    | Sets the main chart symbol. Defaults to `R_100`. Refer [Props vs UI](#props-vs-ui) for usage details.                                                                                                                                                                                                                                                            |                                                                                                                                                                                                                                                  |
+| chartData                 | Pass chart data for updates. Default is `undefined`.                                                                                                                                                                                                                         |
 | feedCall                  | Enable/Disable the feed call for getting requirement resources. Default is `{activeSymbols: true,tradingTimes: true}`                                                                                                                                                                                                                                             |
 | granularity               | Sets the granularity of the chart. Allowed values are 60, 120, 180, 300, 600, 900, 1800, 3600, 7200, 14400, 28800, 86400. Defaults to 0. Refer [Props vs UI](#props-vs-ui) for usage details.                                                                                                                                                                    |
 | chartType                 | Sets the chartType. Choose between `mountain` (Line), `line` (Dot), `colored_line` (Colored Dot), `spline`, `baseline`, `candle`, `colored_bar` (OHLC), `hollow_candle`, `heikinashi`, `kagi`, `linebreak`, `renko`, `rangebars`, and `pandf` (Point & Figure). Defaults to `mountain`. Refer [Props vs UI](#props-vs-ui) for usage details.                     |
@@ -172,23 +176,20 @@ Props marked with `*` are **mandatory**:
 | isVerticalScrollEnabled   | Determine whether verticall scroll on the chart outside Y-axis is disabled while it is forced on the nearest scrollable parent instead. It may need to be disabled for mobile app version to scroll the page up or down instead of the chart. In this case, when scroll delta exceeds 10px, the page will be force-scrolled fully in a respective direction. Defaults to `true`.                                                                                                                                                                                                                                |
 | showLastDigitStats        | Shows last digits stats. Defaults to `false`.                                                                                                                                                                                                                                                                                                                    |
 | scrollToEpoch             | Scrolls the chart to the leftmost side and sets the last spot/bar as the first visible spot/bar in the chart. Also, it disables scrolling until the chart reaches the 3/4 of the width of the main pane of the chart. Defaults to `null`.                                                                                                                        |
-                                                         |
 | clearChart                | Clear the chart.                                                                                                                                                                                                                                                                                                                                                 |
 | onExportLayout            | Export the layout and send it back using this callback.                                                                                                                                                                                                                                                                                                          |
 | importedLayout            | The layout to be imported to chart. It should be the layout that was exported in onExportLayout;                                                                                                                                                                                                                                                                 |
 | shouldDrawTicksFromContractInfo         | Determine whether SmartCharts should draw ticks on the chart based on `contractInfo` object, which contains data from `proposal_open_contract` API response, instead of ticks from `ticks_history` API response. Should be used together with `contractInfo` prop described above, otherwise `ticks_history` API response will be used for drawing ticks as usual. Defaults to `false`.                                                                                                                                                                                                                                                   |
 | shouldFetchTradingTimes   | Determine whether an API call for fetching trading times is necessary for the new chart or not. Defaults to `true`                                                                                                                                                                                                                                                   |
 | should_zoom_out_on_yaxis  | Forces y-axis to zoom out. Overrides `top` and `bottom` values of `yAxisMargin` prop. Defaults to `undefined`.                                                                                                                                                                                                                                                   |
-| shouldFetchTickHistory    | Determine whether an API call for fetching tick history is necessary for the new chart or not. Defaults to `true`                                                                                                                                                                                                                                                   |
+| shouldGetQuotes    | Determine whether an API call for fetching tick history is necessary for the new chart or not. Defaults to `true`                                                                                                                                                                                                                                                   |
 | allTicks                  | Provides all_ticks contract data for chart rendering when contract with duration = 'ticks' . Defaults to `undefined`                                                                                                                                                                                                                                              |
 | maxTick                   | Set the max number of first points/candles in the visible chart area. The value should be number greater than zero. Defaults to `undefined`                                                                                                                                                                                                                      |
-| crosshair                 | Set state of Crosshair Component. Allowed values are undefined, 0,1,2. Defaults to `undefined`                                                                                                                                                                                                                                                                   |
-| crosshairTooltipLeftAllow | Set max left position which chart allow to render left side tooltip of crosshair, if mouse position before this size, the crosshair tooltip move to right side of mouse, if set `null` then chart specify `315px` as default value. Defaults to `null`                                                                                                           |
+| crosshair                 | Control crosshair visibility state. Accepts numeric values (`undefined`, `0`, `1`, `2`) where `1` enables crosshair (default). The crosshair provides precise price and time information when hovering over the chart. Modern usage recommends using the `<CrosshairToggle />` component for user interaction instead of directly setting this prop. See [Crosshair Implementation Guide](docs/CROSSHAIR_MAINTAINERS_GUIDE.md) for architecture details and modern usage patterns.                                                                                                                                                                                                                                                   |
 | zoom                      | Zoom in and Zoom out the chart. the value should be `1` or `-1`. If the value is `1` the chart will be zoomed in, and if the value is `-1` it zoomed out.                                                                                                                                                                                                        |
 | yAxisMargin               | Set the margins of chart yAxis. It's an object that takes two parameters, `bottom` for margin bottom of chart, and `top` for the top margin of chart.                                                                                                                                                                                                            |
 | enableScroll              | Enable/disable scroll feature in chart. Scroll gets disable on chart scale `1:1` and enable whenever user zoom in/out. This property override that feature . Defaults to `true`                                                                                                                                                                                  |
-| enableZoom                | Enable/disable zoom feature in chart. Defaults to `true`                                                                                                                                                                                                                                                                                                         |
-
+| enableZoom                | Enable/disable zoom feature in chart. Defaults to `true`                                                                                                                        
 ### Chart Settings
 
 | Attribute                    | Description                                                                                                                           |
@@ -202,10 +203,6 @@ Props marked with `*` are **mandatory**:
 | isHighestLowestMarkerEnabled | Show or hide the highest and lowest tick on the chart. Defaults to `false`.                                                           |
 | whitespace                    | The default width of whitespace between the right edge of the chart and the y-axis. It should be used in combination with `minimumLeftBars` setting value. For more details, please refer to stxx.preferences.whitespace in CIQ documentation. Defaults to `undefined`.                                                                                                  |
 
-#### InitialData
-
-Initial data property designed to pass prepared chart data in case you don't want to wait for Feed data or if you simply want to make the chart render quicker on its initial load. It gets the properties below and all of them are optional, so if you pass the data, the chart will use that data, but if you pass `null` instead, the chart will default to the Feed call and get the data from API.
-**notice:** these data are only use for initialing sequence and after that, chart request on Feed to get data.
 | Attribute | Description | Sample Data |
 | --- | --- | --- |
 | activeSymbols | An array of active symbols (available markets) is used to load the market selector. Default is `null`. This value would update in the chart is user toggle property of `refreshActiveSymbols` that cause the chart to request for activeSymbols on the Feed | `[{ allow_forward_starting: 0, display_name: 'AUD Basket', exchange_is_open: 1, is_trading_suspended: 0, market: 'basket_index', market_display_name: 'Basket Indices', pip: 0.001, submarket: 'forex_basket', submarket_display_name: 'Forex Basket', symbol: 'WLDAUD', symbol_type: 'forex_basket' }, ...]`
@@ -250,12 +247,218 @@ Attributes marked with `*` are **mandatory**:
 | opacityOnOverlap     | Sets the opacity of the barrier when it is overlapping with other barrier.                                                                                                         |
 | high\*               | Sets the price of the high barrier.                                                                                                                                                |
 | low\*                | Sets the price of the low barrier.                                                                                                                                                 |
+
+### Handling Type Errors in StreamManager.ts
+
+When working with the StreamManager.ts file, you might encounter TypeScript errors due to type assertions or complex type relationships. Here are several ways to handle these type errors:
+
+1. **Using `// @ts-ignore` comment**:
+   - Place this comment directly above the line with the type error
+   - This tells TypeScript to ignore any errors on the next line
+   ```typescript
+   // @ts-ignore
+   this._connection.send((request as unknown) as TBinaryAPIRequest);
+   ```
+
+2. **Using `// @ts-nocheck` comment**:
+   - Place this at the top of the file to ignore all type errors in the entire file
+   - Use this sparingly as it disables type checking for the whole file
+   ```typescript
+   // @ts-nocheck
+   import { ... } from '...';
+   ```
+
+3. **Using type assertions**:
+   - Already used in the file with `as unknown as Type`
+   - This is a two-step assertion that first converts to `unknown` and then to the desired type
+   ```typescript
+   (data.echo_req as unknown) as TGetQuotes
+   ```
+
+4. **Using the `any` type**:
+   - The nuclear option that bypasses type checking completely
+   - Use with caution as it removes all type safety
+   ```typescript
+   const response: any = await this._connection.send(request);
+   ```
+
+Choose the approach that best fits your specific situation, but try to minimize the use of type bypassing to maintain type safety where possible.
+
+### Example Usage with Dummy Values
+
+Here's an example of how to use the SmartCharts component with dummy values:
+
+```jsx
+import React from 'react';
+import { SmartChart } from '@deriv-com/smartcharts-champion';
+
+// Sample active symbols data
+const dummyActiveSymbols = [
+  {
+    allow_forward_starting: 0,
+    display_name: 'AUD/JPY',
+    exchange_is_open: 1,
+    is_trading_suspended: 0,
+    market: 'forex',
+    market_display_name: 'Forex',
+    pip: 0.001,
+    submarket: 'major_pairs',
+    submarket_display_name: 'Major Pairs',
+    symbol: 'frxAUDJPY',
+    symbol_type: 'forex'
+  },
+  // Add more symbols as needed
+];
+
+// Sample trading times data
+const dummyTradingTimes = {
+  'frxAUDJPY': {
+    isOpen: true,
+    openTime: '2023-01-01T00:00:00Z',
+    closeTime: '2023-01-01T23:59:59Z'
+  },
+  // Add more trading times as needed
+};
+
+// Sample historical data
+const dummyMasterData = [
+  {
+    Date: '2023-01-01T00:00:00',
+    Open: 95.25,
+    High: 95.50,
+    Low: 95.00,
+    Close: 95.35
+  },
+  {
+    Date: '2023-01-01T01:00:00',
+    Open: 95.35,
+    High: 95.75,
+    Low: 95.20,
+    Close: 95.60
+  },
+  // Add more candles as needed
+];
+
+const ChartExample = () => {
+  // Function to fetch historical tick data
+  const getQuotes = ({ symbol, granularity, count, start, end, style }) => {
+    console.log('Fetching tick history for:', { symbol, granularity, count, start, end, style });
+    
+    // Return a promise that resolves with candles or history data
+    if (style === 'ticks') {
+      // For tick style, return history with times and prices
+      return Promise.resolve({
+        history: {
+          times: dummyMasterData.map(candle => new Date(candle.Date).getTime() / 1000),
+          prices: dummyMasterData.map(candle => candle.Close)
+        }
+      });
+    } else {
+      // For candle style, return candles
+      return Promise.resolve({
+        candles: dummyMasterData.map(candle => ({
+          open: candle.Open,
+          high: candle.High,
+          low: candle.Low,
+          close: candle.Close,
+          epoch: new Date(candle.Date).getTime() / 1000
+        }))
+      });
+    }
+  };
+
+  // Function to subscribe to real-time quotes
+  const subscribeQuotes = ({ symbol, granularity }, callback) => {
+    console.log('Subscribing to quotes for:', { symbol, granularity });
+    
+    // Simulate real-time updates with an interval
+    const interval = setInterval(() => {
+      const lastPrice = 95 + Math.random();
+      const quote = {
+        Date: new Date().toISOString(),
+        Close: lastPrice,
+        DT: new Date(),
+        tick: {
+          quote: lastPrice,
+          epoch: Math.floor(Date.now() / 1000)
+        }
+      };
+      
+      callback(quote);
+    }, 1000);
+    
+    // Return an unsubscribe function
+    return () => {
+      console.log('Unsubscribing from quotes for:', { symbol, granularity });
+      clearInterval(interval);
+    };
+  };
+
+  // Function to forget subscriptions
+  const unsubscribeQuotes = (request) => {
+    console.log('Forgetting subscription for:', request);
+    // In a real implementation, you would handle unsubscribing from the WebSocket here
+  };
+
+  // Function to calculate indicator height ratio
+  const getIndicatorHeightRatio = (chart_height, indicator_count) => {
+    const isSmallScreen = chart_height < 780;
+    const denominator = indicator_count >= 5 ? indicator_count : indicator_count + 1;
+    const reservedHeight = 320;
+    const indicatorsHeight = Math.round(
+      (chart_height - (reservedHeight + (isSmallScreen ? 20 : 0))) / denominator
+    );
+    
+    return {
+      height: indicatorsHeight,
+      percent: indicatorsHeight / chart_height,
+    };
+  };
+
+  return (
+    <SmartChart
+      id="example-chart"
+      symbol="frxAUDJPY"
+      getQuotes={getQuotes}
+      subscribeQuotes={subscribeQuotes}
+      unsubscribeQuotes={unsubscribeQuotes}
+      chartType="candle"
+      granularity={60} // 1-minute candles
+      getIndicatorHeightRatio={getIndicatorHeightRatio}
+      feedCall={{ activeSymbols: false, tradingTimes: false }}
+      isAnimationEnabled={true}
+      enabledNavigationWidget={true}
+      isLive={true}
+    />
+  );
+};
+
+export default ChartExample;
+```
+
+In this example:
+
+1. We define dummy data for active symbols, trading times, and historical candles.
+2. We implement the required functions:
+   - `getQuotes`: Returns historical data for the chart
+   - `subscribeQuotes`: Subscribes to real-time quotes and returns an unsubscribe function
+   - `unsubscribeQuotes`: Handles unsubscribing from data streams
+   - `getIndicatorHeightRatio`: Calculates the height for indicators
+3. We configure the SmartChart component with various props:
+   - `id`: A unique identifier for the chart
+   - `symbol`: The trading symbol to display
+   - `chartType`: Set to "candle" for candlestick chart
+   - `granularity`: Set to 60 for 1-minute candles
+   - Other configuration options for appearance and behavior
+
+This example demonstrates how to set up a SmartCharts component with dummy data for development or testing purposes.
+
 #### Marker API
 
 Use `FastMarker` to render given components inside the chart.
 Markers provide a way for developers to place DOM elements that are positioned based on date, values or tick location inside the chart. Also, please note that this `FastMarker` implementation does not factor the width and height of the marker: this is expensive to calculate, so we expect you to offset this in CSS.
 `FastMarker` will keep the marker position on the chart.
-It can be imported from `@deriv/deriv-chart` package either as `FastMarker`, or simply as `Marker`.
+It can be imported from `@deriv-com/smartcharts-champion` package either as `FastMarker`, or simply as `Marker`.
 
 ```jsx
 <SmartChart>
@@ -306,7 +509,7 @@ We offer library users full control on deciding which of the top widgets and cha
 For example, we want to remove all the chart control buttons, and for top widgets to just show the comparison list (refer `app/index.jsx`):
 
 ```jsx
-import { ChartMode, ToolbarWidget } from "@deriv/deriv-chart";
+import { ChartMode, ToolbarWidget } from "@deriv-com/smartcharts-champion";
 
 const renderTopWidgets = () => (
   <React.Fragment>
@@ -343,7 +546,7 @@ Here are the following components you can import:
 - Top widgets:
   - `<ChartTitle enabled={true} onChange={(symbol) => {}} open_market={null} />`
 - Chart controls:
-  - `<CrosshairToggle enabled={true} />`
+  - `<CrosshairToggle />` - Interactive crosshair toggle component with internationalization support. Features reactive state management using MobX, dual-state logic (user preference + temporary disable), mobile-responsive tooltips, and proper UX patterns (icon shows current state, label shows available action). Integrates with global translation system using keys "Enable Crosshair" and "Disable Crosshair".
   - `<ChartTypes enabled={true} onChange={(chartType) => {}} />`
   - `<StudyLegend />`
   - `<DrawTools />`
@@ -401,6 +604,15 @@ See available components and their props in [Customising Components](#customisin
 
 ## How to contribute
 
+### Developer Documentation
+
+For component-specific maintenance and development guidelines, see the [`docs/`](docs/) directory:
+
+- [Crosshair Implementation - Maintainer's Guide](docs/CROSSHAIR_MAINTAINERS_GUIDE.md) - Comprehensive guide for maintaining and developing the crosshair functionality
+
+Future component guides will follow the same pattern and be added to the [`docs/`](docs/) directory.
+
+### Getting Started
 
 1. Create branch from the latest `master` branch
 
@@ -420,16 +632,6 @@ See available components and their props in [Customising Components](#customisin
     git push -u origin [_your_branch_name]
     ```
 
-**Important Note:** Prior to sending pull requests, make sure all unit tests passed:
-
-    ```sh
-    npm run test
-    ```
-
--  Once your changes have been merged to `master`, it will immediately deployed to [charts.binary.com/beta](https://charts.binary.com/beta/).
-
--   Make sure to change the PR base to `master` branch
-
 -   Click on the autogenerated link from terminal to open the PR
 
 
@@ -441,28 +643,6 @@ To publish to production:
     ```sh
     npm run build && npm publish
     ```
-
-To publish to beta:
-
-    ```sh
-    npm run build && npm publish --tag beta
-    ```
-### Staging / Production deployment
-#### 1) Staging deployment:
-
-- Any pull request merged to `master` branch will be automatically deployed to charts.binary.com/beta.
-
-#### 2) Production deployment:
-
-- Production deployment is handled with tagging, ideally, we will create the tag with the prefix `production_v{{version_number}}` from `master` branch and push the tag to initiate the production release pipeline.
-
-NOTE: _Write access is required for this action_
-
-Example:
-
-i) `git tag production_v20180901 -m 'release production'`
-
-ii) `git push origin production_v20180901`
 
 
 ## Manage translations
@@ -477,39 +657,11 @@ t.translate("[currency] [amount] payout if the last tick.", {
 t.setLanguage("fr", callback_function); // components need to be rerendered for changes to take affect
 ```
 
-Each time a new translation string is added to the code, you need to update the `messages.pot` via:
-
-    npm run translations
-
-Once the new `messages.pot` is merged into the `master` branch, it will automatically be updated in [CrowdIn](https://crowdin.com/project/smartcharts/settings#files). You should expect to see a PR with the title 
-
-**New Crowdin translations**
-in a few minutes; this PR will update the `*.po` files.
-
-## Developer Notes
-
-### Developer Workflow
-
-We organise the development in Trello. Here is the standard workflow of how a feature/bug fix is added:
-
-1.  When an issue/feature is raised, it is added to `Backlog` list. For each card added, it should have a "QA Checklist" (Add checklist to card) for QA to verify that the feature/bug fix has been successfully implemented.
-2.  In a meeting, if feature/bug fix is set to be completed for next release, it will be labeled as `Next Release` and placed in `Bugs/Todo` list.
-3.  Cards are assigned to developers by adding them to the card; manager gets added to every card.
-4.  If a developer is actively working on a card, he places the card in `In Development`; otherwise it should be placed back into `Bugs/Todo` list.
-5.  Once the feature/bug fix is implemented, the developer needs put 2 things in the card before placing his card in `Review` list.:
-    - **PR**: Link to the PR.
-    - **Test Link**: Link to github pages that has the changes; this is for QA to verify. Refer to [this section](#deploy-to-github-pages) for instructions on how to deploy.
-6.  If reviewer requests changes, he will place the card back to the `In Development` list. This back and forth continues until the reviewer passes the PR by marking it as `approved` in Github.
-7.  Reviewer places the reviewed card into `QA` list.
-8.  If the card fails QA check, QA can comment on the card on what failed, and place the card back to `In Development` list. If QA passes the changes, QA will place the card from `QA` to `Ready`; this card is now ready to be merged to `master`.
-9.  Once the card is merged to `master`, it is placed in `Deployed to BETA` list.
-10. When it is time to take all changes in `beta` and deploy in production, manager will merge `master` into `master`, and place all cards in `Deployed to BETA` to `Released`.
-
 ### Debugging NPM Package
 
 Some issues only show up for library users, so it is helpful to test the NPM package before deploying it to library users. You can do this by building the library directly into the node_modules directory of an app that uses the SmartCharts library. For example to test the library build on binary-static you can execute:
 
-    npm run watch '../binary-static/node_modules/@deriv/deriv-chart/dist'
+    npm run watch '../binary-static/node_modules/@deriv-com/smartcharts-champion/dist'
 
 Now each time you make any change, it will overwrite the SmartCharts library inside the `node_modules` folder.
 

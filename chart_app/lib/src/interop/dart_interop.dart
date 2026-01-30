@@ -110,14 +110,12 @@ class DrawingToolWrapper {
 
   DrawingToolWrapper(this._model);
 
-  void addOrUpdateDrawing(String dataString) =>
-      _model.addOrUpdateDrawing(dataString);
+  void updateFloatingMenuPosition(double x, double y) =>
+      _model.updateFloatingMenuPosition(x, y);
+  void startAddingNewTool(String toolType) =>
+      _model.startAddingNewTool(toolType);
+  void cancelAddingNewTool() => _model.cancelAddingNewTool();
   void removeDrawingTool(int index) => _model.removeDrawingTool(index);
-  String getTypeOfSelectedDrawingTool(dynamic config) =>
-      _model.getTypeOfSelectedDrawingTool(config);
-  void editDrawing(String dataString, int index) =>
-      _model.editDrawing(dataString, index);
-  void clearDrawingTool() => _model.clearDrawingTool();
   void clearDrawingToolSelect() => _model.clearDrawingToolSelect();
   List<String> getDrawingToolsRepoItems() => _model.getDrawingToolsRepoItems();
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
@@ -10,7 +9,7 @@ import Tooltip from './Tooltip';
 import Scroll from './Scroll';
 import { IndicatorIcon, ActiveIcon, EmptyStateIcon, SettingIcon, DeleteIcon, InfoCircleIcon, BackIcon } from './Icons';
 import '../../sass/components/_studylegend.scss';
-import { STATE, TooltipsContent, getIndicatorsTree } from '../Constant';
+import { STATE, TooltipsContent, getIndicatorCategoryName } from '../Constant';
 import Menu from './Menu';
 import SearchInput from './SearchInput';
 
@@ -277,7 +276,6 @@ const StudyLegend = ({ portalNodeId }: TStudyLegendProps) => {
         onSelectTab,
         onSelectItem,
         activeItems,
-        getItemById,
         deleteStudyById,
         editStudy,
         onInfoItem,
@@ -293,11 +291,6 @@ const StudyLegend = ({ portalNodeId }: TStudyLegendProps) => {
     const activeStudiesNo = activeItems.length;
 
     updatePortalNode(portalNodeId);
-
-    const getIndicatorCategoryName = (id: string) =>
-        getIndicatorsTree()
-            .find(categories => categories.items.some(item => item.flutter_chart_id === id))
-            ?.category.replace('-', ' ') ?? '';
 
     const handleStateChange = (id: string, type: string, payload?: { is_info_open: boolean }) => {
         state.stateChange(type, {
@@ -386,16 +379,10 @@ const StudyLegend = ({ portalNodeId }: TStudyLegendProps) => {
                         handleStateChange(flutter_chart_id, STATE.INDICATOR_ADDED);
                     }}
                     onDeleteItem={(id: string) => {
-                        const item = getItemById(id);
-                        if (item) {
-                            handleStateChange(item.flutter_chart_id, STATE.INDICATOR_DELETED);
-                        }
-
                         deleteStudyById(id);
                     }}
                     onEditItem={(study: TActiveItem) => {
                         editStudy(study);
-                        handleStateChange(study.flutter_chart_id, STATE.INDICATOR_SETTINGS_OPEN);
                     }}
                     onInfoItem={(item: TActiveItem) => {
                         onInfoItem(item);

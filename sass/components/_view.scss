@@ -17,6 +17,15 @@
             border-radius: $border-radius 0 0 $border-radius;
             height: 40px;
             text-align: left;
+            @include themify($themes) {
+                color: themed('DefaultText');
+            }
+
+            &::placeholder {
+                @include themify($themes) {
+                    color: themed('TemplateFormInputText');
+                }
+            }
         }
         .subtitle {
             position: absolute;
@@ -111,7 +120,7 @@
         > .ic-icon {
             width: 130px;
             height: 130px;
-            margin: 0 auto 24px;
+            margin: 24px auto 0px;
         }
         p {
             font-size: 12px;

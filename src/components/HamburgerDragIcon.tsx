@@ -1,10 +1,14 @@
-import React from 'react';
+import classNames from 'classnames';
 
-const HamburgerDragIcon = () => (
-    <div className='drag-icon'>
-        <div></div>
-        <div></div>
-        <div></div>
+type THamburgerDragIconProps = {
+    isOverlapping?: boolean;
+};
+
+const HamburgerDragIcon = ({ isOverlapping }: THamburgerDragIconProps) => (
+    <div className={classNames('drag-icon', { 'drag-icon--hidden': isOverlapping })}>
+        <div className={classNames({ 'drag-icon--hidden': isOverlapping })} />
+        <div className={classNames({ 'drag-icon--hidden': isOverlapping })} />
+        <div className={classNames({ 'drag-icon--hidden': isOverlapping })} />
     </div>
 );
 

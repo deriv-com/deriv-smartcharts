@@ -1,13 +1,12 @@
-import React from 'react';
 import {
-    DrawToolsChannelIcon,
-    DrawToolsContinuousIcon,
-    DrawToolsFibonaccifanIcon,
+    // DrawToolsChannelIcon,
+    // DrawToolsContinuousIcon,
+    // DrawToolsFibonaccifanIcon,
     DrawToolsHorizontalIcon,
     DrawToolsLineIcon,
-    DrawToolsRayIcon,
-    DrawToolsRectangleIcon,
-    DrawToolsTrendIcon,
+    // DrawToolsRayIcon,
+    // DrawToolsRectangleIcon,
+    // DrawToolsTrendIcon,
     DrawToolsVerticalIcon,
     FlagIcons,
     IndicatorAdxIcon,
@@ -58,20 +57,21 @@ type TDrawTools = {
         id: string;
         text: string;
         icon: TIcon;
+        configType?: string;
     };
 };
-
+// TODO: Add back the drawing tools when their implementations are done.
 export const getDrawTools: () => TDrawTools = () => ({
-    channel: { id: 'channel', text: t.translate('Channel [num]'), icon: DrawToolsChannelIcon },
-    continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsContinuousIcon },
-    fibfan: { id: 'fibfan', text: t.translate('Fib Fan [num]'), icon: DrawToolsFibonaccifanIcon },
-    horizontal: { id: 'horizontal', text: t.translate('Horizontal [num]'), icon: DrawToolsHorizontalIcon },
-    line: { id: 'line', text: t.translate('Line [num]'), icon: DrawToolsLineIcon },
-    ray: { id: 'ray', text: t.translate('Ray [num]'), icon: DrawToolsRayIcon },
+    // channel: { id: 'channel', text: t.translate('Channel [num]'), icon: DrawToolsChannelIcon },
+    // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsContinuousIcon },
+    // fibfan: { id: 'fibfan', text: t.translate('Fib Fan [num]'), icon: FibfanDrawingToolConfig },
+    horizontal: { id: 'horizontal', text: t.translate('Horizontal line [num]'), icon: DrawToolsHorizontalIcon },
+    line: { id: 'line', text: t.translate('Trend line [num]'), icon: DrawToolsLineIcon },
+    // ray: { id: 'ray', text: t.translate('Ray [num]'), icon: DrawToolsRayIcon },
     // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsRayIcon },
-    rectangle: { id: 'rectangle', text: t.translate('Rectangle [num]'), icon: DrawToolsRectangleIcon },
-    trend: { id: 'trend', text: t.translate('Trend [num]'), icon: DrawToolsTrendIcon },
-    vertical: { id: 'vertical', text: t.translate('Vertical [num]'), icon: DrawToolsVerticalIcon },
+    // rectangle: { id: 'rectangle', text: t.translate('Rectangle [num]'), icon: DrawToolsRectangleIcon },
+    // trend: { id: 'trend', text: t.translate('Trend [num]'), icon: DrawToolsTrendIcon },
+    vertical: { id: 'vertical', text: t.translate('Vertical line [num]'), icon: DrawToolsVerticalIcon },
 });
 
 export const getTooltipLabels = (key: string, activeItem?: TActiveItem) => {
@@ -634,14 +634,14 @@ const getADXIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
             type: 'colorpicker',
         },
         {
-            path: 'barStyle.positiveColor',
+            path: 'barStyle.bullishColor',
             title: t.translate('Positive Bar'),
             defaultValue: '#00DD00',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
-            path: 'barStyle.negativeColor',
+            path: 'barStyle.bearishColor',
             title: t.translate('Negative Bar'),
             defaultValue: '#FF0000',
             category: 'inputs',
@@ -692,14 +692,14 @@ const getAwesomeOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     },
     parameters: [
         {
-            path: 'barStyle.positiveColor',
+            path: 'barStyle.bullishColor',
             title: t.translate('Increasing Bar'),
             defaultValue: '#00DD00',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
-            path: 'barStyle.negativeColor',
+            path: 'barStyle.bearishColor',
             title: t.translate('Decreasing Bar'),
             defaultValue: '#FF0000',
             category: 'inputs',
@@ -756,14 +756,14 @@ const getGatorIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     },
     parameters: [
         {
-            path: 'barStyle.positiveColor',
+            path: 'barStyle.bullishColor',
             title: t.translate('Increasing Bar'),
             defaultValue: '#00DD00',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
-            path: 'barStyle.negativeColor',
+            path: 'barStyle.bearishColor',
             title: t.translate('Decreasing Bar'),
             defaultValue: '#FF0000',
             category: 'inputs',
@@ -837,14 +837,14 @@ const getMACDIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
             type: 'colorpicker',
         },
         {
-            path: 'barStyle.positiveColor',
+            path: 'barStyle.bullishColor',
             title: t.translate('Increasing Bar'),
             defaultValue: '#00DD00',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
-            path: 'barStyle.negativeColor',
+            path: 'barStyle.bearishColor',
             title: t.translate('Decreasing Bar'),
             defaultValue: '#FF0000',
             category: 'inputs',
@@ -2098,24 +2098,34 @@ export const Languages = [
         icon: <FlagIcons.Spanish />,
     },
 ];
-
 export const STATE = {
+    CHART_MODE_MODAL_OPEN: 'CHART_MODE_MODAL_OPEN',
     CHART_INTERVAL_CHANGE: 'CHART_INTERVAL_CHANGE',
     CHART_TYPE_CHANGE: 'CHART_TYPE_CHANGE',
+    CHART_SWITCH_TOGGLE: 'CHART_SWITCH_TOGGLE',
+    MARKET_MENU_MODAL_TOGGLE: 'MARKET_MENU_MODAL_TOGGLE',
     FAVORITE_MARKETS_TOGGLE: 'FAVORITE_MARKETS_TOGGLE',
     INDICATOR_ADDED: 'INDICATOR_ADDED',
     INDICATOR_DELETED: 'INDICATOR_DELETED',
+    INDICATOR_EDITED: 'INDICATOR_EDITED',
     INDICATOR_INFO_TOGGLE: 'INDICATOR_INFO_TOGGLE',
     INDICATOR_SEARCH: 'INDICATOR_SEARCH',
     INDICATOR_SETTINGS_OPEN: 'INDICATOR_SETTINGS_OPEN',
     INDICATORS_CLEAR_ALL: 'INDICATORS_CLEAR_ALL',
-    INDICATORS_MODAL_TOGGLE: 'INDICATORS_MODAL_TOGGLE',
+    INDICATORS_MODAL_OPEN: 'INDICATORS_MODAL_OPEN',
     INITIAL: 'INITIAL',
     MARKET_SEARCH: 'MARKET_SEARCH',
     MARKET_STATE_CHANGE: 'MARKET_STATE_CHANGE',
     READY: 'READY',
     SCROLL_TO_LEFT: 'SCROLL_TO_LEFT',
     SYMBOL_CHANGE: 'SYMBOL_CHANGE',
+    DRAWING_TOOLS_OPEN: 'DRAWING_TOOLS_OPEN',
+    DRAWING_TOOLS_ADD: 'DRAWING_TOOLS_ADD',
+    DRAWING_TOOLS_DELETE: 'DRAWING_TOOLS_DELETE',
+    DRAWING_TOOLS_EDIT_PX: 'DRAWING_TOOLS_EDIT_PX',
+    DRAWING_TOOLS_EDIT_COLOR: 'DRAWING_TOOLS_EDIT_COLOR',
+    DRAWING_TOOLS_MODAL_OPEN: 'DRAWING_TOOLS_MODAL_OPEN',
+    CROSSHAIR_CLICK: 'CROSSHAIR_CLICK',
 } as const;
 
 export const TooltipsContent = {
@@ -2123,3 +2133,8 @@ export const TooltipsContent = {
         'This indicator does not support 1-tick intervals. To use this indicator, change your chart time interval to 1 minute or more.'
     ),
 };
+
+export const getIndicatorCategoryName = (id: string) =>
+    getIndicatorsTree()
+        .find(categories => categories.items.some(item => item.flutter_chart_id === id))
+        ?.category.replace('-', ' ') ?? '';

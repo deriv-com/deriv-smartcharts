@@ -1,3 +1,4 @@
+import ChartAdapterStore from 'src/store/ChartAdapterStore';
 import BottomWidgetsContainerStore from '../store/BottomWidgetsContainerStore';
 import TimeperiodStore from '../store/TimeperiodStore';
 import ChartStore from '../store/ChartStore';
@@ -22,7 +23,6 @@ import HighestLowestStore from '../store/HighestLowestStore';
 import PaginationLoaderStore from '../store/PaginationLoaderStore';
 import ToolbarWidgetStore from '../store/ToolbarWidgetStore';
 import ScrollStore from '../store/ScrollStore';
-import ChartAdapterStore from 'src/store/ChartAdapterStore';
 
 export type TMainStore = {
     notifier: Notifier;
@@ -50,6 +50,15 @@ export type TMainStore = {
     toolbarWidget: ToolbarWidgetStore;
     scroll: ScrollStore;
     chartAdapter: ChartAdapterStore;
+};
+
+export type TAddingStateInfo = {
+    /** The current step of the adding process of a DrawingAddingPreview */
+    currentStep: number;
+    /** The total number of steps required to complete the adding process */
+    totalSteps: number;
+    /** Indicates whether the adding process is finished */
+    readonly isFinished: boolean;
 };
 
 export type Stores = Notifier;

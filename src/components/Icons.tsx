@@ -31,7 +31,6 @@ import CloseBold from '../../sass/icons/close/ic-close-bold.svg';
 import Comparison from '../../sass/icons/chart settings/comparison/ic-comparison-normal.svg';
 import CrosshairOff from '../../sass/icons/chart settings/crosshair/ic-crosshair-off.svg';
 import CrosshairOn from '../../sass/icons/chart settings/crosshair/ic-crosshair-on.svg';
-import CrosshairTooltip from '../../sass/icons/chart settings/crosshair/ic-crosshair-tooltip.svg';
 import Delete from '../../sass/icons/delete/ic-delete.svg';
 import Clear from '../../sass/icons/clear/ic-clear.svg';
 import Draw from '../../sass/icons/chart settings/drawing tools/ic-drawingtools-normal.svg';
@@ -58,6 +57,7 @@ import PositionBottom from '../../sass/icons/chart settings/setting/ic-position-
 import Back from '../../sass/icons/back/ic-back.svg';
 import DrawCursor from '../../sass/icons/pencil/ic-pencil.svg';
 import DrawTool from '../../sass/icons/common/ic-drawing-tool.svg';
+import DrawToolMobile from '../../sass/icons/common/ic-drawing-tool-mobile.svg';
 
 import HelpCenter from '../../sass/icons/common/ic-help-center.svg';
 import Download from '../../sass/icons/common/ic-download.svg';
@@ -304,6 +304,7 @@ export const DrawingCursorIcon = Wrapper(DrawCursor);
 export const ThemeLightIcon = Wrapper(ThemeLight);
 export const ThemeDarkIcon = Wrapper(ThemeDark);
 export const DrawToolIcon = Wrapper(DrawTool);
+export const DrawToolMobileIcon = Wrapper(DrawToolMobile);
 export const ActiveIcon = Wrapper(Active);
 export const FullScreenIcon = Wrapper(FullScreen);
 
@@ -332,7 +333,6 @@ export const CloseBoldIcon = Wrapper(CloseBold);
 export const ComparisonIcon = Wrapper(Comparison);
 export const CrosshairOffIcon = Wrapper(CrosshairOff);
 export const CrosshairOnIcon = Wrapper(CrosshairOn);
-export const CrosshairTooltipIcon = Wrapper(CrosshairTooltip);
 export const DeleteIcon = Wrapper(Delete);
 export const ClearIcon = Wrapper(Clear);
 export const DrawIcon = Wrapper(Draw);

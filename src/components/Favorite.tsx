@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { useStores } from 'src/store';
 import { STATE } from 'src/Constant';
+import { getSymbolMarketCategory } from 'src/utils';
 import { FavoriteIcon } from './Icons';
 import FavoriteStore from '../store/FavoriteStore';
 import { logEvent, LogCategories, LogActions } from '../utils/ga';
@@ -24,7 +25,8 @@ const Favorite = ({ category, id }: TFavoriteProps) => {
             store.toggleFavorite(category, id);
             state.stateChange(STATE.FAVORITE_MARKETS_TOGGLE, {
                 is_favorite: store.isFavorite(category, id),
-                symbol: chart.activeSymbols?.symbolMap[id]?.symbol,
+                symbol: chart.symbolMap[id]?.symbol,
+                symbol_category: getSymbolMarketCategory(chart.symbolMap[id]),
             });
         },
         [chart, state, store, category, id]

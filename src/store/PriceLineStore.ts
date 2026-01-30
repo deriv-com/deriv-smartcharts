@@ -2,7 +2,7 @@ import EventEmitter from 'event-emitter-es6';
 import { action, computed, observable, when, makeObservable, reaction, IReactionDisposer } from 'mobx';
 import Context from 'src/components/ui/Context';
 import MainStore from '.';
-import { ARROW_HEIGHT, DIRECTIONS, lerp, makeElementDraggable } from '../utils';
+import { ARROW_HEIGHT, DIRECTIONS, makeElementDraggable } from '../utils';
 
 const LINE_OFFSET_HEIGHT = 4;
 const LINE_OFFSET_HEIGHT_HALF = LINE_OFFSET_HEIGHT >> 1;
@@ -87,19 +87,23 @@ export default class PriceLineStore {
         this.mainStore.chartAdapter.painter.registerCallback(this.drawBarrier);
     };
 
-    drawBarrier(currentTickPercent: number) {
+    drawBarrier(_currentTickPercent: number) {
         if (this.isDragging) return;
 
-        const quotes = this.mainStore.chart.feed?.quotes;
+        // Use the pre-computed lerped close value from the painter.
+        // The painter computes this value ONCE per paint frame before calling callbacks,
+        // ensuring all barriers use the exact same value for perfectly synchronized animation.
+        const lerpedClose = this.mainStore.chartAdapter.painter.lerpedClose;
 
-        if (!quotes || quotes.length < 2) return;
+        if (lerpedClose === null) {
+            this.top = this._calculateTop() as number;
+            return;
+        }
 
-        const currentQuote = this._getPrice(quotes[quotes.length - 1].Close);
-        const previousQuote = this._getPrice(quotes[quotes.length - 2].Close);
+        // Calculate the barrier price using the lerped quote value
+        const lerpedPrice = this._getPrice(lerpedClose);
 
-        const lerpQuote = lerp(previousQuote, currentQuote, currentTickPercent);
-
-        this.top = this._calculateTop(lerpQuote) as number;
+        this.top = this._calculateTop(lerpedPrice) as number;
     }
 
     destructor() {
@@ -196,20 +200,12 @@ export default class PriceLineStore {
         return realPrice.toString();
     }
 
-    get currentClosePrice(): number {
-        return this.mainStore.chart.currentCloseQuote()?.Close || 0;
-    }
-
     get priceLineWidth() {
         return window.flutterChart?.app.getCurrentTickWidth() || 60;
     }
 
     get overlappedBarrierWidth(): number {
         return 16;
-    }
-
-    get isContractOngoing(): boolean {
-        return this.mainStore.chart.isLive;
     }
 
     _getPrice(quote: number) {
@@ -272,9 +268,7 @@ export default class PriceLineStore {
     _distanceFromCurrentPrice() {
         return Math.abs(
             this._locationFromPrice(+this.realPrice) -
-                (this.relative
-                    ? this._locationFromPrice(+this.realPrice - (this.isDragging ? +this._dragPrice : +this._price))
-                    : this._locationFromPrice(this.currentClosePrice))
+                this._locationFromPrice(+this.realPrice - (this.isDragging ? +this._dragPrice : +this._price))
         );
     }
 
@@ -321,7 +315,7 @@ export default class PriceLineStore {
             this.isOverlapping = this.overlapCheck(top);
         }
 
-        this.isOverlappingWithPriceLine = this.isContractOngoing && this._distanceFromCurrentPrice() < 25;
+        this.isOverlappingWithPriceLine = this._distanceFromCurrentPrice() < 25;
 
         return Math.round(top) | 0;
     };

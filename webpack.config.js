@@ -6,6 +6,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const SpriteLoaderPlugin = require('svg-sprite-loader/plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 const production = process.env.NODE_ENV === 'production';
 const isApp = process.env.BUILD_MODE === 'app';
@@ -167,17 +169,24 @@ const config = {
     plugins: [
         new webpack.ProvidePlugin({
             t: [path.resolve(__dirname, './src/Translation.ts'), 't'],
+            React: 'react', // Automatically provide React variable
         }),
         new MiniCssExtractPlugin({ filename: 'smartcharts.css' }),
         new StyleLintPlugin(),
         new SpriteLoaderPlugin(),
         new CopyWebpackPlugin({
             patterns: [
+                // Copy Flutter assets to root level (where Flutter expects them)
+                {
+                    from: './chart_app/build/web/assets',
+                    to: './assets',
+                },
+                // Copy other Flutter files to chart directory (excluding assets)
                 {
                     from: './chart_app/build/web',
                     to: './chart',
                     globOptions: {
-                        ignore: ['**/packages/**'],
+                        ignore: ['**/packages/**', '**/assets/**'],
                     },
                     transform(content, absoluteFrom) {
                         return content;
@@ -204,10 +213,10 @@ const config = {
             commonjs2: 'react-transition-group',
             root: 'ReactTransitionGroup',
         },
-        moment: {
-            root: 'moment',
-            commonjs: 'moment',
-            commonjs2: 'moment',
+        dayjs: {
+            root: 'dayjs',
+            commonjs: 'dayjs',
+            commonjs2: 'dayjs',
         },
     },
 };
@@ -220,6 +229,44 @@ if (production) {
             },
         })
     );
+
+    // Add production optimizations
+    config.optimization = {
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                terserOptions: {
+                    compress: {
+                        drop_console: false, // Keep console for library usage
+                        drop_debugger: true,
+                        pure_funcs: ['console.debug'], // Remove only debug logs
+                    },
+                    mangle: true,
+                    output: {
+                        comments: false,
+                    },
+                },
+                extractComments: false,
+            }),
+            new CssMinimizerPlugin(),
+        ],
+        splitChunks: {
+            chunks: 'async', // Only split async chunks to maintain UMD compatibility
+            maxSize: 244000, // Split chunks larger than ~240KB
+            cacheGroups: {
+                // Translation files can be split as they're loaded async
+                translations: {
+                    test: /\.po$/,
+                    name: 'translations',
+                    priority: 15,
+                    chunks: 'all',
+                },
+            },
+        },
+        concatenateModules: true, // Enable module concatenation (scope hoisting)
+        usedExports: true, // Enable tree shaking
+        sideEffects: true, // Respect package.json sideEffects field
+    };
 }
 
 if (process.env.ANALYZE_BUNDLE) {
@@ -260,14 +307,18 @@ if (isApp) {
                     to: 'mobx-react-lite.js',
                 },
                 {
-                    from: production
-                        ? './node_modules/moment/min/moment-with-locales.min.js'
-                        : './node_modules/moment/min/moment-with-locales.js',
-                    to: 'moment.js',
-                },
-                {
                     from: './node_modules/react-transition-group/dist/react-transition-group.js',
                     to: 'react-transition-group.js',
+                },
+                {
+                    from: production
+                        ? './node_modules/dayjs/dayjs.min.js'
+                        : './node_modules/dayjs/dayjs.min.js',
+                    to: 'dayjs.js',
+                },
+                {
+                    from: './node_modules/dayjs/plugin/utc.js',
+                    to: 'dayjs-plugin-utc.js',
                 },
             ],
         })

@@ -4,16 +4,17 @@ import {
     TradingTimesResponse,
     AuditDetailsForExpiredContract,
     ProposalOpenContract,
-} from '@deriv/api-types';
+    TGetQuotesRequest,
+    OHLCStreamResponse,
+    TGranularity,
+} from 'src/types/api-types';
 
-import { TActiveDrawingToolItem, TDrawingCreatedConfig } from 'src/store/DrawToolsStore';
+import { TActiveDrawingToolItem } from 'src/store/DrawToolsStore';
 import { HtmlHTMLAttributes } from 'react';
 import { BinaryAPI } from 'src/binaryapi';
 import { ChartTypes } from 'src/Constant';
 import ChartState from 'src/store/ChartState';
 import { TNotification } from 'src/store/Notifier';
-import { TGranularity } from '.';
-import { OHLCStreamResponse } from './api.types';
 
 declare global {
     interface Window {
@@ -75,19 +76,46 @@ export type TBinaryAPIRequest = {
 };
 
 export type TBinaryAPIResponse = {
-    echo_req: {
+    echo_req?: {
         [k: string]: unknown;
     };
     req_id?: number;
     msg_type: any;
+    active_symbols?: ActiveSymbols;
+    trading_times?: TradingTimesResponse['trading_times'];
+    time?: number;
     [key: string]: unknown;
 };
 
 export type TRequestAPI = (request: TBinaryAPIRequest) => Promise<TBinaryAPIResponse>;
-export type TResponseAPICallback = (response: TBinaryAPIResponse) => void;
-export type TRequestSubscribe = (request: TBinaryAPIRequest, callback: TResponseAPICallback) => void;
-export type TRequestForgetStream = (id: string) => void;
-export type TRequestForget = (request: TBinaryAPIRequest, callback: TResponseAPICallback) => void;
+export type TResponseAPICallback = (response: TQuote) => void;
+export type TUnsubscribeQuotes = (request?: TGetQuotesRequest, callback?: TResponseAPICallback) => void;
+export type TGetQuotesResult = {
+    candles?: Array<{
+        open: number;
+        high: number;
+        low: number;
+        close: number;
+        epoch: number;
+    }>;
+    history?: {
+        prices: number[];
+        times: number[];
+    };
+};
+
+export type TGetQuotes = (params: {
+    symbol: string;
+    granularity: number;
+    count: number;
+    start?: number;
+    end?: number;
+    style?: string;
+}) => Promise<TGetQuotesResult>;
+export type TSubscribeQuotes = (
+    params: { symbol: string; granularity: TGranularity },
+    callback: (quote: TQuote) => void
+) => () => void;
 export type TNetworkConfig = {
     class: string;
     tooltip: string;
@@ -123,6 +151,7 @@ export type TSettings = {
     enabledNavigationWidget?: boolean;
     isAutoScale?: boolean;
     isHighestLowestMarkerEnabled?: boolean;
+    isSmoothChartEnabled?: boolean;
     theme?: string;
     activeLanguages?: Array<string | TLanguage> | null;
     whitespace?: number;
@@ -154,7 +183,7 @@ export type TGetIndicatorHeightRatio = (chart_height: number, indicator_count: n
 
 export type TInitialChartData = {
     masterData?: TQuote[];
-    tradingTimes?: TradingTimesResponse['trading_times'];
+    tradingTimes?: Record<string, { isOpen: boolean; openTime: string; closeTime: string }>;
     activeSymbols?: ActiveSymbols;
 };
 
@@ -163,6 +192,7 @@ export type TBarrierUpdateProps = {
     shadeColor: string | undefined;
     foregroundColor: string | null;
     color: string;
+    backgroundColor?: string;
     onChange: (param: TBarrierChangeParam) => void;
     relative: boolean;
     draggable: boolean;
@@ -181,11 +211,9 @@ export type TBarrierUpdateProps = {
 };
 
 export type TChartProps = {
-    ref: React.RefObject<{ hasPredictionIndicators(): void; triggerPopup(arg: () => void): void }>;
-    requestAPI: BinaryAPI['requestAPI'];
-    requestSubscribe: BinaryAPI['requestSubscribe'];
-    requestForget: BinaryAPI['requestForget'];
-    requestForgetStream?: BinaryAPI['requestForgetStream'];
+    unsubscribeQuotes: BinaryAPI['unsubscribeQuotes'];
+    getQuotes?: TGetQuotes;
+    subscribeQuotes?: TSubscribeQuotes;
     id?: string;
     getMarketsOrder?: (active_symbols: ActiveSymbols) => string[];
     getIndicatorHeightRatio?: TGetIndicatorHeightRatio;
@@ -216,17 +244,15 @@ export type TChartProps = {
     scrollToEpoch?: number | null;
     clearChart?: () => void;
     shouldFetchTradingTimes?: boolean;
-    shouldFetchTickHistory?: boolean;
+    shouldGetQuotes?: boolean;
     allowTickChartTypeOnly?: boolean;
-    allTicks?: keyof AuditDetailsForExpiredContract | [];
+    allTicks?: NonNullable<AuditDetailsForExpiredContract>['all_ticks'];
     contractInfo?: ProposalOpenContract;
     maxTick?: number | null;
-    crosshairTooltipLeftAllow?: number | null;
     zoom?: number;
     yAxisMargin?: { bottom: number; top: number };
     enableScroll?: boolean | null;
     enableZoom?: boolean | null;
-    initialData?: TInitialChartData;
     chartData?: TInitialChartData;
     networkStatus?: TNetworkConfig;
     refreshActiveSymbols?: ChartState['refreshActiveSymbols'];
@@ -236,16 +262,16 @@ export type TChartProps = {
     margin?: number;
     isStaticChart?: ChartState['isStaticChart'];
     enabledNavigationWidget?: boolean;
-    onCrosshairChange?: (state?: number) => void;
     onGranularityChange?: (granularity?: TGranularity) => void;
     onChartTypeChange?: (chartType?: string) => void;
-    crosshairState?: number | null;
     children?: React.ReactNode;
     historical?: boolean;
     contracts_array?: any[];
     isLive?: boolean;
     startWithDataFitMode?: boolean;
     leftMargin?: number;
+    drawingToolFloatingMenuPosition?: TFloatingMenuPositionOffset;
+    crosshairEnabled?: boolean; // Initial crosshair state. When set, overrides localStorage and doesn't persist.
 };
 
 export type TQuote = {
@@ -361,6 +387,7 @@ export type TNewChartPayload = {
     msPerPx?: number;
     pipSize?: number;
     isMobile: boolean;
+    isSmoothChartEnabled?: boolean;
     yAxisMargin?: {
         top: number;
         bottom: number;
@@ -423,36 +450,22 @@ export type TFlutterChart = {
         clearIndicators: () => void;
     };
     drawingTool: {
-        addOrUpdateDrawing: (config: string, index?: number) => void;
+        updateFloatingMenuPosition: (x: number, y: number) => void;
+        startAddingNewTool: (config: string, index?: number) => void;
+        cancelAddingNewTool: () => void;
         removeDrawingTool: (index: number) => void;
         clearDrawingTool: () => void;
         // eslint-disable-next-line @typescript-eslint/ban-types
         getDrawingToolsRepoItems: () => string[];
-        getTypeOfSelectedDrawingTool: (config: TDrawingCreatedConfig) => string;
         clearDrawingToolSelect: () => void;
-        editDrawing: (config: string, index: number) => void;
-    };
-    crosshair: {
-        getXFromEpoch: (epoch: number) => number;
-        getYFromQuote: (quote: number) => number;
-        getEpochFromX: (x: number) => number;
-        getQuoteFromY: (y: number) => number;
     };
 };
 
 export type JSInterop = {
     onChartLoad: () => void;
-    onMainSeriesPaint: (currentTickPercent: number) => void;
+    onMainSeriesPaint: (currentTickPercent: number, lerpedQuote?: number | null) => void;
     onVisibleAreaChanged: (leftEpoch: number, rightEpoch: number) => void;
     onQuoteAreaChanged: (topQuote: number, bottomQuote: number) => void;
-    onCrosshairDisappeared: () => void;
-    onCrosshairHover: (
-        dx: number,
-        dy: number,
-        dxLocal: number,
-        dyLocal: number,
-        indicatorIndex: number | undefined
-    ) => void;
     loadHistory: (request: TLoadHistoryParams) => void;
     indicators: {
         onRemove: (index: number) => void;
@@ -460,11 +473,11 @@ export type JSInterop = {
         onSwap: (index1: number, index2: number) => void;
     };
     drawingTool: {
-        onAdd: () => void;
         onUpdate: (index: number, config: TDrawingToolConfig) => void;
         onLoad: (drawings: []) => void;
-        onMouseEnter: (index: number) => void;
-        onMouseExit: (index: number) => void;
+        onToolAdded: (toolJson: string) => void;
+        onRemove: (deletedToolName: string) => void;
+        onStateChanged: (currentStep: number, totalSteps: number) => void;
     };
 };
 
@@ -484,12 +497,11 @@ export type TLayout = {
     timeUnit?: string | number;
     granularity?: TGranularity;
     studyItems?: TActiveItem[];
-    crosshair?: number;
     drawTools?: TActiveDrawingToolItem[];
     msPerPx?: number;
 };
 
-export type TAllTicks = Exclude<AuditDetailsForExpiredContract, null>['all_ticks'];
+export type TAllTicks = NonNullable<AuditDetailsForExpiredContract>['all_ticks'];
 
 export type TSettingsParameterType =
     | 'colorpicker'
@@ -581,3 +593,8 @@ export type TDefaultIndicatorConfig = {
 export type TDefaultIndicatorConfigFn = () => TDefaultIndicatorConfig;
 
 export type TDefaultIndicatorConfigMap = Record<string, TDefaultIndicatorConfigFn>;
+
+export type TFloatingMenuPositionOffset = {
+    x: number;
+    y: number;
+};

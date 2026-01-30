@@ -9,13 +9,13 @@ import {
     TSubCategory,
     TSubCategoryData,
     TSubCategoryDataItem,
-} from '../../binaryapi/ActiveSymbols';
+} from '../../types/categorical-display.types';
 import { TNormalItemProps } from './Item';
 
 export type TResultsPanelProps = {
     filteredItems: TCategorizedSymbols;
     onSelectItem?: (item: TProcessedSymbolItem, category_id: string) => void;
-    ItemType: (props: TNormalItemProps) => React.ReactElement | null;
+    ItemType: React.ComponentType<TNormalItemProps>;
     setCategoryElement: (element: HTMLElement | null, id: string) => void;
     activeHeadKey: null | string;
     disableAll?: boolean;
@@ -244,7 +244,7 @@ const ResultsPanel = ({
                             handleTitleClick={handleTitleClick}
                             favoritesId={favoritesId}
                         />
-                        {category.subgroups?.map((subgroup: TCategorizedSymbolItem) => {
+                        {category.subgroups?.map((subgroup: TCategorizedSymbolItem): React.ReactNode => {
                             if (getItemCount(subgroup) > 0) {
                                 return (
                                     <Category
@@ -263,6 +263,7 @@ const ResultsPanel = ({
                                     />
                                 );
                             }
+                            return null;
                         })}
                     </React.Fragment>
                 )

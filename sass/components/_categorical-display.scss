@@ -92,6 +92,7 @@
                 align-items: center;
                 outline: none !important;
                 box-shadow: none !important;
+                text-transform: capitalize;
                 cursor: pointer;
 
                 &:hover {
@@ -355,6 +356,15 @@
                             fill: themed('CatDisplayCatActiveContentIcon');
                         }
                     }
+                }
+            }
+        }
+        &--market-selected {
+            &,
+            &:hover {
+                @include themify($themes) {
+                    background-color: themed('DropdownActiveBg') !important;
+                    color: themed('DropdownActiveText') !important;
                 }
             }
         }

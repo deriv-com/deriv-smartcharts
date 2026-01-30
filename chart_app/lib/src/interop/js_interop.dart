@@ -1,7 +1,18 @@
 import 'dart:js_interop';
 
-import 'package:chart_app/src/add_ons/add_ons_repository.dart';
 import 'package:deriv_chart/deriv_chart.dart';
+
+/// Called when an addOn is to be edited
+typedef OnEditCallback = void Function(int index);
+
+/// Allow Updation when dragged (drawing tool)
+typedef OnUpdateCallback = void Function();
+
+/// Swaps two elements of a list.
+typedef OnSwapCallback = void Function(int index1, int index2);
+
+/// OnLoadCallback
+typedef OnLoadCallback = void Function(List<dynamic> config);
 
 /// JS Interop
 @JS('window.jsInterop')
@@ -11,7 +22,10 @@ class JsInterop {
   external static void onChartLoad();
 
   /// Called on each line series paint
-  external static void onMainSeriesPaint(double currentTickPercent);
+  /// [currentTickPercent] - animation progress from 0 to 1
+  /// [lerpedQuote] - the interpolated quote value (null if not animating)
+  external static void onMainSeriesPaint(
+      double currentTickPercent, double? lerpedQuote);
 
   /// Called when visible area is change
   external static void onVisibleAreaChanged(int leftEpoch, int rightEpoch);
@@ -21,13 +35,6 @@ class JsInterop {
 
   /// Called to load additional history
   external static void loadHistory(JsLoadHistoryReq request);
-
-  /// Called when candle or point is dismissed.
-  external static void onCrosshairDisappeared();
-
-  /// Called when the crosshair is moved.
-  external static void onCrosshairHover(double dx, double dy, double dxLocal,
-      double dyLocal, int? indicatorIndex);
 
   /// Indicator options
   external static JsIndicators? indicators;
@@ -95,6 +102,9 @@ extension JSNewChartExtension on JSNewChart {
 
   /// Specifies the margin of yAxis.
   external JSYAxisMargin get yAxisMargin;
+
+  /// Whether smooth chart animations are enabled.
+  external bool? get isSmoothChartEnabled;
 }
 
 @JS()
@@ -120,6 +130,15 @@ extension JSContractsUpdateExtension on JSContractsUpdate {
 
   /// Extra props needed to customize contract painting
   external JSObject? get props;
+
+  /// Current epoch
+  external int? get currentEpoch;
+
+  /// Direction of the markers
+  external String get direction;
+
+  /// Profit/Loss text to be shown in marker group
+  external String? get profitAndLossText;
 
   /// List of markers belongs to a contract (accessing as Dart List)
   List<JsMarker> get markers {
@@ -156,6 +175,9 @@ extension JsMarkerExtension on JsMarker {
 
   /// Marker color
   external String? get color;
+
+  /// Marker direction
+  external String? get direction;
 }
 
 @JS()
@@ -240,6 +262,21 @@ extension JsIndicatorsExtension on JsIndicators {
 /// Called when an addOn is created
 typedef OnAddDrawingCallback = void Function();
 
+/// Called when a drawing tool is added with JSON data
+typedef OnToolAddedCallback = void Function(String toolJson);
+
+/// Called when a drawing tool is removed with JSON data
+typedef OnRemoveDrawingCallback = void Function(String deletedToolName, String? config);
+
+/// Called when drawing tool state changes
+typedef OnStateChangedCallback = void Function(int currentStep, int totalSteps);
+
+/// Called when mouse enters over an addon
+typedef OnMouseEnterCallback = void Function(int index);
+
+/// Called when mouse exits over an addon
+typedef OnMouseExitCallback = void Function(int index);
+
 @JS()
 @staticInterop
 @anonymous
@@ -263,6 +300,10 @@ extension JsDrawingsExtension on JsDrawings {
   @JS('onLoad')
   external JSAny? get onLoadJs;
 
+  /// Called when a specific drawing tool is added
+  @JS('onToolAdded')
+  external JSAny? get onToolAddedJs;
+
   /// Called when an drawing is removed
   @JS('onRemove')
   external JSAny? get onRemoveJs;
@@ -283,6 +324,10 @@ extension JsDrawingsExtension on JsDrawings {
   @JS('onMouseExit')
   external JSAny? get onMouseExitJs;
 
+  /// Called when drawing tool state changes
+  @JS('onStateChanged')
+  external JSAny? get onStateChangedJs;
+
   /// Called when an drawing is added
   void Function()? get onAdd {
     // In a real implementation, this would convert the JSAny to a callable function
@@ -290,9 +335,9 @@ extension JsDrawingsExtension on JsDrawings {
   }
 
   /// Called when an drawing is edited/dragged
-  void Function(int, AddOnConfig)? get onUpdate {
+  void Function()? get onUpdate {
     // In a real implementation, this would convert the JSAny to a callable function
-    return (int i, AddOnConfig config) {};
+    return () {};
   }
 
   /// Called when the data is loaded from prefs
@@ -301,10 +346,16 @@ extension JsDrawingsExtension on JsDrawings {
     return (List<dynamic> items) {};
   }
 
-  /// Called when an drawing is removed
-  void Function(int)? get onRemove {
+  /// Called when a specific drawing tool is added
+  OnToolAddedCallback? get onToolAdded {
     // In a real implementation, this would convert the JSAny to a callable function
-    return (int i) {};
+    return (String toolJson) {};
+  }
+
+  /// Called when an drawing is removed
+  OnRemoveDrawingCallback? get onRemove {
+    // In a real implementation, this would convert the JSAny to a callable function
+    return (String deletedToolName, String? config) {};
   }
 
   /// Called when an drawing is edited
@@ -320,9 +371,15 @@ extension JsDrawingsExtension on JsDrawings {
   }
 
   /// Callback to notify mouse exit over the addon
-  void Function(int)? get onMouseExit {
+  OnMouseExitCallback? get onMouseExit {
     // In a real implementation, this would convert the JSAny to a callable function
-    return (int i) {};
+    return (int index) {};
+  }
+
+  /// Called when drawing tool state changes
+  OnStateChangedCallback? get onStateChanged {
+    // In a real implementation, this would convert the JSAny to a callable function
+    return (int currentStep, int totalSteps) {};
   }
 }
 

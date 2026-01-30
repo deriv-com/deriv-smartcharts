@@ -1,10 +1,11 @@
+/* eslint-disable react/react-in-jsx-scope */
 /* eslint-disable max-classes-per-file */
 /* eslint-disable react/sort-comp,react/no-multi-comp */
-import React, { ChangeEvent, PropsWithChildren } from 'react';
-import debounce from 'lodash.debounce';
+import { ChangeEvent } from 'react';
+import debounce from 'lodash-es/debounce';
 
 import classNames from 'classnames';
-import { ArrayElement, TIcon, TNumberPickerValue, TObject } from 'src/types';
+import { ArrayElement, TIcon, TNumberPickerValue } from 'src/types';
 import Scroll from './Scroll';
 import { ArrowIcon, InputNumberPlusIcon, InputNumberMinusIcon, CheckboxIcon, CheckboxActiveIcon } from './Icons';
 import '../../sass/components/_form.scss';
@@ -66,10 +67,10 @@ type TNumberColorPickerProps = {
 type TDropDownProps<T> = {
     subtitle?: string;
     rows: T[];
-    value?: T | React.ReactElement;
+    value?: React.ReactNode;
     onRowClick: (value: T) => void;
     className?: string;
-    children(data: T): React.ReactElement | string;
+    children: (data: T) => React.ReactNode;
 };
 
 type TToogleProps = {
@@ -153,7 +154,7 @@ export const Slider = ({ min = 1, max = 10, step = 1, value, onChange }: TSlider
     );
 };
 
-export const DropDown = <T extends number | string | TObject>(props: PropsWithChildren<TDropDownProps<T>>) => {
+export const DropDown = <T extends number | string | Record<string, any>>(props: TDropDownProps<T>) => {
     const { subtitle, rows, children, value, onRowClick, className } = props;
 
     const [open, setOpen] = React.useState(false);

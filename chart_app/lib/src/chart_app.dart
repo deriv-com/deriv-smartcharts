@@ -12,8 +12,12 @@ import 'package:flutter/material.dart';
 /// ChartApp
 class ChartApp {
   /// Constructor
-  ChartApp(this.configModel, this.feedModel, this.indicatorsModel,
-      this.drawingToolModel);
+  ChartApp(
+    this.configModel,
+    this.feedModel,
+    this.indicatorsModel,
+    this.drawingToolModel,
+  );
 
   /// ChartConfigModel
   ChartConfigModel configModel;

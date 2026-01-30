@@ -1,11 +1,11 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
-import moment from 'moment';
-import debounce from 'lodash.debounce';
+import dayjs from '../utils/dayjs-config';
+import debounce from 'lodash-es/debounce';
 import { TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
 import { createChartElement, runChartApp } from 'src/flutter-chart';
 import Painter from 'src/flutter-chart/painter';
-import { safeParse } from 'src/utils';
-import { capitalize } from 'src/components/ui/utils';
+import { STATE } from 'src/Constant';
+import { intToHexColor } from 'src/components/ui/utils';
 import MainStore from '.';
 
 export default class ChartAdapterStore {
@@ -22,25 +22,11 @@ export default class ChartAdapterStore {
     };
     isFeedLoaded = false;
     msPerPx?: number;
-    drawingHoverIndex: number | undefined | null = null;
     isDataFitModeEnabled = false;
     isXScrollBlocked = false;
     painter = new Painter();
     drawingColor = 0;
     isScaled = false;
-    crossHairValue?: {
-        x: number;
-        y: number;
-        xLocal: number;
-        yLocal: number;
-        bottomIndex: number | undefined;
-    } = {
-        x: 0,
-        y: 0,
-        xLocal: 0,
-        yLocal: 0,
-        bottomIndex: 0,
-    };
     touchValues: {
         deltaXTotal?: number;
         deltaYTotal?: number;
@@ -82,7 +68,6 @@ export default class ChartAdapterStore {
             toggleDataFitMode: action.bound,
             toggleXScrollBlock: action.bound,
             touchValues: observable,
-            onCrosshairMove: action.bound,
             isDataFitModeEnabled: observable,
             isChartLoaded: observable,
             epochBounds: observable.ref,
@@ -97,20 +82,7 @@ export default class ChartAdapterStore {
         this.initFlutterCharts();
     }
 
-    checkIndicatorHover = (
-        dx: number,
-        dy: number,
-        dxLocal: number,
-        dyLocal: number,
-        bottomIndicatorIndex: number | undefined
-    ) => {
-        // dxLocal and dyLocal are the local position value correponding to the bottom indicator/main chart
-        const epoch = this.flutterChart?.crosshair.getEpochFromX(dxLocal) || 0;
-        const quote = (this.flutterChart?.crosshair.getQuoteFromY(dyLocal) || 0).toFixed(
-            this.mainStore.crosshair.decimalPlaces
-        );
-
-        this.mainStore.crosshair.onMouseMove(dx, dy, epoch, quote);
+    checkIndicatorHover = (dxLocal: number, dyLocal: number, bottomIndicatorIndex: number | undefined) => {
         const getClosestEpoch = this.mainStore.chart.feed?.getClosestValidEpoch;
         const granularity = this.mainStore.chartAdapter.getGranularityInMs();
 
@@ -126,7 +98,7 @@ export default class ChartAdapterStore {
             return;
         }
 
-        this.mainStore.studies.highlightIndicator(hoverIndex, dx, dy);
+        this.mainStore.studies.highlightIndicator(hoverIndex);
     };
 
     debouncedIndicatorHover = debounce(this.checkIndicatorHover, 5);
@@ -138,37 +110,6 @@ export default class ChartAdapterStore {
             onVisibleAreaChanged: this.onVisibleAreaChanged,
             onQuoteAreaChanged: this.onQuoteAreaChanged,
             loadHistory: this.loadHistory,
-            onCrosshairDisappeared: () => {
-                this.mainStore.crosshair.updateVisibility(false);
-            },
-            onCrosshairHover: (dx, dy, dxLocal, dyLocal, bottomIndicatorIndex) => {
-                if (!this.isOverFlutterCharts) return;
-
-                this.onCrosshairMove(dx, dy, dxLocal, dyLocal, bottomIndicatorIndex);
-
-                if (this.drawingHoverIndex != null) {
-                    const drawingRepoItems = this.mainStore.chartAdapter.flutterChart?.drawingTool
-                        .getDrawingToolsRepoItems()
-                        .map(item => safeParse(item))
-                        .filter(item => item);
-
-                    if (!drawingRepoItems) {
-                        return;
-                    }
-
-                    const item = drawingRepoItems[this.drawingHoverIndex];
-
-                    if (item) {
-                        this.mainStore.crosshair.renderDrawingToolToolTip(
-                            capitalize(item.name.replace('dt_', '')) || '',
-                            dx,
-                            dy
-                        );
-                    }
-                }
-
-                this.debouncedIndicatorHover(dx, dy, dxLocal, dyLocal, bottomIndicatorIndex);
-            },
             indicators: {
                 onRemove: (index: number) => {
                     this.mainStore.studies.deleteStudy(index);
@@ -182,21 +123,26 @@ export default class ChartAdapterStore {
                 },
             },
             drawingTool: {
-                onAdd: () => {
-                    this.mainStore.drawTools.onCreation();
-                },
                 onUpdate: () => {
                     this.mainStore.drawTools.onUpdate();
                 },
                 onLoad: (items: []) => {
                     this.mainStore.drawTools.onLoad(items);
                 },
-                onMouseEnter: (index: number) => {
-                    this.drawingHoverIndex = index;
+                onToolAdded: (toolJson: string) => {
+                    const tool = JSON.parse(toolJson);
+                    this.mainStore.drawTools.onToolAdded(tool);
                 },
-                onMouseExit: () => {
-                    this.drawingHoverIndex = null;
-                    this.mainStore.crosshair.removeDrawingToolToolTip();
+                onRemove: (deletedToolName: string, config?: string) => {
+                    this.mainStore.state.stateChange(STATE.DRAWING_TOOLS_DELETE, {
+                        drawing_tool_name: deletedToolName.replace('dt_', '') || 'unknown',
+                        pxthickness: config ? `${JSON.parse(config).lineStyle?.thickness}px` : undefined,
+                        color_name: config ? `${intToHexColor(Number(JSON.parse(config).lineStyle?.color)).replace('#', '')}` : undefined,
+                    });
+                    this.mainStore.drawTools.showDeletionSnackbarForDeletedTool(deletedToolName);
+                },
+                onStateChanged: (currentStep: number, totalSteps: number) => {
+                    this.mainStore.drawTools.updateAddingState(currentStep, totalSteps);
                 },
             },
         };
@@ -353,31 +299,11 @@ export default class ChartAdapterStore {
     };
 
     onDoubleClick = () => {
-        if (this.drawingHoverIndex != null) {
-            this.mainStore.drawTools.onSetting(this.drawingHoverIndex);
-            this.mainStore.crosshair.removeDrawingToolToolTip();
-        } else if (this.mainStore.studies.currentHoverIndex != null) {
+        if (this.mainStore.studies.currentHoverIndex != null) {
             this.mainStore.studies.editStudyByIndex(this.mainStore.studies.currentHoverIndex);
             this.mainStore.studies.clearHoverItem(this.mainStore.studies.currentHoverIndex);
         }
     };
-
-    onCrosshairMove(dx: number, dy: number, dxLocal: number, dyLocal: number, bottomIndicatorIndex?: number) {
-        // dxLocal and dyLocal are the local position value correponding to the bottom indicator/main chart
-        const epoch = this.flutterChart?.crosshair.getEpochFromX(dxLocal) || 0;
-        const quote = (this.flutterChart?.crosshair.getQuoteFromY(dyLocal) || 0).toFixed(
-            this.mainStore.crosshair.decimalPlaces
-        );
-
-        this.mainStore.crosshair.onMouseMove(dx, dy, epoch, quote);
-        this.crossHairValue = {
-            x: dx,
-            y: dy,
-            xLocal: dxLocal,
-            yLocal: dyLocal,
-            bottomIndex: bottomIndicatorIndex,
-        };
-    }
 
     onVisibleAreaChanged(leftEpoch: number, rightEpoch: number) {
         if (this.epochBounds.leftEpoch !== leftEpoch || this.epochBounds.rightEpoch !== rightEpoch) {
@@ -385,13 +311,6 @@ export default class ChartAdapterStore {
                 leftEpoch,
                 rightEpoch,
             };
-        }
-
-        if (this.crossHairValue) {
-            const { x, y, yLocal, xLocal, bottomIndex } = this.crossHairValue;
-            if (x !== 0 && y !== 0) {
-                this.onCrosshairMove(x, y, xLocal, yLocal, bottomIndex);
-            }
         }
     }
 
@@ -423,6 +342,7 @@ export default class ChartAdapterStore {
             msPerPx: this.msPerPx,
             pipSize: this.mainStore.chart.pip,
             isMobile: this.mainStore.chart.isMobile || false,
+            isSmoothChartEnabled: this.mainStore.chartSetting.isSmoothChartEnabled,
             yAxisMargin: this.mainStore.state.yAxisMargin,
         });
     };
@@ -447,7 +367,6 @@ export default class ChartAdapterStore {
         runInAction(() => {
             this.mainStore.chart.lastQuote = quote;
         });
-
         if (quote.ohlc) {
             this.flutterChart?.feed.onNewCandle(quote);
         } else if (this.getGranularityInMs() < 60000) {
@@ -590,7 +509,7 @@ export default class ChartAdapterStore {
     getInterpolatedPositionAndPrice = (epoch: number) => {
         if (!epoch) return;
 
-        const date = moment.utc(epoch).toDate();
+        const date = dayjs.utc(epoch).toDate();
 
         const tickIdx = this.mainStore.chart.feed?.getClosestQuoteIndexForEpoch(epoch);
 
@@ -612,7 +531,7 @@ export default class ChartAdapterStore {
                     delta_x = this.getXFromEpoch((barNext.DT as Date).getTime()) - x;
 
                     ratio =
-                        (((date as unknown) as number) - (bar.DT as Date).getTime()) /
+                        ((date as unknown as number) - (bar.DT as Date).getTime()) /
                         ((barNext.DT as Date).getTime() - (bar.DT as Date).getTime());
 
                     if (price) delta_y = barNext.Close - price;
@@ -620,7 +539,7 @@ export default class ChartAdapterStore {
                     delta_x = x - this.getXFromEpoch((barPrev.DT as Date).getTime());
 
                     ratio =
-                        (((date as unknown) as number) - (bar.DT as Date).getTime()) /
+                        ((date as unknown as number) - (bar.DT as Date).getTime()) /
                         ((bar.DT as Date).getTime() - (barPrev.DT as Date).getTime());
 
                     if (price) delta_y = price - barPrev.Close;

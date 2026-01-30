@@ -2,10 +2,9 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 import 'package:chart_app/src/helpers/color.dart';
-import 'package:deriv_chart/deriv_chart.dart' hide ChartDefaultDarkTheme;
+import 'package:deriv_chart/deriv_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
-import './chart_default_dark_theme.dart';
 
 /// State and methods of chart web adapter config.
 class ChartConfigModel extends ChangeNotifier {
@@ -60,6 +59,9 @@ class ChartConfigModel extends ChangeNotifier {
   /// Specifies the margin of yAxis.
   JSYAxisMargin? yAxisMargin;
 
+  /// Whether smooth chart animations are enabled.
+  bool isSmoothChartEnabled = false;
+
   /// Show the time interval
   bool showTimeInterval = false;
 
@@ -103,7 +105,8 @@ class ChartConfigModel extends ChangeNotifier {
             epoch: _marker.epoch! * 1000,
             text: _marker.text,
             markerType: MarkerType.values.byName(_marker.type!),
-            direction: MarkerDirection.up,
+            direction: MarkerDirection.values
+                .byName(_marker.direction ?? 'up'), // Default to 'up' if null
             color: _marker.color != null
                 ? getColorFromString(_marker.color!)
                 : null,
@@ -120,13 +123,25 @@ class ChartConfigModel extends ChangeNotifier {
       markerGroupList.add(
         MarkerGroup(
           markers,
+          direction:
+              MarkerDirection.values.byName(_markerGroup.direction ?? 'up'),
           type: _markerGroup.type,
           style: MarkerStyle(
             backgroundColor: _bgColor,
           ),
           props: MarkerProps(
-              hasPersistentBorders:
-                  _getProperty(_markerGroup.props, 'hasPersistentBorders')),
+            hasPersistentBorders:
+                _getProperty(_markerGroup.props, 'hasPersistentBorders') ??
+                    false,
+            isProfit: _getProperty(_markerGroup.props, 'isProfit') ?? true,
+            isRunning: _getProperty(_markerGroup.props, 'isRunning') ?? true,
+            markerLabel: _getProperty(_markerGroup.props, 'markerLabel'),
+            contractMarkerLeftPadding:
+                _getProperty(_markerGroup.props, 'contractMarkerLeftPadding') ??
+                    8,
+          ),
+          currentEpoch: _markerGroup.currentEpoch,
+          profitAndLossText: _markerGroup.profitAndLossText,
         ),
       );
     }
@@ -183,6 +198,7 @@ class ChartConfigModel extends ChangeNotifier {
     isMobile = payload.isMobile;
     yAxisMargin = payload.yAxisMargin;
     symbol = payload.symbol ?? '';
+    isSmoothChartEnabled = payload.isSmoothChartEnabled ?? false;
 
     if (payload.chartType != null && payload.chartType!.isNotEmpty) {
       style = ChartStyle.values.byName(payload.chartType!);

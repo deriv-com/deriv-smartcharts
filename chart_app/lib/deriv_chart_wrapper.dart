@@ -5,7 +5,6 @@ import 'package:chart_app/src/chart_app.dart';
 import 'package:chart_app/src/helpers/marker_painter.dart';
 import 'package:chart_app/src/helpers/series.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
-import 'package:chart_app/src/misc/crosshair_controller.dart';
 import 'package:chart_app/src/models/chart_config.dart';
 import 'package:chart_app/src/models/chart_feed.dart';
 import 'package:chart_app/src/models/drawing_tool.dart';
@@ -128,6 +127,15 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
     return 80;
   }
 
+  double? _getDefaultTickOffset(int? rightPadding, bool isTickGranularity) {
+    // Only apply this offset for mobile view with non-tick granularity
+    if (!configModel.isMobile || isTickGranularity) {
+      return null;
+    }
+    // Return half of max offset as default offset
+    return _getMaxCurrentTickOffset(rightPadding) / 2;
+  }
+
   Duration _getAnimationDuration({required bool isTickGranularity}) {
     if (!isTickGranularity) {
       return const Duration(milliseconds: 30);
@@ -194,41 +202,6 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
     return null;
   }
 
-  void _onCrosshairHover(
-    Offset globalPosition,
-    Offset localPosition,
-    EpochToX epochToX,
-    QuoteToY quoteToY,
-    EpochFromX epochFromX,
-    QuoteFromY quoteFromY,
-    AddOnConfig? config,
-  ) {
-    final CrosshairController controller =
-        app.wrappedController.getCrosshairController();
-
-    int? index;
-
-    if (config != null) {
-      index = indicatorsModel.indicatorsRepo.items
-          .indexOf(config as IndicatorConfig);
-    }
-
-    // ignore: cascade_invocations
-    controller
-      ..getEpochFromX_ = epochFromX
-      ..getQuoteFromY_ = quoteFromY
-      ..getXFromEpoch_ = epochToX
-      ..getYFromQuote_ = quoteToY;
-
-    JsInterop.onCrosshairHover(
-      globalPosition.dx,
-      globalPosition.dy,
-      localPosition.dx,
-      localPosition.dy,
-      index,
-    );
-  }
-
   @override
   Widget build(BuildContext context) => MultiProvider(
         providers: <ChangeNotifierProvider<ChangeNotifier>>[
@@ -261,11 +234,19 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                         : Color.fromRGBO(255, 255, 255,
                             configModel.isSymbolClosed ? 0.32 : 1);
 
-                    final Duration animationDuration = _getAnimationDuration(
-                        isTickGranularity: isTickGranularity);
+                    final Duration? animationDuration = configModel
+                            .isSmoothChartEnabled
+                        ? null // Uses flutter-chart default 300ms for smooth animations
+                        : _getAnimationDuration(
+                            isTickGranularity: isTickGranularity);
 
                     final int? rightPadding = _getRightPadding(
                         isTickGranularity, granularity, constraints.maxWidth);
+
+                    drawingToolModel.updateInteractiveLayerBehaviour(
+                        configModel.isMobile
+                            ? InteractiveLayerMobileBehaviour()
+                            : InteractiveLayerDesktopBehaviour());
 
                     return DerivChart(
                       activeSymbol: configModel.symbol,
@@ -276,21 +257,11 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                                 CurrentTickIndicator(
                                   feedModel.ticks.last,
                                   id: 'last_tick_indicator',
-                                  style: HorizontalBarrierStyle(
-                                      labelPadding: 8,
-                                      color: latestTickColor,
-                                      hasArrow: false,
-                                      textStyle: TextStyle(
-                                        fontSize: 12,
-                                        height: 1.3,
-                                        fontWeight: FontWeight.w600,
-                                        color: isLightMode
-                                            ? Colors.white
-                                            : Colors.black,
-                                        fontFeatures: const <FontFeature>[
-                                          FontFeature.tabularFigures()
-                                        ],
-                                      )),
+                                  style: configModel.theme.currentSpotStyle
+                                      .copyWith(
+                                    labelPadding: 8,
+                                    hasArrow: false,
+                                  ),
                                   visibility: HorizontalBarrierVisibility
                                       .keepBarrierLabelVisible,
                                 ),
@@ -299,33 +270,16 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                                     id: 'blink_tick_indicator',
                                     visibility: HorizontalBarrierVisibility
                                         .keepBarrierLabelVisible,
-                                    style: HorizontalBarrierStyle(
-                                      color: isLightMode
-                                          ? Colors.black
-                                          : Colors.white,
-                                    )),
+                                    style: configModel.theme.currentSpotStyle),
                               if (app.configModel.showTimeInterval &&
                                   !isTickGranularity)
                                 TimeIntervalIndicator(
                                   app.configModel.remainingTime,
                                   feedModel.ticks.last.close,
                                   longLine: false,
-                                  style: HorizontalBarrierStyle(
-                                    color: isLightMode
-                                        ? Colors.black
-                                        : Colors.white,
+                                  style: configModel.theme.currentSpotStyle
+                                      .copyWith(
                                     hasArrow: false,
-                                    textStyle: TextStyle(
-                                      fontSize: 12,
-                                      height: 1.3,
-                                      fontWeight: FontWeight.w600,
-                                      color: isLightMode
-                                          ? Colors.white
-                                          : Colors.black,
-                                      fontFeatures: const <FontFeature>[
-                                        FontFeature.tabularFigures()
-                                      ],
-                                    ),
                                   ),
                                 ),
                             ]
@@ -338,7 +292,7 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                         if (!feedModel.waitingForHistory &&
                             feedModel.ticks.isNotEmpty &&
                             leftEpoch < feedModel.ticks.first.epoch) {
-                          feedModel.loadHistory(2500);
+                          feedModel.loadHistory(1000);
                         }
                         leftBoundEpoch = leftEpoch;
                         rightBoundEpoch = rightEpoch;
@@ -358,15 +312,20 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                       drawingTools: drawingToolModel.drawingTools,
                       indicatorsRepo: indicatorsModel.indicatorsRepo,
                       dataFitEnabled: configModel.startWithDataFitMode,
+                      useDrawingToolsV2: true,
+                      interactiveLayerBehaviour:
+                          drawingToolModel.interactiveLayerBehaviour,
                       showCrosshair: configModel.showCrosshair,
+                      crosshairVariant: configModel.isMobile
+                          ? CrosshairVariant.smallScreen
+                          : CrosshairVariant.largeScreen,
                       isLive: configModel.isLive,
-                      onCrosshairDisappeared: () =>
-                          JsInterop.onCrosshairDisappeared(),
-                      onCrosshairHover: _onCrosshairHover,
                       chartAxisConfig: ChartAxisConfig(
-                        maxCurrentTickOffset:
-                            _getMaxCurrentTickOffset(rightPadding),
-                      ),
+                          defaultTickOffset: _getDefaultTickOffset(
+                              rightPadding, isTickGranularity),
+                          maxCurrentTickOffset:
+                              _getMaxCurrentTickOffset(rightPadding),
+                          smoothScrolling: configModel.isSmoothChartEnabled),
                       msPerPx: configModel.startWithDataFitMode
                           ? null
                           : configModel.msPerPx,

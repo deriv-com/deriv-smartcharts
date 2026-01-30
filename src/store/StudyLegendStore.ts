@@ -1,12 +1,12 @@
 import { action, observable, reaction, when, makeObservable } from 'mobx';
 import React from 'react';
-import set from 'lodash.set';
+import set from 'lodash-es/set';
 import Context from 'src/components/ui/Context';
 import { getUniqueId, hexToInt } from 'src/components/ui/utils';
 import { TActiveItem, TIndicatorConfig, TSettingsParameter } from 'src/types';
 import MainStore from '.';
 import { IndicatorCatTrendDarkIcon, IndicatorCatTrendLightIcon } from '../components/Icons';
-import { getIndicatorsTree, getDefaultIndicatorConfig, STATE } from '../Constant';
+import { getIndicatorsTree, getDefaultIndicatorConfig, STATE, getIndicatorCategoryName } from '../Constant';
 import {
     clone,
     flatMap,
@@ -273,10 +273,12 @@ export default class StudyLegendStore {
     }
     deleteStudy(index: number) {
         logEvent(LogCategories.ChartControl, LogActions.Indicator, `Remove ${index}`);
-
+        this.mainStore.state.stateChange(STATE.INDICATOR_DELETED, {
+            indicator_type_name: this.activeItems[index].flutter_chart_id,
+            indicators_category_name: getIndicatorCategoryName(this.activeItems[index].flutter_chart_id),
+        });
         this.activeItems.splice(index, 1);
         this.mainStore.bottomWidgetsContainer.updateChartHeight();
-        this.mainStore.crosshair.removeIndicatorToolTip();
         this.renderLegend();
         this.mainStore.state.saveLayout();
     }
@@ -304,6 +306,10 @@ export default class StudyLegendStore {
 
             this.activeItems[index] = item;
 
+            this.mainStore.state.stateChange(STATE.INDICATOR_EDITED, {
+            indicator_type_name: item.flutter_chart_id,
+            indicators_category_name: getIndicatorCategoryName(item.flutter_chart_id),
+            });
             this.addOrUpdateIndicator(item, index);
             this.mainStore.state.saveLayout();
         }
@@ -385,7 +391,7 @@ export default class StudyLegendStore {
         this.addOrUpdateIndicator(item, index);
     }
 
-    highlightIndicator(hoverIndex: number | undefined | null, dx: number, dy: number) {
+    highlightIndicator(hoverIndex: number | undefined | null) {
         this.currentHoverIndex = hoverIndex;
 
         if (this.previousHoverIndex === this.currentHoverIndex) {
@@ -400,7 +406,6 @@ export default class StudyLegendStore {
             const item = clone(this.activeItems[hoverIndex]);
 
             if (item && item.config) {
-                this.mainStore.crosshair.renderIndicatorToolTip(`${item.name} ${item.bars || ''}`, dx, dy);
                 for (const key in item.config) {
                     if (key.includes('Style')) {
                         item.config[key].thickness = 2;
@@ -425,7 +430,6 @@ export default class StudyLegendStore {
 
     clearHoverItem(index: number) {
         const item = this.activeItems[index];
-        this.mainStore.crosshair.removeIndicatorToolTip();
         if (item) {
             this.setIndicator(item, index);
         }
