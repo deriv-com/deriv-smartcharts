@@ -5,7 +5,7 @@ import { getUniqueId, hexToInt } from 'src/components/ui/utils';
 import { TActiveItem, TIndicatorConfig, TSettingsParameter } from 'src/types';
 import { set } from '../utils/lodash-lite';
 import MainStore from '.';
-import { IndicatorCatTrendDarkIcon, IndicatorCatTrendLightIcon } from '../components/Icons';
+import { IndicatorCatTrendDarkIcon, IndicatorCatTrendLightIcon } from '../components/IndicatorIcons';
 import { getIndicatorsTree, getDefaultIndicatorConfig, STATE, getIndicatorCategoryName } from '../Constant';
 import {
     clone,
