@@ -173,7 +173,15 @@ export function set<T extends Record<string, any>>(object: T, path: string | str
 }
 
 /**
- * Converts a string path to an array of keys
+ * Converts a string path to an array of keys.
+ * 
+ * Handles:
+ * - Dot notation: 'a.b.c' → ['a', 'b', 'c']
+ * - Bracket notation: 'a[0].b' → ['a', '0', 'b']
+ * - Quoted keys: 'a["b.c"].d' → ['a', 'b.c', 'd']
+ * - Escaped quotes: 'a["b\\"c"]' → ['a', 'b"c']
+ * 
+ * @internal
  */
 function stringToPath(path: string): string[] {
     const result: string[] = [];
