@@ -26,7 +26,9 @@ const output = {
 };
 
 const config = {
-    devtool: 'source-map',
+    // Use hidden-source-map in production to generate maps without exposing them in the bundle
+    // This reduces main bundle size while still allowing error tracking services to use maps
+    devtool: production ? 'hidden-source-map' : 'source-map',
     entry: path.resolve(__dirname, './src/index.ts'),
     output,
     resolve: {
@@ -276,6 +278,35 @@ if (production) {
                     name: 'html2canvas',
                     chunks: 'async',
                     priority: 15,
+                },
+                // Split lz-string into its own chunk (lazy-loaded in ChartState.ts)
+                lzstring: {
+                    test: /[\\/]node_modules[\\/]lz-string[\\/]/,
+                    name: 'lz-string',
+                    chunks: 'async',
+                    priority: 15,
+                },
+                // Split resize-observer-polyfill (lazy-loaded in ChartStore.ts)
+                resizeObserver: {
+                    test: /[\\/]node_modules[\\/]resize-observer-polyfill[\\/]/,
+                    name: 'resize-observer-polyfill',
+                    chunks: 'async',
+                    priority: 15,
+                },
+                // Split classnames utility (used across components)
+                classnames: {
+                    test: /[\\/]node_modules[\\/]classnames[\\/]/,
+                    name: 'classnames',
+                    chunks: 'async',
+                    priority: 10,
+                    minSize: 0,
+                },
+                // Split lodash-es utilities if used
+                lodash: {
+                    test: /[\\/]node_modules[\\/]lodash-es[\\/]/,
+                    name: 'lodash-es',
+                    chunks: 'async',
+                    priority: 10,
                 },
                 // Note: StudyLegendStore and DrawToolsStore are synchronously imported
                 // in MainStore, so they cannot be split without refactoring to lazy-load.
