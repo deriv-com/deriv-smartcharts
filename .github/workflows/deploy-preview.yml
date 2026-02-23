@@ -101,7 +101,7 @@ jobs:
                   flutter build web --web-renderer html --release
 
             - name: Setup Node
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: 22.x
 
@@ -123,7 +123,7 @@ jobs:
               run: cd derivatives-trader && npm run build:all
 
             - name: Setup Node for Cloudflare
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: 20
 
