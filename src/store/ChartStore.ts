@@ -492,23 +492,18 @@ class ChartStore {
             this.feed?.unsubscribe({ symbol: this.currentActiveSymbol.symbol, granularity: this.granularity });
         }
 
-        // [AI]
         // Keep old chart data visible while new symbol data is being fetched.
         // newChart() (which clears the Flutter chart) is deferred to the callback
         // so the transition from old to new data is atomic and imperceptible.
         this.mainStore.state.setChartIsReady(false);
-        // [AI]
         // Show the chart loader only if it takes long enough.
         // For fast responses the old chart data stays visible with no loading flash.
         const loaderTimeout = setTimeout(() => {
             this.loader.setState('chart-data');
             this.loader.show();
         }, 2500);
-        // [/AI]
         const onChartLoad = (err: string) => {
-            // [AI]
             clearTimeout(loaderTimeout);
-            // [/AI]
             this.loader.hide();
             this.chartClosedOpenThemeChange(!symbolObj.exchange_is_open);
             this.mainStore.paginationLoader.updateOnPagination(false);
@@ -527,10 +522,8 @@ class ChartStore {
                 symbolObject: symbolObj,
             },
             ({ quotes, error }: TPaginationCallbackParams) => {
-                // [AI]
                 // Clear old chart and load new data atomically to avoid a blank/loading state.
                 this.mainStore.chartAdapter.newChart();
-                // [/AI]
                 this.mainStore.chartAdapter.onTickHistory(quotes || []);
                 this.mainStore.chart.feed?.offMasterDataUpdate(this.mainStore.chartAdapter.onTick);
                 this.mainStore.chart.feed?.onMasterDataUpdate(this.mainStore.chartAdapter.onTick);
