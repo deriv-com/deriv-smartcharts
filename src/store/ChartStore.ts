@@ -62,6 +62,8 @@ class ChartStore {
     shouldRenderDialogs = false;
     leftMargin?: number;
     lastQuote?: TQuote;
+    private _chartRequestId = 0;
+    private loaderTimeout?: ReturnType<typeof setTimeout>;
 
     processedSymbols?: TProcessedSymbolItem[];
     symbolMap: Record<string, TProcessedSymbolItem> = {};
@@ -496,14 +498,16 @@ class ChartStore {
         // newChart() (which clears the Flutter chart) is deferred to the callback
         // so the transition from old to new data is atomic and imperceptible.
         this.mainStore.state.setChartIsReady(false);
+        const requestId = ++this._chartRequestId;
         // Show the chart loader only if it takes long enough.
         // For fast responses the old chart data stays visible with no loading flash.
-        const loaderTimeout = setTimeout(() => {
+        clearTimeout(this.loaderTimeout);
+        this.loaderTimeout = setTimeout(() => {
             this.loader.setState('chart-data');
             this.loader.show();
         }, 2500);
         const onChartLoad = (err: string) => {
-            clearTimeout(loaderTimeout);
+            clearTimeout(this.loaderTimeout);
             this.loader.hide();
             this.chartClosedOpenThemeChange(!symbolObj.exchange_is_open);
             this.mainStore.paginationLoader.updateOnPagination(false);
@@ -522,6 +526,7 @@ class ChartStore {
                 symbolObject: symbolObj,
             },
             ({ quotes, error }: TPaginationCallbackParams) => {
+                if (requestId !== this._chartRequestId) return;
                 // Clear old chart and load new data atomically to avoid a blank/loading state.
                 this.mainStore.chartAdapter.newChart();
                 this.mainStore.chartAdapter.onTickHistory(quotes || []);
@@ -545,6 +550,7 @@ class ChartStore {
     destroy() {
         ChartStore.chartCount -= 1;
         this.isDestroyed = true;
+        clearTimeout(this.loaderTimeout);
         if (this.resizeObserver) {
             this.resizeObserver.disconnect();
         }
