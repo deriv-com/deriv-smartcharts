@@ -115,6 +115,7 @@
         "fork-ts-checker-webpack-plugin": "^6.5.0",
         "fs": "^0.0.1-security",
         "gh-pages": "^5.0.0",
+        "husky": "^7.0.4",
         "inquirer": "^9.2.19",
         "json-loader": "^0.5.7",
         "lint-staged": "^10.4.0",
