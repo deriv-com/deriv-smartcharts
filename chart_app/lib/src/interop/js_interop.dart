@@ -446,6 +446,16 @@ extension JsDrawingsExtension on JsDrawings {
     return (int currentStep, int totalSteps) => (jsFunc as JSFunction)
         .callAsFunction(null, currentStep.toJS, totalSteps.toJS);
   }
+
+  /// Callback to swap two elements of a list
+  void Function(int, int)? get onSwap {
+    final JSAny? jsFunc = onSwapJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int i, int j) =>
+        (jsFunc as JSFunction).callAsFunction(null, i.toJS, j.toJS);
+  }
 }
 
 @JS()

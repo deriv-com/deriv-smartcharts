@@ -132,30 +132,24 @@ class DrawingToolWrapper {
 
 /// Initialize the JavaScript interop
 void initDartInterop(ChartApp app) {
-  try {
-    final AppWrapper appWrapper = AppWrapper(app);
-    final CrosshairWrapper crosshairWrapper =
-        CrosshairWrapper(app.wrappedController.getCrosshairController());
-    final ChartFeedWrapper feedWrapper = ChartFeedWrapper(app.feedModel);
-    final ChartConfigWrapper configWrapper =
-        ChartConfigWrapper(app.configModel);
-    final IndicatorsWrapper indicatorsWrapper =
-        IndicatorsWrapper(app.indicatorsModel);
-    final DrawingToolWrapper drawingToolWrapper =
-        DrawingToolWrapper(app.drawingToolModel);
+  final AppWrapper appWrapper = AppWrapper(app);
+  final CrosshairWrapper crosshairWrapper =
+      CrosshairWrapper(app.wrappedController.getCrosshairController());
+  final ChartFeedWrapper feedWrapper = ChartFeedWrapper(app.feedModel);
+  final ChartConfigWrapper configWrapper = ChartConfigWrapper(app.configModel);
+  final IndicatorsWrapper indicatorsWrapper =
+      IndicatorsWrapper(app.indicatorsModel);
+  final DrawingToolWrapper drawingToolWrapper =
+      DrawingToolWrapper(app.drawingToolModel);
 
-    final JSObject dartInterop = JSObject()
-      ..setProperty('app'.toJS, createJSInteropWrapper(appWrapper))
-      ..setProperty('crosshair'.toJS, createJSInteropWrapper(crosshairWrapper))
-      ..setProperty('feed'.toJS, createJSInteropWrapper(feedWrapper))
-      ..setProperty('config'.toJS, createJSInteropWrapper(configWrapper))
-      ..setProperty(
-          'indicators'.toJS, createJSInteropWrapper(indicatorsWrapper))
-      ..setProperty(
-          'drawingTool'.toJS, createJSInteropWrapper(drawingToolWrapper));
+  final JSObject dartInterop = JSObject()
+    ..setProperty('app'.toJS, createJSInteropWrapper(appWrapper))
+    ..setProperty('crosshair'.toJS, createJSInteropWrapper(crosshairWrapper))
+    ..setProperty('feed'.toJS, createJSInteropWrapper(feedWrapper))
+    ..setProperty('config'.toJS, createJSInteropWrapper(configWrapper))
+    ..setProperty('indicators'.toJS, createJSInteropWrapper(indicatorsWrapper))
+    ..setProperty(
+        'drawingTool'.toJS, createJSInteropWrapper(drawingToolWrapper));
 
-    web.window.setProperty('flutterChart'.toJS, dartInterop);
-  } on Exception catch (_) {
-    // Silently handle any errors during interop setup
-  }
+  web.window.setProperty('flutterChart'.toJS, dartInterop);
 }
