@@ -1,6 +1,6 @@
 import 'dart:js_interop';
 
-import 'package:deriv_chart/deriv_chart.dart';
+import 'package:deriv_chart/core_chart.dart';
 
 /// Called when an addOn is to be edited
 typedef OnEditCallback = void Function(int index);
@@ -178,6 +178,13 @@ extension JsMarkerExtension on JsMarker {
 
   /// Marker direction
   external String? get direction;
+
+  /// Horizontal pixel offset for the marker's rendered position.
+  external double? get displayOffsetX;
+
+  /// Vertical pixel offset for the marker's rendered position.
+  /// Negative values move the marker upward.
+  external double? get displayOffsetY;
 }
 
 @JS()
@@ -266,7 +273,8 @@ typedef OnAddDrawingCallback = void Function();
 typedef OnToolAddedCallback = void Function(String toolJson);
 
 /// Called when a drawing tool is removed with JSON data
-typedef OnRemoveDrawingCallback = void Function(String deletedToolName, String? config);
+typedef OnRemoveDrawingCallback = void Function(
+    String deletedToolName, String? config);
 
 /// Called when drawing tool state changes
 typedef OnStateChangedCallback = void Function(int currentStep, int totalSteps);

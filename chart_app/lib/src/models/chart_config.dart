@@ -2,7 +2,7 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 import 'package:chart_app/src/helpers/color.dart';
-import 'package:deriv_chart/deriv_chart.dart';
+import 'package:deriv_chart/core_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
 
@@ -60,7 +60,7 @@ class ChartConfigModel extends ChangeNotifier {
   JSYAxisMargin? yAxisMargin;
 
   /// Whether smooth chart animations are enabled.
-  bool isSmoothChartEnabled = false;
+  bool isSmoothChartEnabled = true;
 
   /// Show the time interval
   bool showTimeInterval = false;
@@ -110,6 +110,7 @@ class ChartConfigModel extends ChangeNotifier {
             color: _marker.color != null
                 ? getColorFromString(_marker.color!)
                 : null,
+            displayOffset: _getDisplayOffset(_marker),
           ));
         }
       }
@@ -147,6 +148,11 @@ class ChartConfigModel extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Offset _getDisplayOffset(JsMarker marker) => Offset(
+        marker.displayOffsetX ?? 0,
+        marker.displayOffsetY ?? 0,
+      );
 
   /// To update the theme of the chart
   void updateTheme(String _theme) {
@@ -198,7 +204,7 @@ class ChartConfigModel extends ChangeNotifier {
     isMobile = payload.isMobile;
     yAxisMargin = payload.yAxisMargin;
     symbol = payload.symbol ?? '';
-    isSmoothChartEnabled = payload.isSmoothChartEnabled ?? false;
+    isSmoothChartEnabled = payload.isSmoothChartEnabled ?? true;
 
     if (payload.chartType != null && payload.chartType!.isNotEmpty) {
       style = ChartStyle.values.byName(payload.chartType!);
