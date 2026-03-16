@@ -61,6 +61,7 @@ class _DerivChartWebAdapterState extends State<_DerivChartWebAdapter> {
   final DrawingToolModel drawingToolModel = DrawingToolModel();
 
   late ChartApp app;
+  late final JSExportedDartFunction _jsVisibilityHandler;
   int? leftBoundEpoch, rightBoundEpoch;
   bool isFollowMode = false;
 
@@ -88,17 +89,15 @@ class _DerivChartWebAdapterState extends State<_DerivChartWebAdapter> {
   @override
   void initState() {
     super.initState();
-    // Convert the Dart function to a JavaScript function with js_interop
-    final JSExportedDartFunction jsHandler = _handleVisibilityChange.toJS;
-    web.document.addEventListener('visibilitychange', jsHandler);
+    _jsVisibilityHandler = _handleVisibilityChange.toJS;
+    web.document.addEventListener('visibilitychange', _jsVisibilityHandler);
   }
 
   @override
   void dispose() {
+    web.document
+        .removeEventListener('visibilitychange', _jsVisibilityHandler);
     super.dispose();
-    // Convert the Dart function to a JavaScript function with js_interop
-    final JSExportedDartFunction jsHandler = _handleVisibilityChange.toJS;
-    web.document.removeEventListener('visibilitychange', jsHandler);
   }
 
   @override

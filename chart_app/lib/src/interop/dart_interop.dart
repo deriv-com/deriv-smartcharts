@@ -80,10 +80,19 @@ class ChartConfigWrapper {
   ChartConfigWrapper(this._model);
 
   void updateTheme(String theme) => _model.updateTheme(theme);
-  void newChart(dynamic chartConfig) => _model.newChart(chartConfig);
+  void newChart(JSNewChart chartConfig) => _model.newChart(chartConfig);
   void updateChartStyle(String style) => _model.updateChartStyle(style);
   void setRemainingTime(String time) => _model.setRemainingTime(time);
-  void updateContracts(dynamic contracts) => _model.updateContracts(contracts);
+  void updateContracts(JSAny contracts) {
+    final List<JSContractsUpdate> contractsList =
+        (contracts as JSArray<JSAny>)
+            .toDart
+            .whereType<JSAny>()
+            .map((JSAny c) => c as JSContractsUpdate)
+            .toList();
+    _model.updateContracts(contractsList);
+  }
+
   void updateLiveStatus(bool isLive) => _model.updateLiveStatus(isLive);
   void updateCrosshairVisibility(bool visible) =>
       _model.updateCrosshairVisibility(visible);
@@ -117,40 +126,36 @@ class DrawingToolWrapper {
   void cancelAddingNewTool() => _model.cancelAddingNewTool();
   void removeDrawingTool(int index) => _model.removeDrawingTool(index);
   void clearDrawingToolSelect() => _model.clearDrawingToolSelect();
+  void clearDrawingTool() => _model.clearDrawingTool();
   List<String> getDrawingToolsRepoItems() => _model.getDrawingToolsRepoItems();
 }
 
 /// Initialize the JavaScript interop
 void initDartInterop(ChartApp app) {
   try {
-    // Create wrapper instances
-    final appWrapper = AppWrapper(app);
-    final crosshairWrapper =
+    final AppWrapper appWrapper = AppWrapper(app);
+    final CrosshairWrapper crosshairWrapper =
         CrosshairWrapper(app.wrappedController.getCrosshairController());
-    final feedWrapper = ChartFeedWrapper(app.feedModel);
-    final configWrapper = ChartConfigWrapper(app.configModel);
-    final indicatorsWrapper = IndicatorsWrapper(app.indicatorsModel);
-    final drawingToolWrapper = DrawingToolWrapper(app.drawingToolModel);
+    final ChartFeedWrapper feedWrapper = ChartFeedWrapper(app.feedModel);
+    final ChartConfigWrapper configWrapper =
+        ChartConfigWrapper(app.configModel);
+    final IndicatorsWrapper indicatorsWrapper =
+        IndicatorsWrapper(app.indicatorsModel);
+    final DrawingToolWrapper drawingToolWrapper =
+        DrawingToolWrapper(app.drawingToolModel);
 
-    // Create the main object to expose to JavaScript
-    final JSObject dartInterop = JSObject();
+    final JSObject dartInterop = JSObject()
+      ..setProperty('app'.toJS, createJSInteropWrapper(appWrapper))
+      ..setProperty('crosshair'.toJS, createJSInteropWrapper(crosshairWrapper))
+      ..setProperty('feed'.toJS, createJSInteropWrapper(feedWrapper))
+      ..setProperty('config'.toJS, createJSInteropWrapper(configWrapper))
+      ..setProperty(
+          'indicators'.toJS, createJSInteropWrapper(indicatorsWrapper))
+      ..setProperty(
+          'drawingTool'.toJS, createJSInteropWrapper(drawingToolWrapper));
 
-    // Add all wrappers as properties using createJSInteropWrapper
-    dartInterop.setProperty('app'.toJS, createJSInteropWrapper(appWrapper));
-    dartInterop.setProperty(
-        'crosshair'.toJS, createJSInteropWrapper(crosshairWrapper));
-    dartInterop.setProperty('feed'.toJS, createJSInteropWrapper(feedWrapper));
-    dartInterop.setProperty(
-        'config'.toJS, createJSInteropWrapper(configWrapper));
-    dartInterop.setProperty(
-        'indicators'.toJS, createJSInteropWrapper(indicatorsWrapper));
-    dartInterop.setProperty(
-        'drawingTool'.toJS, createJSInteropWrapper(drawingToolWrapper));
-
-    // Expose the interop object to the global window
     web.window.setProperty('flutterChart'.toJS, dartInterop);
-  } catch (e) {
-    // Handle any errors that might occur during interop setup
-    print('Error initializing JavaScript interop: $e');
+  } on Exception catch (_) {
+    // Silently handle any errors during interop setup
   }
 }

@@ -247,26 +247,41 @@ extension JsIndicatorsExtension on JsIndicators {
 
   /// Called when an indicator is removed
   void Function(int)? get onRemove {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int i) {};
+    final JSAny? jsFunc = onRemoveJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int index) =>
+        (jsFunc as JSFunction).callAsFunction(null, index.toJS);
   }
 
   /// Called when an indicator is edited
   void Function(int)? get onEdit {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int i) {};
+    final JSAny? jsFunc = onEditJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int index) =>
+        (jsFunc as JSFunction).callAsFunction(null, index.toJS);
   }
 
   /// Called when an indicator is updated
-  void Function(int, AddOnConfig)? get onUpdate {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int i, AddOnConfig config) {};
+  void Function()? get onUpdate {
+    final JSAny? jsFunc = onUpdateJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return () => (jsFunc as JSFunction).callAsFunction();
   }
 
   /// Callback to swap two elements of a list
   void Function(int, int)? get onSwap {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int i, int j) {};
+    final JSAny? jsFunc = onSwapJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int i, int j) =>
+        (jsFunc as JSFunction).callAsFunction(null, i.toJS, j.toJS);
   }
 }
 
@@ -340,58 +355,96 @@ extension JsDrawingsExtension on JsDrawings {
   @JS('onStateChanged')
   external JSAny? get onStateChangedJs;
 
-  /// Called when an drawing is added
+  /// Called when a drawing is added
   void Function()? get onAdd {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return () {};
+    final JSAny? jsFunc = onAddJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return () => (jsFunc as JSFunction).callAsFunction();
   }
 
-  /// Called when an drawing is edited/dragged
+  /// Called when a drawing is edited/dragged
   void Function()? get onUpdate {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return () {};
+    final JSAny? jsFunc = onUpdateJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return () => (jsFunc as JSFunction).callAsFunction();
   }
 
   /// Called when the data is loaded from prefs
   void Function(List<dynamic>)? get onLoad {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (List<dynamic> items) {};
+    final JSAny? jsFunc = onLoadJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (List<dynamic> items) {
+      final List<JSAny?> jsItems =
+          items.map<JSAny?>((dynamic item) => (item as String).toJS).toList();
+      (jsFunc as JSFunction).callAsFunction(null, jsItems.toJS);
+    };
   }
 
   /// Called when a specific drawing tool is added
   OnToolAddedCallback? get onToolAdded {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (String toolJson) {};
+    final JSAny? jsFunc = onToolAddedJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (String toolJson) =>
+        (jsFunc as JSFunction).callAsFunction(null, toolJson.toJS);
   }
 
-  /// Called when an drawing is removed
+  /// Called when a drawing is removed
   OnRemoveDrawingCallback? get onRemove {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (String deletedToolName, String? config) {};
+    final JSAny? jsFunc = onRemoveJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (String deletedToolName, String? config) =>
+        (jsFunc as JSFunction)
+            .callAsFunction(null, deletedToolName.toJS, config?.toJS);
   }
 
-  /// Called when an drawing is edited
+  /// Called when a drawing is edited
   void Function(int)? get onEdit {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int i) {};
+    final JSAny? jsFunc = onEditJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int index) =>
+        (jsFunc as JSFunction).callAsFunction(null, index.toJS);
   }
 
   /// Callback to notify mouse enter over the addon
   void Function(int)? get onMouseEnter {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int i) {};
+    final JSAny? jsFunc = onMouseEnterJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int index) =>
+        (jsFunc as JSFunction).callAsFunction(null, index.toJS);
   }
 
   /// Callback to notify mouse exit over the addon
   OnMouseExitCallback? get onMouseExit {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int index) {};
+    final JSAny? jsFunc = onMouseExitJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int index) =>
+        (jsFunc as JSFunction).callAsFunction(null, index.toJS);
   }
 
   /// Called when drawing tool state changes
   OnStateChangedCallback? get onStateChanged {
-    // In a real implementation, this would convert the JSAny to a callable function
-    return (int currentStep, int totalSteps) {};
+    final JSAny? jsFunc = onStateChangedJs;
+    if (jsFunc == null) {
+      return null;
+    }
+    return (int currentStep, int totalSteps) => (jsFunc as JSFunction)
+        .callAsFunction(null, currentStep.toJS, totalSteps.toJS);
   }
 }
 
