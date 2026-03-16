@@ -140,13 +140,17 @@ extension JSContractsUpdateExtension on JSContractsUpdate {
   /// Profit/Loss text to be shown in marker group
   external String? get profitAndLossText;
 
-  /// List of markers belongs to a contract (accessing as Dart List)
+  /// List of markers belongs to a contract
   List<JsMarker> get markers {
-    // Since we can't directly access the JavaScript array,
-    // this is a placeholder. In a real implementation,
-    // you would need to use JSAny conversion methods
-    // or possibly extend this with a custom method to access the array.
-    return <JsMarker>[];
+    final JSAny? jsMarkers = markersJs;
+    if (jsMarkers == null) {
+      return <JsMarker>[];
+    }
+    final JSArray<JSAny> jsArray = jsMarkers as JSArray<JSAny>;
+    return jsArray.toDart
+        .whereType<JSAny>()
+        .map((JSAny item) => item as JsMarker)
+        .toList();
   }
 }
 

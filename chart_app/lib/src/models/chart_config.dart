@@ -246,6 +246,6 @@ class ChartConfigModel extends ChangeNotifier {
       return null;
     }
 
-    props.getProperty(targetPropName.toJS);
+    return props.getProperty(targetPropName.toJS);
   }
 }
