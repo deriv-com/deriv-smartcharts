@@ -190,9 +190,6 @@ const config = {
                     globOptions: {
                         ignore: ['**/packages/**', '**/assets/**'],
                     },
-                    transform(content, absoluteFrom) {
-                        return content;
-                    },
                 },
             ],
         }),

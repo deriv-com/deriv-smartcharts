@@ -67,10 +67,17 @@ class ChartFeedWrapper {
 
   ChartFeedWrapper(this._model);
 
-  void onTickHistory(dynamic data, bool isReset) =>
-      _model.onTickHistory(data, isReset);
-  void onNewTick(dynamic data) => _model.onNewTick(data);
-  void onNewCandle(dynamic data) => _model.onNewCandle(data);
+  void onTickHistory(JSAny data, bool isReset) {
+    final List<JsQuote> quotes = (data as JSArray<JSAny>)
+        .toDart
+        .whereType<JSAny>()
+        .map((JSAny item) => item as JsQuote)
+        .toList();
+    _model.onTickHistory(quotes, isReset);
+  }
+
+  void onNewTick(JSAny data) => _model.onNewTick(data as JsQuote);
+  void onNewCandle(JSAny data) => _model.onNewCandle(data as JsQuote);
 }
 
 @JSExport()

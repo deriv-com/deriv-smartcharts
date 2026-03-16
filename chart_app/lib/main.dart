@@ -16,8 +16,6 @@ import 'src/models/chart_config.dart';
 import 'src/interop/dart_interop.dart';
 import 'src/interop/js_interop.dart';
 
-// ignore_for_file: avoid_catches_without_on_clauses
-
 void main() {
   setUrlStrategy(NoNavigationStrategy());
   runApp(const DerivChartApp());
