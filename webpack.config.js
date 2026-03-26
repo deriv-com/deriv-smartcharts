@@ -54,7 +54,7 @@ const config = {
         // Without them, window.crossOriginIsolated is false and Flutter falls back to canvaskit.
         headers: {
             'Cross-Origin-Opener-Policy': 'same-origin',
-            'Cross-Origin-Embedder-Policy': 'require-corp',
+            'Cross-Origin-Embedder-Policy': 'credentialless',
         },
     },
     module: {
