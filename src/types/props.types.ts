@@ -46,7 +46,7 @@ declare global {
             };
             initState: {
                 isInitialRunCompleted: boolean;
-                isEngineIntialized: boolean;
+                isEngineInitialized: boolean;
                 isMounted: boolean;
             };
         };

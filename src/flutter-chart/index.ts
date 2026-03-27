@@ -25,7 +25,7 @@ export const createChartElement = ({ onChartLoad }: TCreateChartElementProps) =>
     (window._flutter as Partial<Window['_flutter']>) = {
         initState: {
             isInitialRunCompleted: false,
-            isEngineIntialized: false,
+            isEngineInitialized: false,
             isMounted: false,
         },
     };
@@ -44,7 +44,7 @@ export const createChartElement = ({ onChartLoad }: TCreateChartElementProps) =>
             assetBase: chartBase,
             hostElement: window.flutterChartElement,
         });
-        window._flutter.initState.isEngineIntialized = true;
+        window._flutter.initState.isEngineInitialized = true;
 
         runChartApp();
     };
