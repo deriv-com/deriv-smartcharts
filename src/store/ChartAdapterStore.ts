@@ -419,7 +419,9 @@ export default class ChartAdapterStore {
 
     async updateRightPadding(rightPadding?: number) {
         await when(() => this.isChartLoaded);
-        this.flutterChart?.config.updateRightPadding(rightPadding);
+        if (rightPadding !== undefined) {
+            this.flutterChart?.config.updateRightPadding(rightPadding);
+        }
     }
 
     async setShowInterval(showInterval: boolean) {
