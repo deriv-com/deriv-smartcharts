@@ -402,7 +402,9 @@ export default class ChartAdapterStore {
 
     async updateLeftMargin(leftMargin?: number) {
         await when(() => this.isChartLoaded);
-        this.flutterChart?.config.updateLeftMargin(leftMargin);
+        if (leftMargin !== undefined) {
+            this.flutterChart?.config.updateLeftMargin(leftMargin);
+        }
     }
 
     async updateLiveStatus(isLive: boolean) {
