@@ -104,6 +104,9 @@ class ChartConfigModel extends ChangeNotifier {
             quote: _marker.quote!,
             epoch: _marker.epoch! * 1000,
             text: _marker.text,
+            textType: _marker.textType != null
+                ? MarkerTextType.values.byName(_marker.textType!)
+                : MarkerTextType.plain,
             markerType: MarkerType.values.byName(_marker.type!),
             direction: MarkerDirection.values
                 .byName(_marker.direction ?? 'up'), // Default to 'up' if null
