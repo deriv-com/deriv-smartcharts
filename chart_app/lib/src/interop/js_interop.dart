@@ -187,6 +187,9 @@ extension JsMarkerExtension on JsMarker {
   /// Marker direction
   external String? get direction;
 
+  /// Marker text type (e.g. 'plain', 'counter')
+  external String? get textType;
+
   /// Horizontal pixel offset for the marker's rendered position.
   external double? get displayOffsetX;
 
