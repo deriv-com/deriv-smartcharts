@@ -1,6 +1,6 @@
 # Deployment Workflows Documentation
 
-This directory contains GitHub Actions workflows for deploying the SmartCharts Champion application to Cloudflare Pages.
+This directory contains GitHub Actions workflows for deploying the SmartCharts application to Cloudflare Pages.
 
 ## Overview
 

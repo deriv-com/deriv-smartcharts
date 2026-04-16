@@ -10,16 +10,16 @@ jobs:
         permissions:
             contents: write
         steps:
-            - name: Checkout smartcharts-champion
-              uses: 'deriv-com/smartcharts-champion/.github/actions/checkout@master'
+            - name: Checkout deriv-smartcharts
+              uses: 'deriv-com/deriv-smartcharts/.github/actions/checkout@master'
               with:
-                  repository: 'deriv-com/smartcharts-champion'
-                  path: smartcharts-champion
+                  repository: 'deriv-com/deriv-smartcharts'
+                  path: deriv-smartcharts
                   ref: master
 
             - name: Custom flutter-chart
               id: flutter_chart
-              uses: 'deriv-com/smartcharts-champion/.github/actions/checkout@master'
+              uses: 'deriv-com/deriv-smartcharts/.github/actions/checkout@master'
               with:
                   repository: 'deriv-com/flutter-chart'
                   path: flutter-chart
@@ -31,7 +31,7 @@ jobs:
                   cache: true
             - name: Build flutter
               run: |
-                  cd smartcharts-champion/chart_app
+                  cd deriv-smartcharts/chart_app
                   flutter pub get
                   flutter build web --wasm --release
 
@@ -40,14 +40,14 @@ jobs:
               with:
                   node-version: 22.x
 
-            - name: Setup smartcharts-champion
-              run: cd smartcharts-champion && npm install
+            - name: Setup deriv-smartcharts
+              run: cd deriv-smartcharts && npm install
 
-            - name: Build smartcharts-champion
-              run: cd smartcharts-champion && npm run build
-            - name: Release smartcharts-champion
+            - name: Build deriv-smartcharts
+              run: cd deriv-smartcharts && npm run build
+            - name: Release deriv-smartcharts
               env:
                   CI: true
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: cd smartcharts-champion && npx semantic-release
+              run: cd deriv-smartcharts && npx semantic-release

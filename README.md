@@ -29,7 +29,7 @@ Before running or contribute to this project, you need to have the setup of the 
 2.  **Clone using SSH**
 
     ```sh
-    git@github.com:deriv-com/smartcharts-champion.git
+    git@github.com:deriv-com/deriv-smartcharts.git
     ```
 
 3.  **Enter project directory**
