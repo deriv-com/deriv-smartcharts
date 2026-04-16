@@ -1,6 +1,6 @@
 /**
  * Lightweight replacements for lodash functions to reduce bundle size.
- * These implementations cover the specific use cases in smartcharts-champion.
+ * These implementations cover the specific use cases in deriv-smartcharts.
  */
 
 type DebounceOptions = {

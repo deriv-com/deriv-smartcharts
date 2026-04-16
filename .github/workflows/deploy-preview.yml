@@ -11,7 +11,7 @@ on:
     workflow_dispatch:
         inputs:
             smartcharts_ref:
-                description: 'smartcharts-champion branch/tag/SHA to build'
+                description: 'deriv-smartcharts branch/tag/SHA to build'
                 required: true
                 default: 'master'
             flutter_chart_ref:
@@ -50,8 +50,8 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
               with:
-                  repository: deriv-com/smartcharts-champion
-                  path: smartcharts-champion
+                  repository: deriv-com/deriv-smartcharts
+                  path: deriv-smartcharts
                   ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.smartcharts_ref || github.event.pull_request.head.sha }}
                   persist-credentials: false
 
@@ -76,7 +76,7 @@ jobs:
               env:
                   FLUTTER_REF: ${{ github.event.inputs.flutter_chart_ref }}
               run: |
-                  cd smartcharts-champion/chart_app
+                  cd deriv-smartcharts/chart_app
                   # Validate input format (alphanumeric, slashes, hyphens, underscores, dots only)
                   if ! [[ "${FLUTTER_REF}" =~ ^[a-zA-Z0-9/_.-]+$ ]]; then
                     echo "Error: Invalid flutter_chart_ref format. Only alphanumeric characters, slashes, hyphens, underscores, and dots are allowed."
@@ -96,7 +96,7 @@ jobs:
 
             - name: Build Flutter chart component
               run: |
-                  cd smartcharts-champion/chart_app
+                  cd deriv-smartcharts/chart_app
                   flutter pub get
                   flutter build web --wasm --release
 
@@ -112,10 +112,10 @@ jobs:
               run: rm -rf derivatives-trader/node_modules/@deriv-com/smartcharts-champion/dist
 
             - name: Setup SmartCharts
-              run: cd smartcharts-champion && npm install
+              run: cd deriv-smartcharts && npm install
 
             - name: Build SmartCharts
-              run: cd smartcharts-champion && npm run build -- --output-path ../derivatives-trader/node_modules/@deriv-com/smartcharts-champion/dist
+              run: cd deriv-smartcharts && npm run build -- --output-path ../derivatives-trader/node_modules/@deriv-com/smartcharts-champion/dist
 
             - name: Build derivatives-trader
               env:
@@ -154,5 +154,5 @@ jobs:
                   echo "**Preview URL:** ${{ steps.publish_to_pages_branch.outputs.cf_pages_url }}" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
                   echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
-                  echo "- smartcharts-champion ref: \`${{ github.event.inputs.smartcharts_ref }}\`" >> $GITHUB_STEP_SUMMARY
+                  echo "- deriv-smartcharts ref: \`${{ github.event.inputs.smartcharts_ref }}\`" >> $GITHUB_STEP_SUMMARY
                   echo "- flutter-chart ref: \`${{ github.event.inputs.flutter_chart_ref }}\`" >> $GITHUB_STEP_SUMMARY
