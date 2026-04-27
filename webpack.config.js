@@ -209,6 +209,16 @@ const config = {
             commonjs: 'react',
             commonjs2: 'react',
         },
+        'react/jsx-runtime': {
+            commonjs: 'react/jsx-runtime',
+            commonjs2: 'react/jsx-runtime',
+            root: ['React'],
+        },
+        'react/jsx-dev-runtime': {
+            commonjs: 'react/jsx-dev-runtime',
+            commonjs2: 'react/jsx-dev-runtime',
+            root: ['React'],
+        },
         'react-dom': {
             commonjs: 'react-dom',
             commonjs2: 'react-dom',
