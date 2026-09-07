@@ -18,7 +18,20 @@ class ChartApp {
     this.feedModel,
     this.indicatorsModel,
     this.drawingToolModel,
-  );
+  ) {
+    // [yAxisWidth] and [currentTickWidth] are derived from the config's theme,
+    // pip size and last-digit emphasis, but [calculateTickWidth] is otherwise
+    // only reached from the `ValueListenableBuilder` on
+    // `feedModel.feedLoadedNotifier`, which flips on feed reloads alone.
+    // A config-only change — `updateTheme`, `updateLastDigitEmphasis` —
+    // repaints the chart through [ChartConfigModel]'s own listeners further
+    // down the tree without rebuilding that builder, so both widths would
+    // otherwise keep describing the previous config until the next feed load.
+    //
+    // No matching `removeListener`: this and [configModel] are both created
+    // once in `_DerivChartWebAdapterState` and share the app's lifetime.
+    configModel.addListener(calculateTickWidth);
+  }
 
   /// ChartConfigModel
   ChartConfigModel configModel;
