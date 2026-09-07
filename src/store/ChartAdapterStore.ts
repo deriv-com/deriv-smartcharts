@@ -343,6 +343,7 @@ export default class ChartAdapterStore {
             pipSize: this.mainStore.chart.pip,
             isMobile: this.mainStore.chart.isMobile || false,
             isSmoothChartEnabled: this.mainStore.chartSetting.isSmoothChartEnabled,
+            shouldEmphasizeLastDigit: this.mainStore.state.shouldEmphasizeLastDigit,
             yAxisMargin: this.mainStore.state.yAxisMargin,
         });
     };
@@ -410,6 +411,11 @@ export default class ChartAdapterStore {
     async updateLiveStatus(isLive: boolean) {
         await when(() => this.isChartLoaded);
         this.flutterChart?.config.updateLiveStatus(isLive);
+    }
+
+    async updateLastDigitEmphasis(shouldEmphasize: boolean) {
+        await when(() => this.isChartLoaded);
+        this.flutterChart?.config.updateLastDigitEmphasis(shouldEmphasize);
     }
 
     async setSymbolClosed(isClosed: boolean) {

@@ -74,6 +74,13 @@ class ChartConfigModel extends ChangeNotifier {
   /// Whether smooth chart animations are enabled.
   bool isSmoothChartEnabled = true;
 
+  /// Whether the current spot's label should emphasise the quote's last digit.
+  ///
+  /// Digit contracts (Matches/Differs, Over/Under, Even/Odd) are decided by
+  /// that digit alone, so the host turns this on while one of them is on
+  /// screen and off again otherwise.
+  bool shouldEmphasizeLastDigit = false;
+
   /// Show the time interval
   bool showTimeInterval = false;
 
@@ -176,6 +183,13 @@ class ChartConfigModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// To update whether the current spot's last digit is emphasised
+  // ignore: avoid_positional_boolean_parameters
+  void updateLastDigitEmphasis(bool _shouldEmphasizeLastDigit) {
+    shouldEmphasizeLastDigit = _shouldEmphasizeLastDigit;
+    notifyListeners();
+  }
+
   /// To update the theme of the chart
   // ignore: avoid_positional_boolean_parameters
   void updateCrosshairVisibility(bool _showCrosshair) {
@@ -220,6 +234,7 @@ class ChartConfigModel extends ChangeNotifier {
     yAxisMargin = payload.yAxisMargin;
     symbol = payload.symbol ?? '';
     isSmoothChartEnabled = payload.isSmoothChartEnabled ?? true;
+    shouldEmphasizeLastDigit = payload.shouldEmphasizeLastDigit ?? false;
 
     if (payload.chartType != null && payload.chartType!.isNotEmpty) {
       style = ChartStyle.values.byName(payload.chartType!);

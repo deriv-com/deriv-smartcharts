@@ -267,7 +267,14 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                                 CurrentTickIndicator(
                                   feedModel.ticks.last,
                                   id: 'last_tick_indicator',
-                                  style: configModel.theme.currentSpotStyle
+                                  // Only the current spot takes the emphasised
+                                  // variant: the blinking dot and the interval
+                                  // countdown below share `currentSpotStyle`
+                                  // but paint no price of their own.
+                                  style: (configModel.shouldEmphasizeLastDigit
+                                          ? configModel.theme
+                                              .currentSpotWithEmphasizedLastDigitStyle
+                                          : configModel.theme.currentSpotStyle)
                                       .copyWith(
                                     labelPadding: 8,
                                     hasArrow: false,

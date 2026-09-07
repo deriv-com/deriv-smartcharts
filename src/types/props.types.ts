@@ -271,6 +271,15 @@ export type TChartProps = {
     isAnimationEnabled?: boolean;
     isVerticalScrollEnabled?: boolean;
     showLastDigitStats?: boolean;
+    /**
+     * Renders the last digit of the current spot's price label larger and bolder
+     * than the rest of the price.
+     *
+     * For digit contracts (Matches/Differs, Over/Under, Even/Odd), whose outcome
+     * is decided by that digit alone. Can be toggled at any time — it does not
+     * require the chart to be re-created.
+     */
+    shouldEmphasizeLastDigit?: boolean;
     scrollToEpoch?: number | null;
     clearChart?: () => void;
     shouldFetchTradingTimes?: boolean;
@@ -443,6 +452,7 @@ export type TNewChartPayload = {
     pipSize?: number;
     isMobile: boolean;
     isSmoothChartEnabled?: boolean;
+    shouldEmphasizeLastDigit?: boolean;
     yAxisMargin?: {
         top: number;
         bottom: number;
@@ -487,6 +497,7 @@ export type TFlutterChart = {
         updateTheme: (theme: string) => void;
         updateChartStyle: (chartStyle: string) => void;
         updateLiveStatus: (isLive: boolean) => void;
+        updateLastDigitEmphasis: (shouldEmphasize: boolean) => void;
         updateContracts: (markers: any[]) => void;
         updateCrosshairVisibility: (visibility: boolean) => void;
         updateLeftMargin: (leftMargin?: number) => void;

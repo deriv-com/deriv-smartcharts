@@ -195,6 +195,12 @@ class ChartApp {
         fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
       ),
       configModel.pipSize,
+      // Kept in step with the label the barrier painter actually draws: an
+      // emphasised last digit is wider than the rest of the price, and the
+      // HTML price lines size themselves from this value.
+      lastDigitTextStyle: configModel.shouldEmphasizeLastDigit
+          ? configModel.theme.currentSpotLastDigitTextStyle
+          : null,
     );
   }
 

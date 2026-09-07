@@ -42,9 +42,13 @@ class TimeIntervalPainter<T extends TimeIntervalIndicator>
       y = size.height - labelHalfHeight;
     }
 
-    final TextPainter valuePainter = makeTextPainter(
+    // Cap-centred rather than line-box centred, matching the current spot's
+    // label directly above it: `currentSpotStyle.textStyle` carries far more
+    // line height than the font's own metrics, and centring the box would sit
+    // the digits low in it.
+    final DigitLabelTextPainter valuePainter = DigitLabelTextPainter(
       series.timePeriod,
-      style.textStyle,
+      style: style.textStyle,
     );
 
     //set Y axis below the marker
@@ -64,10 +68,6 @@ class TimeIntervalPainter<T extends TimeIntervalIndicator>
       _paint,
     );
 
-    paintWithTextPainter(
-      canvas,
-      painter: valuePainter,
-      anchor: labelArea.center,
-    );
+    valuePainter.paint(canvas, center: labelArea.center);
   }
 }
