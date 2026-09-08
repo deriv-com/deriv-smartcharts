@@ -105,6 +105,9 @@ extension JSNewChartExtension on JSNewChart {
 
   /// Whether smooth chart animations are enabled.
   external bool? get isSmoothChartEnabled;
+
+  /// Whether the current spot's label should emphasise the quote's last digit.
+  external bool? get shouldEmphasizeLastDigit;
 }
 
 @JS()

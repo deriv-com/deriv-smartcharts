@@ -74,6 +74,7 @@ class ChartState {
     stateChangeListener?: (state: string, option?: TStateChangeOption) => void;
     settings?: TSettings;
     showLastDigitStats = false;
+    shouldEmphasizeLastDigit = false;
     scrollToEpoch?: number | null;
     clearChart?: () => void;
     isChartClosed = false;
@@ -135,6 +136,7 @@ class ChartState {
             stateChangeListener: observable,
             settings: observable,
             showLastDigitStats: observable,
+            shouldEmphasizeLastDigit: observable,
             allowTickChartTypeOnly: observable,
             allowedChartTypes: observable,
             allowedGranularities: observable,
@@ -226,6 +228,7 @@ class ChartState {
         allTicks = [],
         contractInfo = {},
         showLastDigitStats = false,
+        shouldEmphasizeLastDigit = false,
         allowTickChartTypeOnly = false,
         allowedChartTypes,
         allowedGranularities,
@@ -456,6 +459,14 @@ class ChartState {
         if (isLive !== null && isLive !== undefined && this.mainStore.chart.isLive !== isLive) {
             this.mainStore.chart.isLive = isLive;
             this.mainStore.chartAdapter.updateLiveStatus(isLive);
+        }
+
+        // Pushed on change rather than only through `newChart`, so switching
+        // between a digits trade type and any other one re-styles the existing
+        // current-spot label instead of waiting for a symbol or interval change.
+        if (this.shouldEmphasizeLastDigit !== shouldEmphasizeLastDigit) {
+            this.shouldEmphasizeLastDigit = shouldEmphasizeLastDigit;
+            this.mainStore.chartAdapter.updateLastDigitEmphasis(shouldEmphasizeLastDigit);
         }
 
         if (
