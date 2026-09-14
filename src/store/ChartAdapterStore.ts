@@ -1,5 +1,5 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
-import { TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
+import { TAreaStylePayload, TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
 import { createChartElement, runChartApp } from 'src/flutter-chart';
 import Painter from 'src/flutter-chart/painter';
 import { STATE } from 'src/Constant';
@@ -344,6 +344,7 @@ export default class ChartAdapterStore {
             isMobile: this.mainStore.chart.isMobile || false,
             isSmoothChartEnabled: this.mainStore.chartSetting.isSmoothChartEnabled,
             shouldEmphasizeLastDigit: this.mainStore.state.shouldEmphasizeLastDigit,
+            ...this.mainStore.areaStyle.payload,
             yAxisMargin: this.mainStore.state.yAxisMargin,
         });
     };
@@ -394,6 +395,16 @@ export default class ChartAdapterStore {
 
     updateChartStyle(chartType: string) {
         this.flutterChart?.config.updateChartStyle(chartType);
+    }
+
+    /**
+     * Restyles the Area chart's line in place. No `when(isChartLoaded)` guard, and none
+     * needed: the initial style travels in the `newChart` payload, and `AreaStyleStore`
+     * pushes once the engine reports loaded, so an early call here is redundant rather
+     * than lost - and awaiting would reorder a user's rapid changes.
+     */
+    updateAreaStyle({ areaLineColor, areaLineThickness, areaHasGradient }: TAreaStylePayload) {
+        this.flutterChart?.config.updateAreaStyle(areaLineColor, areaLineThickness, areaHasGradient);
     }
 
     async updateTheme(theme: string) {

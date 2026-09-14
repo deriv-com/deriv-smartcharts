@@ -93,6 +93,12 @@ class ChartConfigWrapper {
   void updateTheme(String theme) => _model.updateTheme(theme);
   void newChart(JSNewChart chartConfig) => _model.newChart(chartConfig);
   void updateChartStyle(String style) => _model.updateChartStyle(style);
+  void updateAreaStyle(String? color, double? thickness, bool? hasGradient) =>
+      _model.updateAreaStyle(
+        color: color,
+        thickness: thickness,
+        hasGradient: hasGradient,
+      );
   void setRemainingTime(String time) => _model.setRemainingTime(time);
   void updateContracts(JSAny contracts) {
     final List<JSContractsUpdate> contractsList = (contracts as JSArray<JSAny>)
