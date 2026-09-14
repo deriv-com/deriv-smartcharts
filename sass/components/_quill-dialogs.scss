@@ -363,9 +363,10 @@
     }
 }
 
-/* The disclosure around the picker. The heading row is the toggle, so the dialog opens at
-   its compact height and only grows when the settings are actually wanted - which is also
-   what stops switching chart type from resizing it by the picker's full height. */
+/* The disclosure around the picker, on mobile: the heading row is the toggle, so the sheet
+   opens at its compact height and only grows when the settings are actually wanted. The
+   desktop modal has room for the controls and shows them outright, so it renders a plain
+   heading and the `__trigger` / `__chevron` rules below never apply there. */
 .sc-area-settings {
     /* The section's own `gap` would sit between the heading and the controls, outside the
        height the reveal box subtracts to find the heading row - so a closed row would

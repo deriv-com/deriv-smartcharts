@@ -208,8 +208,11 @@ const AreaStyleControls = observer(() => {
 });
 
 /**
- * The Area chart's appearance - gradient fill, line colour and line thickness - behind a
- * disclosure whose heading row is the toggle.
+ * The Area chart's appearance - gradient fill, line colour and line thickness.
+ *
+ * On desktop the modal has room for the controls, so they are simply always there and the
+ * heading is an ordinary one, matching the two headings around it. Only the sheet is tight
+ * enough to need a disclosure, so the toggle - and its chevron - exist on mobile alone.
  *
  * Two things change this section's height, and both animate through the *same* clipped
  * box so they cannot fight each other:
@@ -217,6 +220,8 @@ const AreaStyleControls = observer(() => {
  *   - the disclosure, between the heading row alone and the heading plus the controls;
  *   - the chart type, between that and nothing at all, because the candle types are
  *     painted from the theme's `candleStyle` and have nothing here to configure.
+ *
+ * Desktop only ever sees the second of those, but shares the same machinery.
  *
  * A second nested box for the chart-type half would have to re-measure a target that is
  * itself mid-transition, so instead the box's height is computed from two measurements -
@@ -246,9 +251,14 @@ const AreaStyleControls = observer(() => {
  * therefore invisible - the box is already exactly that tall.
  */
 const AreaStyleSection = observer(() => {
-    const { areaStyle, chartType } = useStores();
+    const { areaStyle, chart, chartType } = useStores();
+    const { isMobile } = chart;
     const { isExpanded, toggleExpanded } = areaStyle;
     const isAreaChart = chartType.type?.id === AREA_CHART_TYPE_ID;
+
+    // Desktop has no toggle, so the controls are unconditionally shown there. Everything
+    // below keys off this rather than `isExpanded`, which only means anything on mobile.
+    const isOpen = !isMobile || isExpanded;
 
     const contentRef = React.useRef<HTMLDivElement>(null);
     const controlsRef = React.useRef<HTMLDivElement>(null);
@@ -338,7 +348,7 @@ const AreaStyleSection = observer(() => {
     }, []);
 
     React.useEffect(() => {
-        if (isExpanded) {
+        if (isOpen) {
             // The dialog opened with the section already disclosed, so the heading row was
             // never clicked. Nothing has animated yet either, which makes the sheet's full
             // scroll extent less the controls exactly the height it would have had closed.
@@ -374,7 +384,7 @@ const AreaStyleSection = observer(() => {
             reveal.removeEventListener('transitionend', onEnd);
             window.clearTimeout(fallback);
         };
-    }, [isExpanded, measured, getSheet, holdSheet]);
+    }, [isOpen, measured, getSheet, holdSheet]);
 
     // `undefined` leaves the element to size itself, which is the right answer for every
     // state that CSS can reach on its own - see the note above.
@@ -382,7 +392,7 @@ const AreaStyleSection = observer(() => {
     if (!isAreaChart) {
         maxBlockSize = 0;
     } else if (measured) {
-        maxBlockSize = isExpanded ? measured.content : measured.content - measured.controls;
+        maxBlockSize = isOpen ? measured.content : measured.content - measured.controls;
     }
 
     return (
@@ -407,27 +417,33 @@ const AreaStyleSection = observer(() => {
                 <div className='sc-quill-dialog__divider' />
 
                 <section className='sc-chart-type-dialog__section sc-area-settings'>
-                    {/* The button inside the heading, not the other way round: a heading is
-                        flow content and cannot legally sit inside a button, and this is the
-                        shape assistive tech expects of a disclosure. */}
-                    <h2 className='sc-quill-dialog__heading sc-area-settings__heading'>
-                        <button
-                            type='button'
-                            className='sc-area-settings__trigger'
-                            aria-expanded={isExpanded}
-                            aria-controls={panelId}
-                            onClick={onToggle}
-                        >
-                            <span>{t.translate('Area settings')}</span>
-                            <StandaloneChevronDownRegularIcon
-                                className='sc-area-settings__chevron'
-                                iconSize='sm'
-                                // The icon's own colour, so it tracks the heading rather
-                                // than quill's default fill.
-                                fill='currentColor'
-                            />
-                        </button>
-                    </h2>
+                    {isMobile ? (
+                        // The button inside the heading, not the other way round: a heading
+                        // is flow content and cannot legally sit inside a button, and this
+                        // is the shape assistive tech expects of a disclosure.
+                        <h2 className='sc-quill-dialog__heading sc-area-settings__heading'>
+                            <button
+                                type='button'
+                                className='sc-area-settings__trigger'
+                                aria-expanded={isExpanded}
+                                aria-controls={panelId}
+                                onClick={onToggle}
+                            >
+                                <span>{t.translate('Area settings')}</span>
+                                <StandaloneChevronDownRegularIcon
+                                    className='sc-area-settings__chevron'
+                                    iconSize='sm'
+                                    // The icon's own colour, so it tracks the heading
+                                    // rather than quill's default fill.
+                                    fill='currentColor'
+                                />
+                            </button>
+                        </h2>
+                    ) : (
+                        // Nothing to toggle, so nothing to announce - a plain heading, the
+                        // same as "Chart type" and "Time interval" on either side of it.
+                        <h2 className='sc-quill-dialog__heading'>{t.translate('Area settings')}</h2>
+                    )}
 
                     {/* Clipped by the class only until the first measurement, after
                         which the reveal box above does all the clipping. */}
@@ -435,9 +451,9 @@ const AreaStyleSection = observer(() => {
                         ref={controlsRef}
                         id={panelId}
                         className={classNames('sc-area-settings__panel', {
-                            'sc-area-settings__panel--clipped': !measured && !isExpanded,
+                            'sc-area-settings__panel--clipped': !measured && !isOpen,
                         })}
-                        style={{ visibility: isExpanded ? 'visible' : 'hidden' }}
+                        style={{ visibility: isOpen ? 'visible' : 'hidden' }}
                     >
                         <AreaStyleControls />
                     </div>
