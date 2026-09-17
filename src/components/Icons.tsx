@@ -117,6 +117,8 @@ import Arabic from '../../sass/icons/flags/arabic.svg';
 import Bangladesh from '../../sass/icons/flags/bangladesh.svg';
 import Cambodia from '../../sass/icons/flags/cambodia.svg';
 import Srilanka from '../../sass/icons/flags/srilanka.svg';
+// The Indian tricolour, already in the repo though nothing used it until Tamil.
+import India from '../../sass/icons/flags/bombay.svg';
 import Mongolian from '../../sass/icons/flags/mongolian.svg';
 import Kenya from '../../sass/icons/flags/kenya.svg';
 import Thailand from '../../sass/icons/flags/thailand.svg';
@@ -518,6 +520,7 @@ export const FlagIcons = {
     Bangladesh: Wrapper(Bangladesh),
     Cambodia: Wrapper(Cambodia),
     Srilanka: Wrapper(Srilanka),
+    India: Wrapper(India),
     Mongolian: Wrapper(Mongolian),
     Kenya: Wrapper(Kenya),
     Thailand: Wrapper(Thailand),

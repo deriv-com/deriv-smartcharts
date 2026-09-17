@@ -290,8 +290,24 @@
             cursor: pointer;
         }
 
-        /* "1 tick" is the widest label and must stay on one line, as in the design. */
+        /* "1 tick" is the widest label, and in English it sits on one line as the design
+           has it. It is not one line everywhere: every other chip is a number and a
+           hardcoded letter, but this one is a number plus a translated word, and some
+           locales render that word as a whole phrase - Polish has "najmniejsza zmiana
+           ceny" for "tick".
+
+           No pill this size fits that, so the job here is only to fail tidily. On one
+           line it used to overflow sideways and cover the chip beside it, which is why
+           "1m" was reported broken in Polish too; wrapping instead just moves the
+           overflow to the vertical axis, where it escapes the pill and lands on the
+           heading. Clipping to the chip keeps it contained on both axes, and the ellipsis
+           says the label is cut rather than simply odd.
+
+           The real fix is the translation: a chart interval unit has to be a short word.
+           This only stops a long one breaking the layout. */
         >p {
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
         }
         .smartcharts-mobile & {
@@ -518,7 +534,13 @@
     &__thickness {
         align-items: center;
         background: transparent;
-        border: 1px solid transparent;
+
+        /* Already the selected width, just transparent until then, so that selecting a
+           cell changes only colour and never geometry. Browsers disagree about how a
+           1.5px border is rounded - Chrome floors it to 1px, Safari and any Retina
+           display render it faithfully - so a width that changed with selection moved
+           the row's height by a pixel on some machines and not others. */
+        border: 1.5px solid transparent;
         /* Not inherited from a host reset: the dialogs are portalled outside the chart's
            own subtree, and every size below counts the border and padding in. */
         box-sizing: border-box;
@@ -538,13 +560,18 @@
     &__thickness {
         border-radius: 12px;
 
+        /* Content packed to the top rather than centred, so that a label which wraps to
+           two lines in one language does not push its own preview down and leave it out
+           of line with the cell beside it. The cells stretch to a common height either
+           way, so with everything starting at the top the previews always agree. */
+        justify-content: flex-start;
+
         &:hover {
             background: var(--semantic-color-monochrome-surface-normal-lowest);
         }
         &--active {
             background: var(--semantic-color-monochrome-surface-normal-lowest);
             border-color: var(--semantic-color-slate-solid-border-inverse-mid);
-            border-width: 1.5px;
         }
     }
 
@@ -581,6 +608,12 @@
             color: var(--component-textIcon-normal-default);
             font-size: 14px;
             line-height: 20px;
+
+            /* Far more room here than the thickness cells have, but the same rule
+               applies: a label that wraps must not drag its preview out of line with
+               the tile beside it. */
+            word-break: break-word;
+            text-align: center;
         }
     }
     &__preview {
@@ -618,7 +651,6 @@
         }
         &--active {
             border-color: var(--semantic-color-slate-solid-border-inverse-mid);
-            border-width: 1.5px;
         }
         &__swatch {
             block-size: 100%;
@@ -647,7 +679,13 @@
         flex-direction: column;
         gap: 10px;
         min-inline-size: 0;
-        padding: 12px 8px;
+
+        /* Little inline padding, because there is little to spare: the colour swatches
+           beside this group take a fixed 256px, leaving each of these three cells about
+           69px. At 8px a side that is 51px of text, and "Medium" alone needs 54 - so
+           even English wrapped. The line sample is 40px and centred, so the padding was
+           only ever protecting the label, which is the thing that needed the room. */
+        padding: 12px 4px;
 
         &__line {
             background: currentcolor;
@@ -663,6 +701,13 @@
             color: var(--component-textIcon-normal-default);
             font-size: 14px;
             line-height: 20px;
+
+            /* These cells are about 69px wide on desktop, which several languages'
+               single words exceed - Swahili's "Nyembamba" for "Thin", for one. Breaking
+               inside the word keeps it in the cell; without this it simply spills over
+               the cell beside it. */
+            word-break: break-word;
+            text-align: center;
         }
     }
 }
