@@ -108,6 +108,15 @@ extension JSNewChartExtension on JSNewChart {
 
   /// Whether the current spot's label should emphasise the quote's last digit.
   external bool? get shouldEmphasizeLastDigit;
+
+  /// The Area chart's line colour, or null to keep the theme's own area colour.
+  external String? get areaLineColor;
+
+  /// The Area chart's line thickness, in logical pixels.
+  external double? get areaLineThickness;
+
+  /// Whether the Area chart fills the gradient beneath its line.
+  external bool? get areaHasGradient;
 }
 
 @JS()

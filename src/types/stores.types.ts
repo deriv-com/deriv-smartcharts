@@ -1,4 +1,5 @@
 import ChartAdapterStore from 'src/store/ChartAdapterStore';
+import AreaStyleStore from '../store/AreaStyleStore';
 import BottomWidgetsContainerStore from '../store/BottomWidgetsContainerStore';
 import TimeperiodStore from '../store/TimeperiodStore';
 import ChartStore from '../store/ChartStore';
@@ -30,6 +31,7 @@ export type TMainStore = {
     chart: ChartStore;
     state: ChartState;
     chartType: ChartTypeStore;
+    areaStyle: AreaStyleStore;
     chartMode: ChartModeStore;
     studies: StudyLegendStore;
     drawTools: DrawToolsStore;

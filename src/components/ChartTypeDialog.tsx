@@ -8,6 +8,7 @@ import { useStores } from 'src/store';
 import { INTERVALS_PER_ROW, TIntervalOption } from 'src/store/TimeperiodStore';
 import { ChartType, TGranularity } from 'src/types';
 import { getTimeIntervalName } from 'src/utils';
+import AreaStyleSection from './AreaStylePicker';
 import DialogShell from './DialogShell';
 
 type TChartTypeDialogProps = {
@@ -308,6 +309,11 @@ const ChartTypeDialogBody = observer(({ onChartType, onGranularity }: TChartType
                     ))}
                 </div>
             </section>
+
+            {/* Shown for the Area chart only, but rendered unconditionally: the section
+                owns its own divider and animates itself in and out, so switching chart
+                type eases rather than jumps. See `AreaStyleSection`. */}
+            <AreaStyleSection />
 
             <div className='sc-quill-dialog__divider' />
 
