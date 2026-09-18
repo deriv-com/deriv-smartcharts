@@ -177,17 +177,13 @@
     },
     "peerDependencies": {
         "@deriv-com/quill-tokens": "^2.0.4",
-        "@deriv-com/quill-ui": "^1.24.9",
-        "@deriv/quill-icons": "^2.4.16"
+        "@deriv-com/quill-ui": "^1.24.9"
     },
     "peerDependenciesMeta": {
         "@deriv-com/quill-tokens": {
             "optional": true
         },
         "@deriv-com/quill-ui": {
-            "optional": false
-        },
-        "@deriv/quill-icons": {
             "optional": false
         }
     },
