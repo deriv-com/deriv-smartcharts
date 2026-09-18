@@ -259,20 +259,6 @@ const config = {
             commonjs: 'mobx-react-lite',
             commonjs2: 'mobx-react-lite',
         },
-        // quill-ui is a peerDependency: the host app already ships it (derivatives-trader
-        // pins 1.24.9). Externalising keeps the bundle lean and — critically — avoids a
-        // second copy, which would create a duplicate React context for its portals and
-        // providers.
-        //
-        // @deriv/quill-icons is deliberately NOT externalised — do not add it back. This
-        // output is UMD, so an external emits `require("@deriv/quill-icons")`: a CJS
-        // require of the package root. A consumer's bundler resolves that through the
-        // package's `require` export condition to dist/cjs/index.js, and CJS can't be
-        // tree-shaken, so all ~1,600 icons land in the host bundle (this cost
-        // derivatives-trader ~25MB of production JS in 1.11.0). Bundling instead resolves
-        // the `import` condition to dist/esm, which is `sideEffects: false`, so only the
-        // handful of icons we actually use is inlined. Duplicating them is harmless:
-        // unlike quill-ui they are stateless forwardRef SVGs with no context.
         '@deriv-com/quill-ui': {
             root: 'QuillUI',
             commonjs: '@deriv-com/quill-ui',
