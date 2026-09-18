@@ -324,11 +324,65 @@ export type TChartProps = {
     children?: React.ReactNode;
     historical?: boolean;
     contracts_array?: any[];
+    /**
+     * Accumulators barrier band. Pass `null` (or omit) when there is nothing to draw.
+     *
+     * The chart infers the contract state from which fields are present, so the host only
+     * has to forward what it knows. See {@link TAccumulatorBarriers}.
+     */
+    accumulatorBarriers?: TAccumulatorBarriers | null;
     isLive?: boolean;
     startWithDataFitMode?: boolean;
     leftMargin?: number;
     drawingToolFloatingMenuPosition?: TFloatingMenuPositionOffset;
     crosshairEnabled?: boolean; // Initial crosshair state. When set, overrides localStorage and doesn't persist.
+};
+
+/**
+ * Everything the chart needs to draw the Accumulators barrier band.
+ *
+ * The band is a native chart annotation, not a marker — the same
+ * `AccumulatorIndicator` / `AccumulatorsRecentlyClosedIndicator` the Deriv mobile
+ * app uses. Which of the two is drawn is inferred from the fields present:
+ *
+ * - `exitSpot` + `exitEpoch` → closed contract; the band stops at the exit tick.
+ * - `isSold` with no exit data yet → settling; the band freezes and drops its P/L.
+ * - `profit` present → running contract, with the P/L drawn inside the band.
+ * - neither → pre-trade proposal.
+ */
+export type TAccumulatorBarriers = {
+    /** High barrier, as the display string the API returned. Its decimals set the label precision. */
+    highBarrier: string;
+    /** Low barrier, as the display string the API returned. */
+    lowBarrier: string;
+    /** Epoch (seconds) of the tick these barriers belong to. */
+    barrierEpoch: number;
+    /** Pre-formatted barrier-to-spot distance. Derived from the barriers when omitted. */
+    barrierSpotDistance?: string;
+    /** Quote compared against the barriers to detect a hit — what turns the band red. */
+    spot: number;
+    /** Epoch (seconds) of `spot`. */
+    spotEpoch: number;
+    /** Contract profit. Omit for a pre-trade proposal. */
+    profit?: number;
+    /** Currency shown next to `profit`. */
+    currency?: string;
+    /** Decimals `profit` is rendered with. Defaults to 2. */
+    fractionalDigits?: number;
+    /** Whether the contract has been sold. */
+    isSold?: boolean;
+    /** Exit quote of a closed contract. */
+    exitSpot?: number;
+    /** Epoch (seconds) of `exitSpot`. */
+    exitEpoch?: number;
+    /**
+     * How long to hold a barrier update back, in milliseconds. Defaults to 500.
+     *
+     * Barriers and the tick they belong to arrive on separate messages; applying them
+     * immediately makes the band jump ahead of the spot. Symbols that tick every 2s
+     * want a longer hold than 1s ones.
+     */
+    barrierDelayMs?: number;
 };
 
 export type TQuote = {
@@ -499,6 +553,7 @@ export type TFlutterChart = {
         updateLiveStatus: (isLive: boolean) => void;
         updateLastDigitEmphasis: (shouldEmphasize: boolean) => void;
         updateContracts: (markers: any[]) => void;
+        updateAccumulatorBarriers: (barriers: TAccumulatorBarriers | null) => void;
         updateCrosshairVisibility: (visibility: boolean) => void;
         updateLeftMargin: (leftMargin?: number) => void;
         updateRightPadding: (rightPadding?: number) => void;

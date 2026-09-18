@@ -205,6 +205,72 @@ extension JsMarkerExtension on JsMarker {
 @staticInterop
 @anonymous
 
+/// Accumulators barrier payload.
+///
+/// Carries everything the chart needs to build an `AccumulatorIndicator` or an
+/// `AccumulatorsRecentlyClosedIndicator`; the contract state itself is inferred
+/// from which fields are present (see `AccumulatorBarriersModel`).
+///
+/// Every getter is nullable on purpose. dart2js silently coerces a missing JS
+/// property to null, but dart2wasm (skwasm) — which is what
+/// `flutter build web --wasm` produces — throws a TypeError when converting
+/// `undefined` to a non-nullable Dart type. The same reasoning is spelled out
+/// on [JSContractsUpdateExtension.direction].
+class JSAccumulatorBarriers {
+  external factory JSAccumulatorBarriers();
+}
+
+// Extension for JSAccumulatorBarriers
+extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
+  /// High barrier, as the display string the API returned.
+  ///
+  /// Kept as a string because its decimal count is what the barrier-distance
+  /// label is rounded to.
+  external String? get highBarrier;
+
+  /// Low barrier, as the display string the API returned.
+  external String? get lowBarrier;
+
+  /// Epoch (seconds) of the tick these barriers belong to.
+  external int? get barrierEpoch;
+
+  /// Pre-formatted distance between a barrier and the spot. Computed from
+  /// [highBarrier] when absent.
+  external String? get barrierSpotDistance;
+
+  /// The quote the painter compares against the barriers to detect a hit.
+  external double? get spot;
+
+  /// Epoch (seconds) of [spot].
+  external int? get spotEpoch;
+
+  /// Contract profit. Absent for a pre-trade proposal.
+  external double? get profit;
+
+  /// Currency shown next to [profit].
+  external String? get currency;
+
+  /// Decimals [profit] is rendered with. Defaults to 2.
+  external int? get fractionalDigits;
+
+  /// Whether the contract has been sold. True with no exit data yet means the
+  /// contract is settling.
+  external bool? get isSold;
+
+  /// Exit quote of a closed contract.
+  external double? get exitSpot;
+
+  /// Epoch (seconds) of [exitSpot].
+  external int? get exitEpoch;
+
+  /// How long to hold a barrier update back, in milliseconds. Defaults to 500.
+  external int? get barrierDelayMs;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
 /// Quote props
 class JsQuote {
   external factory JsQuote();

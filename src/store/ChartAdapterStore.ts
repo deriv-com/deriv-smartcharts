@@ -1,5 +1,5 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
-import { TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
+import { TAccumulatorBarriers, TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
 import { createChartElement, runChartApp } from 'src/flutter-chart';
 import Painter from 'src/flutter-chart/painter';
 import { STATE } from 'src/Constant';
@@ -514,6 +514,20 @@ export default class ChartAdapterStore {
         await when(() => this.isFeedLoaded);
 
         this.flutterChart?.config.updateContracts(transformedContractsMarker);
+    }
+
+    /**
+     * Hands the Accumulators barrier band to the chart, which draws it as a native
+     * annotation. Pass `null` to clear it.
+     *
+     * Gated on the feed like `updateContracts` — the band is positioned by epoch
+     * against the rendered series, so pushing it before the feed exists would anchor
+     * it against a stale viewport.
+     */
+    async updateAccumulatorBarriers(barriers: TAccumulatorBarriers | null) {
+        await when(() => this.isFeedLoaded);
+
+        this.flutterChart?.config.updateAccumulatorBarriers(barriers);
     }
 
     getInterpolatedPositionAndPrice = (epoch: number) => {

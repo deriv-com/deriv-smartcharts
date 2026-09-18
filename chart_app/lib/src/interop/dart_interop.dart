@@ -6,6 +6,7 @@ import 'dart:js_interop_unsafe';
 import 'package:chart_app/src/chart_app.dart';
 import 'package:chart_app/src/misc/crosshair_controller.dart';
 import 'package:chart_app/src/models/indicators.dart';
+import 'package:chart_app/src/models/accumulator_barriers.dart';
 import 'package:chart_app/src/models/drawing_tool.dart';
 import 'package:chart_app/src/models/chart_config.dart';
 import 'package:chart_app/src/models/chart_feed.dart';
@@ -87,8 +88,15 @@ class ChartFeedWrapper {
 @JSExport()
 class ChartConfigWrapper {
   final ChartConfigModel _model;
+  final AccumulatorBarriersModel _accumulatorBarriers;
 
-  ChartConfigWrapper(this._model);
+  ChartConfigWrapper(this._model, this._accumulatorBarriers);
+
+  /// Sets the Accumulators barrier band. Pass `null` to clear it.
+  void updateAccumulatorBarriers(JSAny? barriers) =>
+      _accumulatorBarriers.updateBarriers(
+        barriers == null ? null : barriers as JSAccumulatorBarriers,
+      );
 
   void updateTheme(String theme) => _model.updateTheme(theme);
   void newChart(JSNewChart chartConfig) => _model.newChart(chartConfig);
@@ -154,7 +162,8 @@ void initDartInterop(ChartApp app) {
   final CrosshairWrapper crosshairWrapper =
       CrosshairWrapper(app.wrappedController.getCrosshairController());
   final ChartFeedWrapper feedWrapper = ChartFeedWrapper(app.feedModel);
-  final ChartConfigWrapper configWrapper = ChartConfigWrapper(app.configModel);
+  final ChartConfigWrapper configWrapper =
+      ChartConfigWrapper(app.configModel, app.accumulatorBarriersModel);
   final IndicatorsWrapper indicatorsWrapper =
       IndicatorsWrapper(app.indicatorsModel);
   final DrawingToolWrapper drawingToolWrapper =

@@ -5,6 +5,7 @@ import 'package:chart_app/src/chart_app.dart';
 import 'package:chart_app/src/helpers/marker_painter.dart';
 import 'package:chart_app/src/helpers/series.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
+import 'package:chart_app/src/models/accumulator_barriers.dart';
 import 'package:chart_app/src/models/chart_config.dart';
 import 'package:chart_app/src/models/chart_feed.dart';
 import 'package:chart_app/src/models/drawing_tool.dart';
@@ -62,6 +63,10 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
 
   /// DrawingToolModel
   DrawingToolModel get drawingToolModel => widget.app.drawingToolModel;
+
+  /// AccumulatorBarriersModel
+  AccumulatorBarriersModel get accumulatorBarriersModel =>
+      widget.app.accumulatorBarriersModel;
 
   bool _useLowAnimation = false;
 
@@ -207,17 +212,21 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
   Widget build(BuildContext context) => MultiProvider(
         providers: <ChangeNotifierProvider<ChangeNotifier>>[
           ChangeNotifierProvider<ChartConfigModel>.value(value: configModel),
-          ChangeNotifierProvider<ChartFeedModel>.value(value: feedModel)
+          ChangeNotifierProvider<ChartFeedModel>.value(value: feedModel),
+          ChangeNotifierProvider<AccumulatorBarriersModel>.value(
+              value: accumulatorBarriersModel),
         ],
         child: Scaffold(
           body: LayoutBuilder(
             builder: (BuildContext _, BoxConstraints constraints) => Center(
               child: Column(
                 children: <Widget>[
-                  Expanded(child: Consumer2<ChartConfigModel, ChartFeedModel>(
+                  Expanded(child: Consumer3<ChartConfigModel, ChartFeedModel,
+                          AccumulatorBarriersModel>(
                       builder: (BuildContext context,
                           ChartConfigModel configModel,
                           ChartFeedModel feedModel,
+                          AccumulatorBarriersModel accumulatorBarriersModel,
                           Widget? child) {
                     final int granularity = app.getQuotesInterval();
 
@@ -262,7 +271,7 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                       activeSymbol: configModel.symbol,
                       mainSeries: mainSeries,
                       annotations: feedModel.ticks.isNotEmpty
-                          ? <Barrier>[
+                          ? <ChartAnnotation<ChartObject>>[
                               if (configModel.isLive)
                                 CurrentTickIndicator(
                                   feedModel.ticks.last,
@@ -299,6 +308,11 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                                     hasArrow: false,
                                   ),
                                 ),
+                              // Accumulators band. Keeps itself in the Y-axis
+                              // range through its own `recalculateMinMax`, so
+                              // the barriers never leave the viewport.
+                              if (accumulatorBarriersModel.annotation != null)
+                                accumulatorBarriersModel.annotation!,
                             ]
                           : null,
                       pipSize: configModel.pipSize,
