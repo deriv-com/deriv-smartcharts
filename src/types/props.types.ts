@@ -339,18 +339,13 @@ export type TChartProps = {
 };
 
 /**
- * Everything the chart needs to draw the Accumulators barrier band.
+ * The Accumulators band that tracks the current spot.
  *
- * The band is a native chart annotation, not a marker — the same
- * `AccumulatorIndicator` / `AccumulatorsRecentlyClosedIndicator` the Deriv mobile
- * app uses. Which of the two is drawn is inferred from the fields present:
- *
- * - `exitSpot` + `exitEpoch` → closed contract; the band stops at the exit tick.
- * - `isSold` with no exit data yet → settling; the band freezes and drops its P/L.
- * - `profit` present → running contract, with the P/L drawn inside the band.
- * - neither → pre-trade proposal.
+ * Omitting `profit` makes it the pre-trade proposal band; supplying it makes it a
+ * running contract, drawn green or red by the profit's sign with the P/L inside
+ * the band.
  */
-export type TAccumulatorBarriers = {
+export type TAccumulatorLiveBarriers = {
     /** High barrier, as the display string the API returned. Its decimals set the label precision. */
     highBarrier: string;
     /** Low barrier, as the display string the API returned. */
@@ -369,14 +364,55 @@ export type TAccumulatorBarriers = {
     currency?: string;
     /** Decimals `profit` is rendered with. Defaults to 2. */
     fractionalDigits?: number;
-    /** Whether the contract has been sold. */
+    /** Sold, but the exit tick hasn't arrived yet: the band stays, the P/L overlay goes. */
     isSold?: boolean;
-    /** Exit quote of a closed contract. */
-    exitSpot?: number;
+};
+
+/** The frozen Accumulators band of a contract that has just finished. */
+export type TAccumulatorClosedBarriers = {
+    /** High barrier at exit time, as the display string the API returned. */
+    highBarrier: string;
+    /** Low barrier at exit time, as the display string the API returned. */
+    lowBarrier: string;
+    /** Epoch (seconds) of the tick before the exit — where the band starts. */
+    barrierEpoch?: number;
+    /** Pre-formatted barrier-to-exit-spot distance. Derived from the barriers when omitted. */
+    barrierSpotDistance?: string;
+    /** Exit quote — where the band ends. */
+    exitSpot: number;
     /** Epoch (seconds) of `exitSpot`. */
-    exitEpoch?: number;
+    exitEpoch: number;
+    /** Final profit or loss, drawn inside the band. */
+    profit?: number;
+    /** Currency shown next to `profit`. */
+    currency?: string;
+    /** Decimals `profit` is rendered with. Defaults to 2. */
+    fractionalDigits?: number;
     /**
-     * How long to hold a barrier update back, in milliseconds. Defaults to 500.
+     * How long to keep this band before retiring it, in milliseconds.
+     *
+     * Omit to keep it indefinitely — what a contract-details replay wants, since the
+     * finished contract is the whole point of that chart. A trade chart passes a
+     * short window so the band clears once the next contract can start.
+     */
+    retentionMs?: number;
+};
+
+/**
+ * Everything the chart needs to draw the Accumulators barrier bands.
+ *
+ * They are native chart annotations, not markers — the same
+ * `AccumulatorIndicator` / `AccumulatorsRecentlyClosedIndicator` the Deriv mobile
+ * app uses. Both bands can be on screen together: a knocked-out contract keeps
+ * its frozen band for 8 seconds while the next proposal already draws over it.
+ */
+export type TAccumulatorBarriers = {
+    /** The band tracking the current spot — a proposal, or a running contract. */
+    live?: TAccumulatorLiveBarriers | null;
+    /** The frozen band of a contract that has just finished. */
+    closed?: TAccumulatorClosedBarriers | null;
+    /**
+     * How long to hold a `live` barrier update back, in milliseconds. Defaults to 500.
      *
      * Barriers and the tick they belong to arrive on separate messages; applying them
      * immediately makes the band jump ahead of the spot. Symbols that tick every 2s

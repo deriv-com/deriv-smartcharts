@@ -308,11 +308,12 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                                     hasArrow: false,
                                   ),
                                 ),
-                              // Accumulators band. Keeps itself in the Y-axis
-                              // range through its own `recalculateMinMax`, so
-                              // the barriers never leave the viewport.
-                              if (accumulatorBarriersModel.annotation != null)
-                                accumulatorBarriersModel.annotation!,
+                              // Accumulators bands — the live one, plus the
+                              // frozen band of a contract that just finished.
+                              // Each keeps itself in the Y-axis range through
+                              // its own `recalculateMinMax`, so the barriers
+                              // never leave the viewport.
+                              ...accumulatorBarriersModel.annotations,
                             ]
                           : null,
                       pipSize: configModel.pipSize,

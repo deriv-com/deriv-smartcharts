@@ -207,21 +207,58 @@ extension JsMarkerExtension on JsMarker {
 
 /// Accumulators barrier payload.
 ///
-/// Carries everything the chart needs to build an `AccumulatorIndicator` or an
-/// `AccumulatorsRecentlyClosedIndicator`; the contract state itself is inferred
-/// from which fields are present (see `AccumulatorBarriersModel`).
+/// Carries up to two bands at once, exactly as deriv_trader's chart does: the
+/// [live] one (pre-trade proposal or running contract) and a [closed] one for a
+/// contract that has just finished. Both can be on screen together — a knocked
+/// out contract keeps its frozen band while the next proposal is already
+/// drawing.
 ///
-/// Every getter is nullable on purpose. dart2js silently coerces a missing JS
-/// property to null, but dart2wasm (skwasm) — which is what
-/// `flutter build web --wasm` produces — throws a TypeError when converting
-/// `undefined` to a non-nullable Dart type. The same reasoning is spelled out
-/// on [JSContractsUpdateExtension.direction].
+/// Every getter here and on the nested payloads is nullable on purpose. dart2js
+/// silently coerces a missing JS property to null, but dart2wasm (skwasm) —
+/// which is what `flutter build web --wasm` produces — throws a TypeError when
+/// converting `undefined` to a non-nullable Dart type. The same reasoning is
+/// spelled out on [JSContractsUpdateExtension.direction].
 class JSAccumulatorBarriers {
   external factory JSAccumulatorBarriers();
 }
 
 // Extension for JSAccumulatorBarriers
 extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
+  /// The band tracking the current spot: a pre-trade proposal or a running
+  /// contract.
+  @JS('live')
+  external JSAny? get liveJs;
+
+  /// The frozen band of a contract that has just finished.
+  @JS('closed')
+  external JSAny? get closedJs;
+
+  /// How long to hold a [live] barrier update back, in milliseconds.
+  /// Defaults to 500.
+  external int? get barrierDelayMs;
+
+  /// The band tracking the current spot, or null.
+  JSAccumulatorLiveBarriers? get live => liveJs as JSAccumulatorLiveBarriers?;
+
+  /// The frozen band of a just-finished contract, or null.
+  JSAccumulatorClosedBarriers? get closed =>
+      closedJs as JSAccumulatorClosedBarriers?;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// The Accumulators band that tracks the current spot.
+///
+/// [profit] absent means this is a pre-trade proposal; present means a running
+/// contract, and the painter colours the band by its sign.
+class JSAccumulatorLiveBarriers {
+  external factory JSAccumulatorLiveBarriers();
+}
+
+// Extension for JSAccumulatorLiveBarriers
+extension JSAccumulatorLiveBarriersExtension on JSAccumulatorLiveBarriers {
   /// High barrier, as the display string the API returned.
   ///
   /// Kept as a string because its decimal count is what the barrier-distance
@@ -253,18 +290,54 @@ extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
   /// Decimals [profit] is rendered with. Defaults to 2.
   external int? get fractionalDigits;
 
-  /// Whether the contract has been sold. True with no exit data yet means the
-  /// contract is settling.
+  /// Whether the contract has been sold but its exit tick hasn't arrived yet.
+  /// The band stays, the P/L overlay goes.
   external bool? get isSold;
+}
 
-  /// Exit quote of a closed contract.
+@JS()
+@staticInterop
+@anonymous
+
+/// The frozen Accumulators band of a contract that has just finished.
+class JSAccumulatorClosedBarriers {
+  external factory JSAccumulatorClosedBarriers();
+}
+
+// Extension for JSAccumulatorClosedBarriers
+extension JSAccumulatorClosedBarriersExtension on JSAccumulatorClosedBarriers {
+  /// High barrier at exit time, as the display string the API returned.
+  external String? get highBarrier;
+
+  /// Low barrier at exit time, as the display string the API returned.
+  external String? get lowBarrier;
+
+  /// Epoch (seconds) of the tick before the exit — where the band starts.
+  external int? get barrierEpoch;
+
+  /// Pre-formatted distance between a barrier and the exit spot.
+  external String? get barrierSpotDistance;
+
+  /// Exit quote — where the band ends.
   external double? get exitSpot;
 
   /// Epoch (seconds) of [exitSpot].
   external int? get exitEpoch;
 
-  /// How long to hold a barrier update back, in milliseconds. Defaults to 500.
-  external int? get barrierDelayMs;
+  /// Final profit or loss of the contract.
+  external double? get profit;
+
+  /// Currency shown next to [profit].
+  external String? get currency;
+
+  /// Decimals [profit] is rendered with. Defaults to 2.
+  external int? get fractionalDigits;
+
+  /// How long to keep this band before retiring it, in milliseconds.
+  ///
+  /// Absent means keep it indefinitely — what a contract-details replay wants,
+  /// since the finished contract is the whole point of that chart.
+  external int? get retentionMs;
 }
 
 @JS()

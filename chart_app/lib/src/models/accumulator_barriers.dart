@@ -5,21 +5,22 @@ import 'package:chart_app/src/models/chart_feed.dart';
 import 'package:deriv_chart/core_chart.dart';
 import 'package:flutter/material.dart';
 
-/// Builds the Accumulators barrier band from the payload JS pushes through
+/// Builds the Accumulators barrier bands from the payload JS pushes through
 /// `config.updateAccumulatorBarriers`.
 ///
 /// This is the web counterpart of `AccumulatorAnnotationBuilder` +
 /// `TradeChart._scheduleBarrierUpdate` in deriv_trader: the same annotations,
-/// the same state machine and the same tick-anchored delay, so both platforms
-/// render Accumulators identically.
+/// the same timing and the same retention, so both platforms render
+/// Accumulators identically.
 ///
-/// The host sends raw contract fields rather than an explicit status; the state
-/// is inferred here:
+/// Two bands can be on screen at once, matching deriv_trader's annotation list:
 ///
-///  * `exitSpot` + `exitEpoch` → [AccumulatorsRecentlyClosedIndicator]
-///  * `isSold`, no exit data yet → [AccumulatorIndicator] without P/L (settling)
-///  * `profit` present → [AccumulatorIndicator] with the P/L overlay
-///  * otherwise → [AccumulatorIndicator] alone (pre-trade proposal)
+///  * **live** — [AccumulatorIndicator] tracking the current spot. It carries
+///    the P/L overlay and the profit/loss colouring once a contract is running;
+///    without `profit` it is the pre-trade proposal band.
+///  * **closed** — [AccumulatorsRecentlyClosedIndicator] frozen between the
+///    tick before the exit and the exit itself, so a finished contract keeps
+///    its band and final P/L while the next proposal already draws over it.
 class AccumulatorBarriersModel extends ChangeNotifier {
   /// Initialize.
   AccumulatorBarriersModel(this._feedModel) {
@@ -28,7 +29,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
 
   final ChartFeedModel _feedModel;
 
-  /// How long a barrier update is held back when the host doesn't say.
+  /// How long a live barrier update is held back when the host doesn't say.
   ///
   /// Barriers and the tick they belong to arrive on separate messages; applying
   /// them the moment they land makes the band jump ahead of the spot. Delaying
@@ -47,13 +48,25 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     textStyle: TextStyle(color: Colors.transparent),
   );
 
-  ChartAnnotation<ChartObject>? _annotation;
+  ChartAnnotation<ChartObject>? _live;
+  ChartAnnotation<ChartObject>? _closed;
 
-  /// The annotation currently on the chart, or null when there is no
-  /// accumulator band to draw.
-  ChartAnnotation<ChartObject>? get annotation => _annotation;
+  /// The accumulator bands currently on the chart. Empty when there is nothing
+  /// to draw.
+  List<ChartAnnotation<ChartObject>> get annotations =>
+      <ChartAnnotation<ChartObject>>[
+        if (_live != null) _live!,
+        if (_closed != null) _closed!,
+      ];
 
-  Timer? _delayTimer;
+  Timer? _liveDelayTimer;
+  Timer? _closedExpiryTimer;
+
+  /// Exit epoch of the band currently retained, and of the last one whose
+  /// retention has already run out — so a host that keeps reporting the same
+  /// finished contract doesn't bring its band back.
+  int? _closedExitEpochMs;
+  int? _retiredExitEpochMs;
 
   /// When the most recent tick reached us. The delay is measured from here, not
   /// from when the barriers arrived, so a barrier update that is already late
@@ -71,88 +84,103 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     }
   }
 
-  /// Applies a new barrier payload. A null [payload] clears the band.
+  /// Applies a new barrier payload. A null [payload] clears both bands.
   void updateBarriers(JSAccumulatorBarriers? payload) {
     if (payload == null) {
       _reset();
       return;
     }
 
-    final _BarrierSnapshot? snapshot = _BarrierSnapshot.fromPayload(payload);
-    if (snapshot == null) {
-      _schedule(null, payload.barrierDelayMs);
+    _applyLive(payload.live, payload.barrierDelayMs);
+    _applyClosed(payload.closed);
+  }
+
+  void _applyLive(JSAccumulatorLiveBarriers? live, int? barrierDelayMs) {
+    final _LiveBand? band = _LiveBand.fromPayload(live);
+
+    if (band == null) {
+      _scheduleLive(null, barrierDelayMs);
       return;
     }
-
-    final double? exitSpot = payload.exitSpot;
-    final int? exitEpoch = payload.exitEpoch;
-
-    // Closed: the band spans the tick before the exit to the exit itself, so
-    // it stops at the knockout instead of trailing the spot to the right edge.
-    if (exitSpot != null && exitEpoch != null) {
-      _schedule(
-        _buildClosed(snapshot, exitSpot, exitEpoch * 1000),
-        payload.barrierDelayMs,
-      );
-      return;
-    }
-
-    // Settling: sold, but the exit tick hasn't come back yet. The contract's
-    // POC keeps streaming for up to ~105s with a profit that no longer moves,
-    // so the band stays and the P/L overlay goes — deriv_trader lands in the
-    // same place by falling back to its proposal band for this window.
-    final bool isSettling = payload.isSold ?? false;
 
     // A proposal update carries recalculated barriers and would cancel a
     // pending timer before the red barrier-hit state ever rendered, so apply
     // that one immediately.
-    final bool barrierHit = snapshot.profit == null && snapshot.isBarrierHit;
+    final bool barrierHit = band.profit == null && band.isBarrierHit;
 
-    _schedule(
-      _buildRunning(snapshot, showProfit: !isSettling),
-      payload.barrierDelayMs,
-      immediate: barrierHit,
-    );
+    _scheduleLive(_buildLive(band), barrierDelayMs, immediate: barrierHit);
   }
 
-  AccumulatorIndicator _buildRunning(
-    _BarrierSnapshot snapshot, {
-    required bool showProfit,
-  }) =>
-      AccumulatorIndicator(
-        Tick(epoch: snapshot.spotEpochMs, quote: snapshot.spot),
-        highBarrier: snapshot.highBarrier,
-        lowBarrier: snapshot.lowBarrier,
-        highBarrierDisplay: snapshot.highBarrierDisplay,
-        lowBarrierDisplay: snapshot.lowBarrierDisplay,
-        barrierSpotDistance: snapshot.barrierSpotDistance,
-        barrierEpoch: snapshot.barrierEpochMs,
+  void _applyClosed(JSAccumulatorClosedBarriers? closed) {
+    final _ClosedBand? band = _ClosedBand.fromPayload(closed);
+
+    if (band == null) {
+      _cancelClosedExpiry();
+      _closedExitEpochMs = null;
+      _setClosed(null);
+      return;
+    }
+
+    // Retention for this contract already ran out; the host is just still
+    // reporting it.
+    if (band.exitEpochMs == _retiredExitEpochMs) {
+      return;
+    }
+
+    if (band.exitEpochMs != _closedExitEpochMs) {
+      _closedExitEpochMs = band.exitEpochMs;
+      _cancelClosedExpiry();
+
+      // No retention means keep the band indefinitely — a contract-details
+      // replay exists to show exactly this finished contract.
+      final int? retentionMs = band.retentionMs;
+      if (retentionMs != null) {
+        _closedExpiryTimer = Timer(Duration(milliseconds: retentionMs), () {
+          _retiredExitEpochMs = _closedExitEpochMs;
+          _closedExitEpochMs = null;
+          _setClosed(null);
+        });
+      }
+    }
+
+    // Applied without the live band's delay: by the time a contract reports its
+    // exit, the tick that ended it is already on the chart.
+    _setClosed(_buildClosed(band));
+  }
+
+  AccumulatorIndicator _buildLive(_LiveBand band) => AccumulatorIndicator(
+        Tick(epoch: band.spotEpochMs, quote: band.spot),
+        highBarrier: band.highBarrier,
+        lowBarrier: band.lowBarrier,
+        highBarrierDisplay: band.highBarrierDisplay,
+        lowBarrierDisplay: band.lowBarrierDisplay,
+        barrierSpotDistance: band.barrierSpotDistance,
+        barrierEpoch: band.barrierEpochMs,
         style: _hiddenSpotStyle,
-        activeContract: showProfit ? snapshot.activeContract : null,
+        // Settling — sold, but the exit tick hasn't come back yet. The
+        // contract's POC keeps streaming with a profit that no longer moves,
+        // so the band stays and the P/L overlay goes.
+        activeContract: band.isSold ? null : band.activeContract,
       );
 
-  AccumulatorsRecentlyClosedIndicator _buildClosed(
-    _BarrierSnapshot snapshot,
-    double exitSpot,
-    int exitEpochMs,
-  ) =>
+  AccumulatorsRecentlyClosedIndicator _buildClosed(_ClosedBand band) =>
       AccumulatorsRecentlyClosedIndicator(
-        Tick(epoch: exitEpochMs, quote: exitSpot),
-        highBarrier: snapshot.highBarrier,
-        lowBarrier: snapshot.lowBarrier,
-        highBarrierDisplay: snapshot.highBarrierDisplay,
-        lowBarrierDisplay: snapshot.lowBarrierDisplay,
-        barrierSpotDistance: _formatDistance(
-          snapshot.highBarrier - exitSpot,
-          snapshot.highBarrierDisplay,
-        ),
-        barrierEpoch: _priorTickEpochMs(exitEpochMs) ?? exitEpochMs,
-        barrierEndEpoch: exitEpochMs,
-        activeContract: snapshot.activeContract,
+        Tick(epoch: band.exitEpochMs, quote: band.exitSpot),
+        highBarrier: band.highBarrier,
+        lowBarrier: band.lowBarrier,
+        highBarrierDisplay: band.highBarrierDisplay,
+        lowBarrierDisplay: band.lowBarrierDisplay,
+        barrierSpotDistance: band.barrierSpotDistance,
+        barrierEpoch: band.barrierEpochMs ??
+            _priorTickEpochMs(band.exitEpochMs) ??
+            band.exitEpochMs,
+        barrierEndEpoch: band.exitEpochMs,
+        activeContract: band.activeContract,
       );
 
   /// Epoch (ms) of the last tick before [exitEpochMs] — the tick the exit
-  /// barriers were measured against, and where the closed band starts.
+  /// barriers were measured against, and where the closed band starts. Used
+  /// only when the host didn't supply one.
   int? _priorTickEpochMs(int exitEpochMs) {
     for (int i = _feedModel.ticks.length - 1; i >= 0; i--) {
       final int epoch = _feedModel.ticks[i].epoch;
@@ -165,19 +193,20 @@ class AccumulatorBarriersModel extends ChangeNotifier {
 
   /// Applies [next] after the remaining delay, or straight away when the tick
   /// it belongs to has already rendered.
-  void _schedule(
+  void _scheduleLive(
     ChartAnnotation<ChartObject>? next,
     int? barrierDelayMs, {
     bool immediate = false,
   }) {
-    if (next == null && _annotation == null) {
+    if (next == null && _live == null) {
       return;
     }
 
-    _cancelPending();
+    _liveDelayTimer?.cancel();
+    _liveDelayTimer = null;
 
     if (immediate) {
-      _setAnnotation(next);
+      _setLive(next);
       return;
     }
 
@@ -188,46 +217,60 @@ class AccumulatorBarriersModel extends ChangeNotifier {
       final Duration remaining = delay - DateTime.now().difference(tickTime);
 
       if (!remaining.isNegative) {
-        _delayTimer = Timer(remaining, () => _setAnnotation(next));
+        _liveDelayTimer = Timer(remaining, () => _setLive(next));
         return;
       }
     }
 
-    _setAnnotation(next);
+    _setLive(next);
   }
 
-  void _setAnnotation(ChartAnnotation<ChartObject>? next) {
-    if (identical(_annotation, next)) {
+  void _setLive(ChartAnnotation<ChartObject>? next) {
+    if (next == null && _live == null) {
       return;
     }
-    _annotation = next;
+    _live = next;
     notifyListeners();
   }
 
-  void _cancelPending() {
-    _delayTimer?.cancel();
-    _delayTimer = null;
+  void _setClosed(ChartAnnotation<ChartObject>? next) {
+    if (next == null && _closed == null) {
+      return;
+    }
+    _closed = next;
+    notifyListeners();
+  }
+
+  void _cancelClosedExpiry() {
+    _closedExpiryTimer?.cancel();
+    _closedExpiryTimer = null;
   }
 
   void _reset() {
-    _cancelPending();
-    _setAnnotation(null);
+    _liveDelayTimer?.cancel();
+    _liveDelayTimer = null;
+    _cancelClosedExpiry();
+    _closedExitEpochMs = null;
+    _retiredExitEpochMs = null;
+    _setLive(null);
+    _setClosed(null);
   }
 
-  /// Clears the band, e.g. on a symbol switch.
+  /// Clears both bands, e.g. on a symbol switch.
   void newChart() => _reset();
 
   @override
   void dispose() {
-    _cancelPending();
+    _liveDelayTimer?.cancel();
+    _cancelClosedExpiry();
     _feedModel.removeListener(_onFeedChanged);
     super.dispose();
   }
 }
 
-/// The parsed, validated form of a [JSAccumulatorBarriers] payload.
-class _BarrierSnapshot {
-  const _BarrierSnapshot({
+/// The parsed, validated form of a [JSAccumulatorLiveBarriers] payload.
+class _LiveBand {
+  const _LiveBand({
     required this.highBarrier,
     required this.lowBarrier,
     required this.highBarrierDisplay,
@@ -239,10 +282,15 @@ class _BarrierSnapshot {
     required this.profit,
     required this.currency,
     required this.fractionalDigits,
+    required this.isSold,
   });
 
   /// Returns null when the payload lacks anything needed to draw a band.
-  static _BarrierSnapshot? fromPayload(JSAccumulatorBarriers payload) {
+  static _LiveBand? fromPayload(JSAccumulatorLiveBarriers? payload) {
+    if (payload == null) {
+      return null;
+    }
+
     final String? highBarrierDisplay = payload.highBarrier;
     final String? lowBarrierDisplay = payload.lowBarrier;
     final int? barrierEpoch = payload.barrierEpoch;
@@ -264,7 +312,7 @@ class _BarrierSnapshot {
       return null;
     }
 
-    return _BarrierSnapshot(
+    return _LiveBand(
       highBarrier: highBarrier,
       lowBarrier: lowBarrier,
       highBarrierDisplay: highBarrierDisplay,
@@ -277,6 +325,7 @@ class _BarrierSnapshot {
       profit: payload.profit,
       currency: payload.currency ?? '',
       fractionalDigits: payload.fractionalDigits ?? 2,
+      isSold: payload.isSold ?? false,
     );
   }
 
@@ -291,11 +340,98 @@ class _BarrierSnapshot {
   final double? profit;
   final String currency;
   final int fractionalDigits;
+  final bool isSold;
 
   /// Whether the spot has left the band — what turns the barriers red.
   bool get isBarrierHit => spot > highBarrier || spot < lowBarrier;
 
   /// The P/L overlay, or null for a pre-trade proposal.
+  AccumulatorsActiveContract? get activeContract => profit == null
+      ? null
+      : AccumulatorsActiveContract(
+          profit: profit,
+          profitUnit: currency,
+          fractionalDigits: fractionalDigits,
+        );
+}
+
+/// The parsed, validated form of a [JSAccumulatorClosedBarriers] payload.
+class _ClosedBand {
+  const _ClosedBand({
+    required this.highBarrier,
+    required this.lowBarrier,
+    required this.highBarrierDisplay,
+    required this.lowBarrierDisplay,
+    required this.barrierSpotDistance,
+    required this.barrierEpochMs,
+    required this.exitSpot,
+    required this.exitEpochMs,
+    required this.profit,
+    required this.currency,
+    required this.fractionalDigits,
+    required this.retentionMs,
+  });
+
+  /// Returns null when the payload lacks anything needed to draw a band.
+  static _ClosedBand? fromPayload(JSAccumulatorClosedBarriers? payload) {
+    if (payload == null) {
+      return null;
+    }
+
+    final String? highBarrierDisplay = payload.highBarrier;
+    final String? lowBarrierDisplay = payload.lowBarrier;
+    final double? exitSpot = payload.exitSpot;
+    final int? exitEpoch = payload.exitEpoch;
+
+    if (highBarrierDisplay == null ||
+        lowBarrierDisplay == null ||
+        exitSpot == null ||
+        exitEpoch == null) {
+      return null;
+    }
+
+    final double? highBarrier = double.tryParse(highBarrierDisplay);
+    final double? lowBarrier = double.tryParse(lowBarrierDisplay);
+
+    if (highBarrier == null || lowBarrier == null) {
+      return null;
+    }
+
+    final int? barrierEpoch = payload.barrierEpoch;
+
+    return _ClosedBand(
+      highBarrier: highBarrier,
+      lowBarrier: lowBarrier,
+      highBarrierDisplay: highBarrierDisplay,
+      lowBarrierDisplay: lowBarrierDisplay,
+      barrierSpotDistance: payload.barrierSpotDistance ??
+          _formatDistance(highBarrier - exitSpot, highBarrierDisplay),
+      barrierEpochMs: barrierEpoch == null ? null : barrierEpoch * 1000,
+      exitSpot: exitSpot,
+      exitEpochMs: exitEpoch * 1000,
+      profit: payload.profit,
+      currency: payload.currency ?? '',
+      fractionalDigits: payload.fractionalDigits ?? 2,
+      retentionMs: payload.retentionMs,
+    );
+  }
+
+  final double highBarrier;
+  final double lowBarrier;
+  final String highBarrierDisplay;
+  final String lowBarrierDisplay;
+  final String barrierSpotDistance;
+  final int? barrierEpochMs;
+  final double exitSpot;
+  final int exitEpochMs;
+  final double? profit;
+  final String currency;
+  final int fractionalDigits;
+
+  /// How long this band is kept before being retired. Null keeps it forever.
+  final int? retentionMs;
+
+  /// The final P/L overlay, or null when the contract reported no profit.
   AccumulatorsActiveContract? get activeContract => profit == null
       ? null
       : AccumulatorsActiveContract(
