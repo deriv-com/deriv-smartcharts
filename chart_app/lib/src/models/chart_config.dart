@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
 import 'package:web/web.dart' as web;
 
+/// Opacity of the area gradient's top stop, matching the chart themes' own area
+/// gradient, which is the line colour at 16% fading out to fully transparent.
+const double _areaGradientStartOpacity = 0.16;
+
 /// State and methods of chart web adapter config.
 class ChartConfigModel extends ChangeNotifier {
   /// Initialize
@@ -81,6 +85,22 @@ class ChartConfigModel extends ChangeNotifier {
   /// screen and off again otherwise.
   bool shouldEmphasizeLastDigit = false;
 
+  /// The Area chart's line colour, or null to use the theme's own area colour.
+  ///
+  /// Null is the "Default" swatch in the host's picker, and is not the same as
+  /// any fixed colour: the theme paints the area near-black on light and
+  /// near-white on dark, and only the theme knows which is in effect.
+  Color? areaLineColor;
+
+  /// The Area chart's line thickness, in logical pixels.
+  ///
+  /// Defaults to the middle of the host's three options rather than the
+  /// library's own 1px, which reads too faint on a desktop-width chart.
+  double areaLineThickness = 2;
+
+  /// Whether the Area chart fills the gradient beneath its line.
+  bool areaHasGradient = true;
+
   /// Show the time interval
   bool showTimeInterval = false;
 
@@ -98,6 +118,67 @@ class ChartConfigModel extends ChangeNotifier {
   void updateChartStyle(String chartStyle) {
     style = ChartStyle.values.byName(chartStyle);
     notifyListeners();
+  }
+
+  /// The style the Area chart's line and gradient are painted with.
+  ///
+  /// Starts from the theme's own `lineStyle` so anything the host leaves unset
+  /// keeps the themed value, then applies the host's choices on top.
+  ///
+  /// The gradient is derived from the line colour rather than carried
+  /// separately: the host picks a single colour seed, and the theme's own
+  /// gradient is that same colour at 16% fading out to fully transparent, so
+  /// re-deriving it reproduces the default exactly while keeping a chosen
+  /// colour's fill in its own hue.
+  LineStyle get lineStyle {
+    final Color? lineColor = areaLineColor;
+
+    return theme.lineStyle.copyWith(
+      color: lineColor,
+      thickness: areaLineThickness,
+      hasArea: areaHasGradient,
+      areaGradientColors: lineColor == null
+          ? null
+          : (
+              start: lineColor.withOpacity(_areaGradientStartOpacity),
+              end: lineColor.withOpacity(0),
+            ),
+    );
+  }
+
+  /// To update the Area chart's line colour, thickness and gradient fill.
+  ///
+  /// A null [color] restores the theme's own area colour; null [thickness] or
+  /// [hasGradient] leave those values as they are, so the host can push a
+  /// partial update without having to restate the rest.
+  void updateAreaStyle({
+    String? color,
+    double? thickness,
+    bool? hasGradient,
+  }) {
+    _setAreaStyle(
+      color: color,
+      thickness: thickness,
+      hasGradient: hasGradient,
+    );
+    notifyListeners();
+  }
+
+  /// The assignments behind [updateAreaStyle], without the notification, so
+  /// [newChart] can apply them as part of its own single notify.
+  void _setAreaStyle({
+    String? color,
+    double? thickness,
+    bool? hasGradient,
+  }) {
+    areaLineColor = color == null ? null : getColorFromString(color);
+
+    if (thickness != null) {
+      areaLineThickness = thickness;
+    }
+    if (hasGradient != null) {
+      areaHasGradient = hasGradient;
+    }
   }
 
   /// Get remaining time of the chart
@@ -178,8 +259,7 @@ class ChartConfigModel extends ChangeNotifier {
 
   /// To update the theme of the chart
   void updateTheme(String _theme) {
-    theme =
-        _theme == 'dark' ? WebChartDarkTheme() : WebChartLightTheme();
+    theme = _theme == 'dark' ? WebChartDarkTheme() : WebChartLightTheme();
     notifyListeners();
   }
 
@@ -236,14 +316,19 @@ class ChartConfigModel extends ChangeNotifier {
     isSmoothChartEnabled = payload.isSmoothChartEnabled ?? true;
     shouldEmphasizeLastDigit = payload.shouldEmphasizeLastDigit ?? false;
 
+    _setAreaStyle(
+      color: payload.areaLineColor,
+      thickness: payload.areaLineThickness,
+      hasGradient: payload.areaHasGradient,
+    );
+
     if (payload.chartType != null && payload.chartType!.isNotEmpty) {
       style = ChartStyle.values.byName(payload.chartType!);
     }
 
     if (payload.theme != null && payload.theme!.isNotEmpty) {
-      theme = payload.theme == 'dark'
-          ? WebChartDarkTheme()
-          : WebChartLightTheme();
+      theme =
+          payload.theme == 'dark' ? WebChartDarkTheme() : WebChartLightTheme();
     }
 
     notifyListeners();

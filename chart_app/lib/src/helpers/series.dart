@@ -22,8 +22,11 @@ DataSeries<Tick> getDataSeries(
         break;
     }
   }
+  // Not `theme.lineStyle`: the Area chart's colour, thickness and gradient
+  // fill are host-configurable, and `configModel.lineStyle` layers those
+  // choices over the theme's own.
   return CustomLineSeries(
     ticks,
-    style: configModel.theme.lineStyle,
+    style: configModel.lineStyle,
   );
 }

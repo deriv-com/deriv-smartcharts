@@ -2103,6 +2103,11 @@ export const Languages = [
         name: 'espanyol',
         icon: <FlagIcons.Spanish />,
     },
+    {
+        key: 'ta',
+        name: 'தமிழ்',
+        icon: <FlagIcons.India />,
+    },
 ];
 export const STATE = {
     CHART_MODE_MODAL_OPEN: 'CHART_MODE_MODAL_OPEN',

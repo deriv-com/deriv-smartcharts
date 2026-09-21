@@ -441,6 +441,17 @@ export type TActiveItem = TIndicatorItem & {
     group_length: number;
 };
 
+/**
+ * The Area chart's configurable appearance, resolved into the engine's `LineStyle`
+ * on the Dart side. `areaLineColor` is left undefined for the "Default" swatch, which
+ * keeps the engine on its theme's own area colour.
+ */
+export type TAreaStylePayload = {
+    areaLineColor?: string;
+    areaLineThickness: number;
+    areaHasGradient: boolean;
+};
+
 export type TNewChartPayload = {
     granularity: number;
     isLive: boolean;
@@ -453,6 +464,9 @@ export type TNewChartPayload = {
     isMobile: boolean;
     isSmoothChartEnabled?: boolean;
     shouldEmphasizeLastDigit?: boolean;
+    areaLineColor?: string;
+    areaLineThickness?: number;
+    areaHasGradient?: boolean;
     yAxisMargin?: {
         top: number;
         bottom: number;
@@ -496,6 +510,7 @@ export type TFlutterChart = {
     config: {
         updateTheme: (theme: string) => void;
         updateChartStyle: (chartStyle: string) => void;
+        updateAreaStyle: (color: string | undefined, thickness: number, hasGradient: boolean) => void;
         updateLiveStatus: (isLive: boolean) => void;
         updateLastDigitEmphasis: (shouldEmphasize: boolean) => void;
         updateContracts: (markers: any[]) => void;
