@@ -110,17 +110,44 @@
 
 /* Chart type + Time interval ------------------------------------------------ */
 
+/* A ceiling, not a height: the sheet hugs its content, so no state trails empty space
+   below the time intervals. The sheet is anchored to the bottom of the screen, so a
+   height that grew would drag the handle up over the chart - `AreaStyleSection` therefore
+   pins this element to its collapsed height for as long as the disclosure is open, which
+   leaves the handle where it is and pushes the content below the section further down
+   inside the sheet's own scroll region.
+
+   Quill already makes this element the scroll region (`flex-grow: 1; overflow-y: auto`),
+   so nothing else is needed for that to work. `sc-quill-sheet` is `DialogShell`'s own
+   marker for it, and only the sheet carries it - so this never reaches the desktop Modal,
+   which shares the `sc-chart-type-dialog` class.
+
+   `vh`, not the `dvh` quill itself uses, because `dvh` is not in this repo's
+   `unit-allowed-list` and widening that is not this feature's call. The difference only
+   shows while a mobile browser's URL bar is visible, where `vh` measures the larger
+   viewport and the sheet comes out a little taller than 60% of what is on screen;
+   quill's own `90dvh` on the sheet root remains the backstop for that case. */
+.sc-chart-type-dialog.sc-quill-sheet {
+    max-block-size: 60vh;
+}
+
 .sc-chart-type-dialog {
     &__content {
+        /* Published as a custom property because the Area settings section has to cancel
+           exactly one of these gaps while it is collapsed away - see
+           `.sc-area-settings-reveal--hidden`. */
+        --sc-dialog-section-gap: 24px;
+
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: var(--sc-dialog-section-gap);
         padding: 32px;
 
         /* On mobile quill's own `.action-sheet--content` already applies the design's
            16px inset, so this layer contributes spacing only. */
         .smartcharts-mobile & {
-            gap: 16px;
+            --sc-dialog-section-gap: 16px;
+
             padding: 0;
         }
     }
@@ -263,8 +290,24 @@
             cursor: pointer;
         }
 
-        /* "1 tick" is the widest label and must stay on one line, as in the design. */
+        /* "1 tick" is the widest label, and in English it sits on one line as the design
+           has it. It is not one line everywhere: every other chip is a number and a
+           hardcoded letter, but this one is a number plus a translated word, and some
+           locales render that word as a whole phrase - Polish has "najmniejsza zmiana
+           ceny" for "tick".
+
+           No pill this size fits that, so the job here is only to fail tidily. On one
+           line it used to overflow sideways and cover the chip beside it, which is why
+           "1m" was reported broken in Polish too; wrapping instead just moves the
+           overflow to the vertical axis, where it escapes the pill and lands on the
+           heading. Clipping to the chip keeps it contained on both axes, and the ellipsis
+           says the label is cut rather than simply odd.
+
+           The real fix is the translation: a chart interval unit has to be a short word.
+           This only stops a long one breaking the layout. */
         >p {
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
         }
         .smartcharts-mobile & {
@@ -294,6 +337,377 @@
             >p {
                 color: var(--semantic-color-slate-solid-textIcon-normal-highest);
             }
+        }
+    }
+}
+
+/* Area settings ------------------------------------------------------------- */
+
+/* The one clipped box both height changes animate through - the disclosure, and the
+   section arriving or leaving with the chart type. `max-block-size` is set inline from
+   measurements taken in `AreaStyleSection`, which is where the reasoning lives. */
+.sc-area-settings-reveal {
+    overflow: hidden;
+
+    /* Armed only once the first measurement has landed, so opening the dialog does not
+       animate a section that was simply always there. See `AreaStyleSection`. */
+    &--animated {
+        transition: max-block-size 0.22s ease, margin-block-start 0.22s ease, visibility 0.22s;
+
+        /* Someone who has asked for less motion gets the same disclosure without the
+           height animation; the state change is still obvious from the chevron. */
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    /* Collapsed to nothing, this is still a flex item, and flex gaps do not collapse:
+       the dialog would put one on each side of a zero-height box and leave double
+       spacing between the sections it sits between. Cancelling one gap here keeps that
+       spacing at exactly one, and animating the margin alongside the height keeps the
+       two in step on the way in and out. */
+    &--hidden {
+        margin-block-start: calc(-1 * var(--sc-dialog-section-gap));
+    }
+
+    /* Matches the gap the dialog would have given these two children, so the divider
+       sits the same distance from the heading as every other section's does. */
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--sc-dialog-section-gap);
+    }
+}
+
+/* The disclosure around the picker, on mobile: the heading row is the toggle, so the sheet
+   opens at its compact height and only grows when the settings are actually wanted. The
+   desktop modal has room for the controls and shows them outright, so it renders a plain
+   heading and the `__trigger` / `__chevron` rules below never apply there. */
+.sc-area-settings {
+    /* The section's own `gap` would sit between the heading and the controls, outside the
+       height the reveal box subtracts to find the heading row - so a closed row would
+       trail a phantom 16px. The controls carry that spacing as padding instead, where it
+       is counted. */
+    gap: 0;
+
+    &__heading {
+        /* The heading is only a wrapper for the button; all of the box belongs to the
+           button, so the whole row is the hit target. */
+        inline-size: 100%;
+    }
+    &__trigger {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        box-sizing: border-box;
+        color: inherit;
+        cursor: pointer;
+        display: flex;
+        /* Inherits the heading's family, size and weight, so the row reads exactly as the
+           two headings around it. */
+        font: inherit;
+        inline-size: 100%;
+        justify-content: space-between;
+        margin: 0;
+        /* Vertical padding, not margin: it extends the tappable row past the text without
+           opening a gap the collapsed panel would have to account for. */
+        padding: 4px 0;
+        text-align: start;
+
+        &:focus-visible {
+            border-radius: 8px;
+            outline: 2px solid var(--semantic-color-slate-solid-border-inverse-mid);
+            outline-offset: 2px;
+        }
+    }
+    &__chevron {
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+    }
+    &__trigger[aria-expanded='true'] &__chevron {
+        transform: rotate(180deg);
+    }
+
+    /* The controls. No clipping of its own - the reveal box above does that - but it does
+       carry the design's 16px between the heading and the first control, because this
+       element's measured height is what the reveal box subtracts to find the heading
+       row's height. Spacing left outside it would strand 16px under a closed heading.
+
+       `visibility` is set inline and transitions discretely, so the controls leave the tab
+       order for as long as they are clipped out of sight. */
+    &__panel {
+        padding-block-start: 16px;
+        transition: visibility 0.22s;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+
+        /* The bootstrap state, before anything has been measured: it lets the reveal box
+           above size itself to the heading row alone, which is the height the measured
+           numbers will agree on a frame later. Dropped as soon as they arrive.
+
+           Dropping the padding is what actually gets this to zero. `max-block-size: 0`
+           caps the content box, so the 16px above it would still be laid out; and
+           `box-sizing: border-box` does not help either, because a border box is floored
+           at its own padding and border. Either way the first paint came out 16px taller
+           than the measurement that replaced it - a visible settle every time the dialog
+           was opened on the Area chart. The padding is back the moment this class is
+           dropped, by which point the reveal box is clipping above it anyway. */
+        &--clipped {
+            max-block-size: 0;
+            overflow: hidden;
+            padding-block-start: 0;
+        }
+    }
+}
+
+/* The Area chart's fill, line colour and line thickness. Lives inside the chart-type
+   dialog, below the type tiles, behind the disclosure above.
+
+   Every selectable cell shares the type tiles' affordance - transparent at rest, a tinted
+   surface plus a 1.5px inverse border when selected - so the three groups read as one
+   family with the row above them. */
+.sc-area-style {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    inline-size: 100%;
+
+    .smartcharts-mobile & {
+        gap: 12px;
+    }
+    &__group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        inline-size: 100%;
+    }
+
+    /* Colour beside thickness where there is room for both: three stacked groups pushed
+       the time intervals out of the desktop modal. Wrapping rather than a
+       `.smartcharts-mobile` branch, so the break comes from the space actually available
+       - the mobile sheet is narrower than the modal, but so is a narrow modal. */
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        inline-size: 100%;
+    }
+
+    /* The swatches are a fixed size, so the colour group takes only what it needs and
+       thickness absorbs the rest of the row - down to a floor below which the three
+       labels would not fit, at which point it takes a row of its own. */
+    &__group--colour {
+        flex: 0 0 auto;
+        inline-size: auto;
+
+        /* On the sheet the row has always wrapped, so the colour group has a line to
+           itself: give it the full width and centre the swatches in it, which reads
+           better than six circles hanging off the left edge. Desktop keeps them
+           left-aligned, where they sit beside the thickness cells. */
+        .smartcharts-mobile & {
+            inline-size: 100%;
+
+            .sc-area-style__colours {
+                justify-content: center;
+            }
+        }
+    }
+    &__group--thickness {
+        flex: 1 1 200px;
+        min-inline-size: 200px;
+    }
+
+    /* Sub-labels, a step below the section heading: they name a control rather than a
+       section, so they take the body colour at caption size and regular weight. */
+    &__label {
+        color: var(--component-textIcon-normal-default);
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    /* Shared by all three cell types. They are <button>s, so the UA's own font, padding
+       and margin are reset here rather than relying on a host's base stylesheet. */
+    &__fill,
+    &__colour,
+    &__thickness {
+        align-items: center;
+        background: transparent;
+
+        /* Already the selected width, just transparent until then, so that selecting a
+           cell changes only colour and never geometry. Browsers disagree about how a
+           1.5px border is rounded - Chrome floors it to 1px, Safari and any Retina
+           display render it faithfully - so a width that changed with selection moved
+           the row's height by a pixel on some machines and not others. */
+        border: 1.5px solid transparent;
+        /* Not inherited from a host reset: the dialogs are portalled outside the chart's
+           own subtree, and every size below counts the border and padding in. */
+        box-sizing: border-box;
+        cursor: pointer;
+        display: flex;
+        font: inherit;
+        justify-content: center;
+        margin: 0;
+        padding: 0;
+
+        &:focus-visible {
+            outline: 2px solid var(--semantic-color-slate-solid-border-inverse-mid);
+            outline-offset: 2px;
+        }
+    }
+    &__fill,
+    &__thickness {
+        border-radius: 12px;
+
+        /* Content packed to the top rather than centred, so that a label which wraps to
+           two lines in one language does not push its own preview down and leave it out
+           of line with the cell beside it. The cells stretch to a common height either
+           way, so with everything starting at the top the previews always agree. */
+        justify-content: flex-start;
+
+        &:hover {
+            background: var(--semantic-color-monochrome-surface-normal-lowest);
+        }
+        &--active {
+            background: var(--semantic-color-monochrome-surface-normal-lowest);
+            border-color: var(--semantic-color-slate-solid-border-inverse-mid);
+        }
+    }
+
+    /* Fill: two equal-width tiles, each a miniature of the chart as configured. */
+    &__fills {
+        display: flex;
+        gap: 8px;
+        inline-size: 100%;
+    }
+    &__fill {
+        flex: 1 0 0;
+        flex-direction: column;
+        gap: 8px;
+        min-inline-size: 0;
+        padding: 8px;
+
+        &__canvas {
+            /* Deliberately unfilled: the line and its gradient sit straight on the tile,
+               so the tile reads as one surface - the same treatment the thickness cells
+               get. An inner panel here would be a box the thickness cells do not have.
+
+               The preview is drawn with `preserveAspectRatio: none`, so it takes exactly
+               the box given here - a 2:1 landscape, as in the design. */
+            block-size: 48px;
+            display: block;
+            inline-size: 100%;
+
+            /* No hex of its own for the "Default" swatch: the preview inherits this
+               colour through `currentColor`, and the inline style only overrides it when
+               an explicit colour is selected. */
+            color: var(--semantic-color-slate-solid-textIcon-normal-highest);
+        }
+        &__label {
+            color: var(--component-textIcon-normal-default);
+            font-size: 14px;
+            line-height: 20px;
+
+            /* Far more room here than the thickness cells have, but the same rule
+               applies: a label that wraps must not drag its preview out of line with
+               the tile beside it. */
+            word-break: break-word;
+            text-align: center;
+        }
+    }
+    &__preview {
+        block-size: 100%;
+        display: block;
+        inline-size: 100%;
+    }
+
+    /* Colour: round swatches, sized so all six fit one row on the narrowest phone. */
+    &__colours {
+        display: flex;
+        /* Only reached on a viewport narrower than the six swatches, where a second row
+           is better than an overflowing one. */
+        flex-wrap: wrap;
+        gap: 8px;
+        inline-size: 100%;
+
+        /* The swatches are shorter than the thickness cells beside them, so they take
+           the group's leftover height and sit centred in it rather than hanging from
+           their label. */
+        align-items: center;
+        flex: 1 0 auto;
+    }
+    &__colour {
+        block-size: 36px;
+        border-radius: 50%;
+        inline-size: 36px;
+
+        /* The ring is the border itself, kept clear of the swatch by the padding, so a
+           selected dark swatch is still distinguishable on a dark surface. */
+        padding: 3px;
+
+        &:hover .sc-area-style__colour__swatch {
+            transform: scale(1.08);
+        }
+        &--active {
+            border-color: var(--semantic-color-slate-solid-border-inverse-mid);
+        }
+        &__swatch {
+            block-size: 100%;
+            border-radius: 50%;
+            display: block;
+            inline-size: 100%;
+            transition: transform 0.15s ease;
+
+            /* The default swatch, which carries no inline background: the same near-black
+               / near-white the engine's own theme paints the area line with. */
+            background: var(--semantic-color-slate-solid-textIcon-normal-highest);
+
+            /* A hairline so a white swatch is still a circle on the light surface. */
+            box-shadow: inset 0 0 0 1px var(--semantic-color-monochrome-border-normal-mid);
+        }
+    }
+
+    /* Thickness: three equal-width cells, each drawing its own line weight. */
+    &__thicknesses {
+        display: flex;
+        gap: 8px;
+        inline-size: 100%;
+    }
+    &__thickness {
+        flex: 1 0 0;
+        flex-direction: column;
+        gap: 10px;
+        min-inline-size: 0;
+
+        /* Little inline padding, because there is little to spare: the colour swatches
+           beside this group take a fixed 256px, leaving each of these three cells about
+           69px. At 8px a side that is 51px of text, and "Medium" alone needs 54 - so
+           even English wrapped. The line sample is 40px and centred, so the padding was
+           only ever protecting the label, which is the thing that needed the room. */
+        padding: 12px 4px;
+
+        &__line {
+            background: currentcolor;
+            border-radius: 2px;
+            color: var(--semantic-color-slate-solid-textIcon-normal-highest);
+            display: block;
+            /* A fixed-length sample rather than the full cell width: three lines that
+               differ by a pixel read as weights side by side, not as rules. */
+            inline-size: 40px;
+            /* `block-size` is set inline, from the option's own pixel thickness. */
+        }
+        &__label {
+            color: var(--component-textIcon-normal-default);
+            font-size: 14px;
+            line-height: 20px;
+
+            /* These cells are about 69px wide on desktop, which several languages'
+               single words exceed - Swahili's "Nyembamba" for "Thin", for one. Breaking
+               inside the word keeps it in the cell; without this it simply spills over
+               the cell beside it. */
+            word-break: break-word;
+            text-align: center;
         }
     }
 }

@@ -116,7 +116,12 @@ const DialogShell = ({
                 <ActionSheet.Portal showHandlebar shouldCloseOnDrag portalId={portalId}>
                     <DialogSurface>
                         {mobileTitle && <ActionSheet.Header title={mobileTitle} />}
-                        <ActionSheet.Content className={classNames('sc-quill-dialog', className)}>
+                        {/* `sc-quill-sheet` marks the sheet's scroll region - quill's own
+                            `action-sheet--content`, which it does not document. Dialogs that
+                            need to reach it (to hold its height, to cap it) hook onto this
+                            instead, and because only the sheet carries it, the same selector
+                            is inert on desktop where the Modal branch renders. */}
+                        <ActionSheet.Content className={classNames('sc-quill-dialog', 'sc-quill-sheet', className)}>
                             {children}
                         </ActionSheet.Content>
                     </DialogSurface>

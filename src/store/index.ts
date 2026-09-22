@@ -1,4 +1,5 @@
 import React from 'react';
+import AreaStyleStore from './AreaStyleStore';
 import BottomWidgetsContainerStore from './BottomWidgetsContainerStore';
 import TimeperiodStore from './TimeperiodStore';
 import ChartStore from './ChartStore';
@@ -34,6 +35,7 @@ export default class MainStore implements TMainStore {
     state = new ChartState(this);
     chartAdapter = new ChartAdapterStore(this);
     chartType = new ChartTypeStore(this);
+    areaStyle = new AreaStyleStore(this);
     chartMode = new ChartModeStore(this);
     studies = new StudyLegendStore(this);
     drawTools = new DrawToolsStore(this);
