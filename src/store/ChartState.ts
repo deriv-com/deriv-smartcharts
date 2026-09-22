@@ -1,6 +1,7 @@
 /* eslint-disable no-new */
 import { action, observable, when, makeObservable, reaction } from 'mobx';
 import {
+    TAccumulatorBarrierDragPhase,
     TChartControlsWidgets,
     TChartProps,
     TGetIndicatorHeightRatio,
@@ -72,6 +73,12 @@ class ChartState {
     isChartReady = false;
     chartStatusListener?: (isChartReady: boolean) => boolean;
     stateChangeListener?: (state: string, option?: TStateChangeOption) => void;
+    /**
+     * Host handler for Accumulators barrier drags, relayed by
+     * {@link ChartAdapterStore.onAccumulatorBarrierDrag}. Held here rather than
+     * on the adapter because that is where every other host prop lives.
+     */
+    onAccumulatorBarrierDrag?: (phase: TAccumulatorBarrierDragPhase, growthRate: number) => void;
     settings?: TSettings;
     showLastDigitStats = false;
     shouldEmphasizeLastDigit = false;
@@ -229,6 +236,7 @@ class ChartState {
         contractInfo = {},
         showLastDigitStats = false,
         shouldEmphasizeLastDigit = false,
+        onAccumulatorBarrierDrag,
         allowTickChartTypeOnly = false,
         allowedChartTypes,
         allowedGranularities,
@@ -468,6 +476,10 @@ class ChartState {
             this.shouldEmphasizeLastDigit = shouldEmphasizeLastDigit;
             this.mainStore.chartAdapter.updateLastDigitEmphasis(shouldEmphasizeLastDigit);
         }
+
+        // Plain assignment, no observable: the adapter only ever reads it when
+        // relaying a drag, so a stale-closure-free latest value is all we need.
+        this.onAccumulatorBarrierDrag = onAccumulatorBarrierDrag;
 
         if (
             startWithDataFitMode !== null &&

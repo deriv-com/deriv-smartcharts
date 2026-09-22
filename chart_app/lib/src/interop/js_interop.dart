@@ -33,6 +33,13 @@ class JsInterop {
   /// Called when visible quote area is change
   external static void onQuoteAreaChanged(double topQuote, double bottomQuote);
 
+  /// Called while the user drags an Accumulators barrier.
+  ///
+  /// [phase] is `start`, `change` or `end`. The first two report the growth
+  /// rate the band is previewing; only `end` is the value to commit.
+  external static void onAccumulatorBarrierDrag(
+      String phase, double growthRate);
+
   /// Called to load additional history
   external static void loadHistory(JsLoadHistoryReq request);
 
@@ -138,7 +145,7 @@ extension JSContractsUpdateExtension on JSContractsUpdate {
   external int? get currentEpoch;
 
   /// Direction of the markers
-  /// 
+  ///
   /// Nullable because in dart2js the undefined→null coercion is silent,
   /// but dart2wasm (skwasm) throws a TypeError when converting undefined to the
   /// non-nullable String type.
@@ -237,12 +244,79 @@ extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
   /// Defaults to 500.
   external int? get barrierDelayMs;
 
+  /// Configuration that makes the [live] band draggable.
+  @JS('drag')
+  external JSAny? get dragJs;
+
   /// The band tracking the current spot, or null.
   JSAccumulatorLiveBarriers? get live => liveJs as JSAccumulatorLiveBarriers?;
 
   /// The frozen band of a just-finished contract, or null.
   JSAccumulatorClosedBarriers? get closed =>
       closedJs as JSAccumulatorClosedBarriers?;
+
+  /// The drag configuration, or null when the band is read-only.
+  JSAccumulatorBarrierDrag? get drag => dragJs as JSAccumulatorBarrierDrag?;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// Turns the Accumulators barriers into a growth-rate control.
+///
+/// The host owns the enablement rules and the ladder; the chart only snaps the
+/// band to the nearest rung and reports it back.
+class JSAccumulatorBarrierDrag {
+  /// JSAccumulatorBarrierDrag Object
+  external factory JSAccumulatorBarrierDrag();
+}
+
+/// Extension for JSAccumulatorBarrierDrag
+extension JSAccumulatorBarrierDragExtension on JSAccumulatorBarrierDrag {
+  /// Whether the barriers can be dragged right now.
+  external bool? get enabled;
+
+  /// The growth rates the user may pick between.
+  @JS('steps')
+  external JSAny? get stepsJs;
+
+  /// The ladder, or an empty list when the host supplied none.
+  List<JSAccumulatorGrowthRateStep> get steps {
+    final JSArray<JSAny?>? array = stepsJs as JSArray<JSAny?>?;
+    if (array == null) {
+      return <JSAccumulatorGrowthRateStep>[];
+    }
+    return array.toDart
+        .whereType<JSObject>()
+        .cast<JSAccumulatorGrowthRateStep>()
+        .toList();
+  }
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// One selectable rung of the Accumulators growth-rate ladder.
+class JSAccumulatorGrowthRateStep {
+  /// JSAccumulatorGrowthRateStep Object
+  external factory JSAccumulatorGrowthRateStep();
+}
+
+/// Extension for JSAccumulatorGrowthRateStep
+extension JSAccumulatorGrowthRateStepExtension on JSAccumulatorGrowthRateStep {
+  /// Growth rate as a fraction, e.g. 0.03 for 3%.
+  external double? get growthRate;
+
+  /// Distance between the spot and each barrier at this rung, in quote units.
+  external double? get barrierSpotDistance;
+
+  /// Pre-formatted [barrierSpotDistance] for the `±` labels.
+  external String? get barrierSpotDistanceDisplay;
+
+  /// Pre-formatted [growthRate], e.g. `'3%'`.
+  external String? get growthRateDisplay;
 }
 
 @JS()
@@ -551,9 +625,8 @@ extension JsDrawingsExtension on JsDrawings {
     if (jsFunc == null) {
       return null;
     }
-    return (String deletedToolName, String? config) =>
-        (jsFunc as JSFunction)
-            .callAsFunction(null, deletedToolName.toJS, config?.toJS);
+    return (String deletedToolName, String? config) => (jsFunc as JSFunction)
+        .callAsFunction(null, deletedToolName.toJS, config?.toJS);
   }
 
   /// Called when a drawing is edited

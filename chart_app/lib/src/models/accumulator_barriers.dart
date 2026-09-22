@@ -25,6 +25,26 @@ class AccumulatorBarriersModel extends ChangeNotifier {
   /// Initialize.
   AccumulatorBarriersModel(this._feedModel) {
     _feedModel.addListener(_onFeedChanged);
+
+    // Block bodies, not arrows: an arrow body swallows a following `..`, which
+    // would chain the cascade onto the callback's own (void) result.
+    _dragController
+      ..onDragStart = () {
+        _reportDrag('start', _dragController.committedStep);
+      }
+      ..onDragUpdate = (AccumulatorGrowthRateStep step) {
+        _reportDrag('change', step);
+      }
+      ..onDragEnd = (AccumulatorGrowthRateStep step) {
+        _reportDrag('end', step);
+      };
+  }
+
+  void _reportDrag(String phase, AccumulatorGrowthRateStep? step) {
+    if (step == null) {
+      return;
+    }
+    JsInterop.onAccumulatorBarrierDrag(phase, step.growthRate);
   }
 
   final ChartFeedModel _feedModel;
@@ -47,6 +67,12 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     labelShapeBackgroundColor: Colors.transparent,
     textStyle: TextStyle(color: Colors.transparent),
   );
+
+  /// Makes the live band draggable. Created once and kept for the lifetime of
+  /// the model: the annotation around it is rebuilt on every tick, but the drag
+  /// state (hover, preview, pending commit) has to survive that.
+  final AccumulatorBarrierDragController _dragController =
+      AccumulatorBarrierDragController(enabled: false);
 
   ChartAnnotation<ChartObject>? _live;
   ChartAnnotation<ChartObject>? _closed;
@@ -91,8 +117,32 @@ class AccumulatorBarriersModel extends ChangeNotifier {
       return;
     }
 
+    _applyDrag(payload.drag);
     _applyLive(payload.live, payload.barrierDelayMs);
     _applyClosed(payload.closed);
+  }
+
+  void _applyDrag(JSAccumulatorBarrierDrag? drag) {
+    if (drag == null) {
+      _dragController
+        ..enabled = false
+        ..clearPreview()
+        ..steps = const <AccumulatorGrowthRateStep>[];
+      return;
+    }
+
+    _dragController
+      ..steps = drag.steps
+          .map((JSAccumulatorGrowthRateStep step) => AccumulatorGrowthRateStep(
+                growthRate: step.growthRate ?? 0,
+                barrierSpotDistance: step.barrierSpotDistance ?? 0,
+                barrierSpotDistanceDisplay: step.barrierSpotDistanceDisplay,
+                growthRateDisplay: step.growthRateDisplay,
+              ))
+          .where((AccumulatorGrowthRateStep step) =>
+              step.growthRate > 0 && step.barrierSpotDistance > 0)
+          .toList()
+      ..enabled = drag.enabled ?? false;
   }
 
   void _applyLive(JSAccumulatorLiveBarriers? live, int? barrierDelayMs) {
@@ -161,6 +211,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
         // contract's POC keeps streaming with a profit that no longer moves,
         // so the band stays and the P/L overlay goes.
         activeContract: band.isSold ? null : band.activeContract,
+        dragController: _dragController,
       );
 
   AccumulatorsRecentlyClosedIndicator _buildClosed(_ClosedBand band) =>
@@ -252,6 +303,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     _cancelClosedExpiry();
     _closedExitEpochMs = null;
     _retiredExitEpochMs = null;
+    _dragController.clearPreview();
     _setLive(null);
     _setClosed(null);
   }
@@ -264,6 +316,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     _liveDelayTimer?.cancel();
     _cancelClosedExpiry();
     _feedModel.removeListener(_onFeedChanged);
+    _dragController.dispose();
     super.dispose();
   }
 }

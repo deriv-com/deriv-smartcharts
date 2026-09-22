@@ -1,5 +1,11 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
-import { TAccumulatorBarriers, TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
+import {
+    TAccumulatorBarrierDragPhase,
+    TAccumulatorBarriers,
+    TFlutterChart,
+    TLoadHistoryParams,
+    TQuote,
+} from 'src/types';
 import { createChartElement, runChartApp } from 'src/flutter-chart';
 import Painter from 'src/flutter-chart/painter';
 import { STATE } from 'src/Constant';
@@ -59,6 +65,7 @@ export default class ChartAdapterStore {
             loadHistory: action.bound,
             onVisibleAreaChanged: action.bound,
             onQuoteAreaChanged: action.bound,
+            onAccumulatorBarrierDrag: action.bound,
             setMsPerPx: action.bound,
             newChart: action.bound,
             enableXScrollTimer: observable,
@@ -109,6 +116,7 @@ export default class ChartAdapterStore {
             onMainSeriesPaint: this.painter.onPaint,
             onVisibleAreaChanged: this.onVisibleAreaChanged,
             onQuoteAreaChanged: this.onQuoteAreaChanged,
+            onAccumulatorBarrierDrag: this.onAccumulatorBarrierDrag,
             loadHistory: this.loadHistory,
             indicators: {
                 onRemove: (index: number) => {
@@ -319,6 +327,17 @@ export default class ChartAdapterStore {
             topQuote,
             bottomQuote,
         };
+    }
+
+    /**
+     * Relays an Accumulators barrier drag to the host.
+     *
+     * `start` and `change` are preview-only; only `end` is the growth rate to
+     * commit. The chart holds the previewed band until new barriers arrive, so
+     * the host can take its time over the round-trip.
+     */
+    onAccumulatorBarrierDrag(phase: TAccumulatorBarrierDragPhase, growthRate: number) {
+        this.mainStore.state.onAccumulatorBarrierDrag?.(phase, growthRate);
     }
 
     getGranularityInMs() {
