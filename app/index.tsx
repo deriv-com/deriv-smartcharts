@@ -263,8 +263,15 @@ const unsubscribeQuotes = (request?: TGetQuotesRequest) => {
  */
 const GROWTH_RATES = [0.01, 0.02, 0.03, 0.04, 0.05];
 
-/** A higher growth rate means a tighter band, hence the inverse scaling. */
-const barrierDistanceFor = (growthRate: number, spot: number) => spot * 0.0005 * (0.03 / growthRate);
+/**
+ * Barrier offset per growth rate, as contracts_for returns them. Real values,
+ * so the demo shows the shape that matters: they barely change across rates.
+ */
+const GROWTH_RATE_BARRIER_OFFSETS = [0.000064970949, 0.000060725407, 0.000056949789, 0.000054185412, 0.000051575021];
+
+/** Each barrier sits at `current_spot * offset` either side of the spot. */
+const barrierDistanceFor = (growthRate: number, spot: number) =>
+    spot * GROWTH_RATE_BARRIER_OFFSETS[GROWTH_RATES.indexOf(growthRate)];
 
 const App = () => {
     const startingLanguageRef = React.useRef('en');
