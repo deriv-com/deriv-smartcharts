@@ -341,7 +341,8 @@ export type TChartProps = {
      */
     onAccumulatorBarrierDrag?: (
         phase: TAccumulatorBarrierDragPhase,
-        growthRate: number
+        growthRate: number,
+        side: TAccumulatorBarrierSide
     ) => void;
     isLive?: boolean;
     startWithDataFitMode?: boolean;
@@ -471,6 +472,9 @@ export type TAccumulatorBarrierDrag = {
 
 /** Phase of an Accumulators barrier drag. */
 export type TAccumulatorBarrierDragPhase = 'start' | 'change' | 'end';
+
+/** Which of the two Accumulators barriers is being dragged. */
+export type TAccumulatorBarrierSide = 'high' | 'low';
 
 export type TQuote = {
     Date: string;
@@ -689,7 +693,11 @@ export type JSInterop = {
     onMainSeriesPaint: (currentTickPercent: number, lerpedQuote?: number | null) => void;
     onVisibleAreaChanged: (leftEpoch: number, rightEpoch: number) => void;
     onQuoteAreaChanged: (topQuote: number, bottomQuote: number) => void;
-    onAccumulatorBarrierDrag: (phase: TAccumulatorBarrierDragPhase, growthRate: number) => void;
+    onAccumulatorBarrierDrag: (
+        phase: TAccumulatorBarrierDragPhase,
+        growthRate: number,
+        side: TAccumulatorBarrierSide
+    ) => void;
     loadHistory: (request: TLoadHistoryParams) => void;
     indicators: {
         onRemove: (index: number) => void;

@@ -2,6 +2,7 @@
 import { action, observable, when, makeObservable, reaction } from 'mobx';
 import {
     TAccumulatorBarrierDragPhase,
+    TAccumulatorBarrierSide,
     TChartControlsWidgets,
     TChartProps,
     TGetIndicatorHeightRatio,
@@ -78,7 +79,11 @@ class ChartState {
      * {@link ChartAdapterStore.onAccumulatorBarrierDrag}. Held here rather than
      * on the adapter because that is where every other host prop lives.
      */
-    onAccumulatorBarrierDrag?: (phase: TAccumulatorBarrierDragPhase, growthRate: number) => void;
+    onAccumulatorBarrierDrag?: (
+        phase: TAccumulatorBarrierDragPhase,
+        growthRate: number,
+        side: TAccumulatorBarrierSide
+    ) => void;
     settings?: TSettings;
     showLastDigitStats = false;
     shouldEmphasizeLastDigit = false;

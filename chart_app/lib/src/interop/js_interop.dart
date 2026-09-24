@@ -37,8 +37,13 @@ class JsInterop {
   ///
   /// [phase] is `start`, `change` or `end`. The first two report the growth
   /// rate the band is previewing; only `end` is the value to commit.
+  ///
+  /// [side] is the grip in hand, `high` or `low`. It decides which way the user
+  /// has to drag to leave an end of the ladder — at the tightest band the top
+  /// grip goes up and the bottom one goes down — so the host cannot word its
+  /// limit hint without it.
   external static void onAccumulatorBarrierDrag(
-      String phase, double growthRate);
+      String phase, double growthRate, String side);
 
   /// Called to load additional history
   external static void loadHistory(JsLoadHistoryReq request);

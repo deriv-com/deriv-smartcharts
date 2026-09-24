@@ -29,22 +29,28 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     // Block bodies, not arrows: an arrow body swallows a following `..`, which
     // would chain the cascade onto the callback's own (void) result.
     _dragController
-      ..onDragStart = () {
-        _reportDrag('start', _dragController.committedStep);
+      ..onDragStart = (AccumulatorBarrierSide side) {
+        _reportDrag('start', _dragController.committedStep, side);
       }
-      ..onDragUpdate = (AccumulatorGrowthRateStep step) {
-        _reportDrag('change', step);
+      ..onDragUpdate =
+          (AccumulatorGrowthRateStep step, AccumulatorBarrierSide side) {
+        _reportDrag('change', step, side);
       }
-      ..onDragEnd = (AccumulatorGrowthRateStep step) {
-        _reportDrag('end', step);
+      ..onDragEnd =
+          (AccumulatorGrowthRateStep step, AccumulatorBarrierSide side) {
+        _reportDrag('end', step, side);
       };
   }
 
-  void _reportDrag(String phase, AccumulatorGrowthRateStep? step) {
+  void _reportDrag(
+    String phase,
+    AccumulatorGrowthRateStep? step,
+    AccumulatorBarrierSide side,
+  ) {
     if (step == null) {
       return;
     }
-    JsInterop.onAccumulatorBarrierDrag(phase, step.growthRate);
+    JsInterop.onAccumulatorBarrierDrag(phase, step.growthRate, side.name);
   }
 
   final ChartFeedModel _feedModel;

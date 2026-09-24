@@ -1,6 +1,7 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
 import {
     TAccumulatorBarrierDragPhase,
+    TAccumulatorBarrierSide,
     TAccumulatorBarriers,
     TAreaStylePayload,
     TFlutterChart,
@@ -337,8 +338,8 @@ export default class ChartAdapterStore {
      * commit. The chart holds the previewed band until new barriers arrive, so
      * the host can take its time over the round-trip.
      */
-    onAccumulatorBarrierDrag(phase: TAccumulatorBarrierDragPhase, growthRate: number) {
-        this.mainStore.state.onAccumulatorBarrierDrag?.(phase, growthRate);
+    onAccumulatorBarrierDrag(phase: TAccumulatorBarrierDragPhase, growthRate: number, side: TAccumulatorBarrierSide) {
+        this.mainStore.state.onAccumulatorBarrierDrag?.(phase, growthRate, side);
     }
 
     getGranularityInMs() {
