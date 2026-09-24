@@ -13,7 +13,7 @@ dependencies:
     deriv_chart:
         git:
             url: https://github.com/deriv-com/flutter-chart.git
-            ref: 6cebbc6cac187a2cce9846fd29b45b15591eaef7
+            ref: feat/draggable-accumulators-barriers
     web: ^1.1.1
 
 dev_dependencies:

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:web/web.dart' as web;
 
+import 'src/models/accumulator_barriers.dart';
 import 'src/models/chart_feed.dart';
 import 'src/models/chart_config.dart';
 import 'src/interop/dart_interop.dart';
@@ -48,6 +49,7 @@ class _DerivChartWebAdapterState extends State<_DerivChartWebAdapter> {
       feedModel,
       indicatorsModel,
       drawingToolModel,
+      accumulatorBarriersModel,
     );
     initDartInterop(app);
     JsInterop.onChartLoad();
@@ -57,6 +59,10 @@ class _DerivChartWebAdapterState extends State<_DerivChartWebAdapter> {
   final ChartConfigModel configModel = ChartConfigModel();
   final IndicatorsModel indicatorsModel = IndicatorsModel();
   final DrawingToolModel drawingToolModel = DrawingToolModel();
+
+  /// Times its barrier updates against the feed, so it needs [feedModel].
+  late final AccumulatorBarriersModel accumulatorBarriersModel =
+      AccumulatorBarriersModel(feedModel);
 
   late ChartApp app;
   late final JSExportedDartFunction _jsVisibilityHandler;

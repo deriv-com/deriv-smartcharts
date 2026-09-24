@@ -324,12 +324,157 @@ export type TChartProps = {
     children?: React.ReactNode;
     historical?: boolean;
     contracts_array?: any[];
+    /**
+     * Accumulators barrier band. Pass `null` (or omit) when there is nothing to draw.
+     *
+     * The chart infers the contract state from which fields are present, so the host only
+     * has to forward what it knows. See {@link TAccumulatorBarriers}.
+     */
+    accumulatorBarriers?: TAccumulatorBarriers | null;
+    /**
+     * Fired while the user drags an Accumulators barrier.
+     *
+     * `start` and `change` carry the rung the band is previewing — show it, do
+     * not commit it. `end` carries the rung the user settled on: that is the one
+     * to write to the store. The chart holds the previewed band until new
+     * barriers arrive, so there is no need to rush the round-trip.
+     */
+    onAccumulatorBarrierDrag?: (
+        phase: TAccumulatorBarrierDragPhase,
+        growthRate: number,
+        side: TAccumulatorBarrierSide
+    ) => void;
     isLive?: boolean;
     startWithDataFitMode?: boolean;
     leftMargin?: number;
     drawingToolFloatingMenuPosition?: TFloatingMenuPositionOffset;
     crosshairEnabled?: boolean; // Initial crosshair state. When set, overrides localStorage and doesn't persist.
 };
+
+/**
+ * The Accumulators band that tracks the current spot.
+ *
+ * Omitting `profit` makes it the pre-trade proposal band; supplying it makes it a
+ * running contract, drawn green or red by the profit's sign with the P/L inside
+ * the band.
+ */
+export type TAccumulatorLiveBarriers = {
+    /** High barrier, as the display string the API returned. Its decimals set the label precision. */
+    highBarrier: string;
+    /** Low barrier, as the display string the API returned. */
+    lowBarrier: string;
+    /** Epoch (seconds) of the tick these barriers belong to. */
+    barrierEpoch: number;
+    /** Pre-formatted barrier-to-spot distance. Derived from the barriers when omitted. */
+    barrierSpotDistance?: string;
+    /** Quote compared against the barriers to detect a hit — what turns the band red. */
+    spot: number;
+    /** Epoch (seconds) of `spot`. */
+    spotEpoch: number;
+    /** Contract profit. Omit for a pre-trade proposal. */
+    profit?: number;
+    /** Currency shown next to `profit`. */
+    currency?: string;
+    /** Decimals `profit` is rendered with. Defaults to 2. */
+    fractionalDigits?: number;
+    /** Sold, but the exit tick hasn't arrived yet: the band stays, the P/L overlay goes. */
+    isSold?: boolean;
+};
+
+/** The frozen Accumulators band of a contract that has just finished. */
+export type TAccumulatorClosedBarriers = {
+    /** High barrier at exit time, as the display string the API returned. */
+    highBarrier: string;
+    /** Low barrier at exit time, as the display string the API returned. */
+    lowBarrier: string;
+    /** Epoch (seconds) of the tick before the exit — where the band starts. */
+    barrierEpoch?: number;
+    /** Pre-formatted barrier-to-exit-spot distance. Derived from the barriers when omitted. */
+    barrierSpotDistance?: string;
+    /** Exit quote — where the band ends. */
+    exitSpot: number;
+    /** Epoch (seconds) of `exitSpot`. */
+    exitEpoch: number;
+    /** Final profit or loss, drawn inside the band. */
+    profit?: number;
+    /** Currency shown next to `profit`. */
+    currency?: string;
+    /** Decimals `profit` is rendered with. Defaults to 2. */
+    fractionalDigits?: number;
+    /**
+     * How long to keep this band before retiring it, in milliseconds.
+     *
+     * Omit to keep it indefinitely — what a contract-details replay wants, since the
+     * finished contract is the whole point of that chart. A trade chart passes a
+     * short window so the band clears once the next contract can start.
+     */
+    retentionMs?: number;
+};
+
+/**
+ * Everything the chart needs to draw the Accumulators barrier bands.
+ *
+ * They are native chart annotations, not markers — the same
+ * `AccumulatorIndicator` / `AccumulatorsRecentlyClosedIndicator` the Deriv mobile
+ * app uses. Both bands can be on screen together: a knocked-out contract keeps
+ * its frozen band for 8 seconds while the next proposal already draws over it.
+ */
+export type TAccumulatorBarriers = {
+    /** The band tracking the current spot — a proposal, or a running contract. */
+    live?: TAccumulatorLiveBarriers | null;
+    /** The frozen band of a contract that has just finished. */
+    closed?: TAccumulatorClosedBarriers | null;
+    /**
+     * How long to hold a `live` barrier update back, in milliseconds. Defaults to 500.
+     *
+     * Barriers and the tick they belong to arrive on separate messages; applying them
+     * immediately makes the band jump ahead of the spot. Symbols that tick every 2s
+     * want a longer hold than 1s ones.
+     */
+    barrierDelayMs?: number;
+    /**
+     * Makes the `live` band draggable. Omit it (or disable it) and the band is
+     * read-only, exactly as before.
+     */
+    drag?: TAccumulatorBarrierDrag | null;
+};
+
+/** One selectable rung of the Accumulators growth-rate ladder. */
+export type TAccumulatorGrowthRateStep = {
+    /** Growth rate as a fraction, e.g. `0.03` for 3%. */
+    growthRate: number;
+    /**
+     * Distance between the spot and each barrier at this growth rate, in quote
+     * units. This is what the drag snaps to, so it decides both the order of the
+     * rungs and how far apart they feel.
+     */
+    barrierSpotDistance: number;
+    /** Pre-formatted `barrierSpotDistance` for the `±` labels beside the barriers. */
+    barrierSpotDistanceDisplay?: string;
+    /** Pre-formatted `growthRate`, e.g. `'3%'`. */
+    growthRateDisplay?: string;
+};
+
+/**
+ * Turns the Accumulators barriers into a growth-rate control.
+ *
+ * The host owns every rule behind `enabled` — pre-purchase only, market open,
+ * trade params unlocked — and owns the ladder. The chart only snaps the band to
+ * the nearest rung and reports which one via `onAccumulatorBarrierDrag`; it is
+ * the host's job to commit the value and push the real barriers back down.
+ */
+export type TAccumulatorBarrierDrag = {
+    /** Whether the barriers can be dragged right now. */
+    enabled: boolean;
+    /** The growth rates the user may pick between. */
+    steps: TAccumulatorGrowthRateStep[];
+};
+
+/** Phase of an Accumulators barrier drag. */
+export type TAccumulatorBarrierDragPhase = 'start' | 'change' | 'end';
+
+/** Which of the two Accumulators barriers is being dragged. */
+export type TAccumulatorBarrierSide = 'high' | 'low';
 
 export type TQuote = {
     Date: string;
@@ -514,6 +659,7 @@ export type TFlutterChart = {
         updateLiveStatus: (isLive: boolean) => void;
         updateLastDigitEmphasis: (shouldEmphasize: boolean) => void;
         updateContracts: (markers: any[]) => void;
+        updateAccumulatorBarriers: (barriers: TAccumulatorBarriers | null) => void;
         updateCrosshairVisibility: (visibility: boolean) => void;
         updateLeftMargin: (leftMargin?: number) => void;
         updateRightPadding: (rightPadding?: number) => void;
@@ -547,6 +693,11 @@ export type JSInterop = {
     onMainSeriesPaint: (currentTickPercent: number, lerpedQuote?: number | null) => void;
     onVisibleAreaChanged: (leftEpoch: number, rightEpoch: number) => void;
     onQuoteAreaChanged: (topQuote: number, bottomQuote: number) => void;
+    onAccumulatorBarrierDrag: (
+        phase: TAccumulatorBarrierDragPhase,
+        growthRate: number,
+        side: TAccumulatorBarrierSide
+    ) => void;
     loadHistory: (request: TLoadHistoryParams) => void;
     indicators: {
         onRemove: (index: number) => void;

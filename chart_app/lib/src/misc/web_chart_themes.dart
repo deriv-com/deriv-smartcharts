@@ -14,6 +14,16 @@ const double _labelIconSize = 20;
 /// Font size of the indicator-label title. See [_labelIconSize].
 const double _labelFontSize = 16;
 
+/// Information blue, the resting colour of the Accumulators barrier band.
+///
+/// Matches `QuillColors.blue700` in deriv_trader's `AccumulatorLight/
+/// DarkChartTheme`, so the band looks the same on both platforms. Only the
+/// accumulator painters and the library's own market-selector widgets — which
+/// this app doesn't use — read `base03Color`, so overriding it globally affects
+/// nothing else. Profit/loss and barrier-hit colouring is decided by the
+/// painters and overrides this.
+const Color _accumulatorBarrierColor = Color(0xFF2C9AFF);
+
 /// Everything about the indicator label that this app sizes differently from
 /// the library default. Mixed into both themes so the two stay in step.
 mixin _WebIndicatorLabelSizing on ChartDefaultTheme {
@@ -24,6 +34,9 @@ mixin _WebIndicatorLabelSizing on ChartDefaultTheme {
   TextStyle get indicatorLabelTextStyle => super
       .indicatorLabelTextStyle
       .copyWith(fontSize: _labelFontSize);
+
+  @override
+  Color get base03Color => _accumulatorBarrierColor;
 }
 
 /// [ChartDefaultLightTheme] with this app's indicator-label sizing.

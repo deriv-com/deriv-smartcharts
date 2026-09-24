@@ -1,5 +1,13 @@
 import { action, makeObservable, observable, when, runInAction, computed } from 'mobx';
-import { TAreaStylePayload, TFlutterChart, TLoadHistoryParams, TQuote } from 'src/types';
+import {
+    TAccumulatorBarrierDragPhase,
+    TAccumulatorBarrierSide,
+    TAccumulatorBarriers,
+    TAreaStylePayload,
+    TFlutterChart,
+    TLoadHistoryParams,
+    TQuote,
+} from 'src/types';
 import { createChartElement, runChartApp } from 'src/flutter-chart';
 import Painter from 'src/flutter-chart/painter';
 import { STATE } from 'src/Constant';
@@ -59,6 +67,7 @@ export default class ChartAdapterStore {
             loadHistory: action.bound,
             onVisibleAreaChanged: action.bound,
             onQuoteAreaChanged: action.bound,
+            onAccumulatorBarrierDrag: action.bound,
             setMsPerPx: action.bound,
             newChart: action.bound,
             enableXScrollTimer: observable,
@@ -109,6 +118,7 @@ export default class ChartAdapterStore {
             onMainSeriesPaint: this.painter.onPaint,
             onVisibleAreaChanged: this.onVisibleAreaChanged,
             onQuoteAreaChanged: this.onQuoteAreaChanged,
+            onAccumulatorBarrierDrag: this.onAccumulatorBarrierDrag,
             loadHistory: this.loadHistory,
             indicators: {
                 onRemove: (index: number) => {
@@ -321,6 +331,17 @@ export default class ChartAdapterStore {
         };
     }
 
+    /**
+     * Relays an Accumulators barrier drag to the host.
+     *
+     * `start` and `change` are preview-only; only `end` is the growth rate to
+     * commit. The chart holds the previewed band until new barriers arrive, so
+     * the host can take its time over the round-trip.
+     */
+    onAccumulatorBarrierDrag(phase: TAccumulatorBarrierDragPhase, growthRate: number, side: TAccumulatorBarrierSide) {
+        this.mainStore.state.onAccumulatorBarrierDrag?.(phase, growthRate, side);
+    }
+
     getGranularityInMs() {
         const granularity: number = this.mainStore.state.granularity || 1;
         return granularity * 1000;
@@ -525,6 +546,20 @@ export default class ChartAdapterStore {
         await when(() => this.isFeedLoaded);
 
         this.flutterChart?.config.updateContracts(transformedContractsMarker);
+    }
+
+    /**
+     * Hands the Accumulators barrier band to the chart, which draws it as a native
+     * annotation. Pass `null` to clear it.
+     *
+     * Gated on the feed like `updateContracts` — the band is positioned by epoch
+     * against the rendered series, so pushing it before the feed exists would anchor
+     * it against a stale viewport.
+     */
+    async updateAccumulatorBarriers(barriers: TAccumulatorBarriers | null) {
+        await when(() => this.isFeedLoaded);
+
+        this.flutterChart?.config.updateAccumulatorBarriers(barriers);
     }
 
     getInterpolatedPositionAndPrice = (epoch: number) => {

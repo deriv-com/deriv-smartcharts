@@ -60,3 +60,25 @@ html {
         }
     }
 }
+
+.accumulators-demo {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    color: #fff;
+    display: flex;
+    font-size: 12px;
+    gap: 12px;
+    left: 8px;
+    padding: 6px 10px;
+    position: fixed;
+    top: 8px;
+    z-index: 10;
+
+    label {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        gap: 4px;
+    }
+}

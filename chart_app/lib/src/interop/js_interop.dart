@@ -33,6 +33,18 @@ class JsInterop {
   /// Called when visible quote area is change
   external static void onQuoteAreaChanged(double topQuote, double bottomQuote);
 
+  /// Called while the user drags an Accumulators barrier.
+  ///
+  /// [phase] is `start`, `change` or `end`. The first two report the growth
+  /// rate the band is previewing; only `end` is the value to commit.
+  ///
+  /// [side] is the grip in hand, `high` or `low`. It decides which way the user
+  /// has to drag to leave an end of the ladder — at the tightest band the top
+  /// grip goes up and the bottom one goes down — so the host cannot word its
+  /// limit hint without it.
+  external static void onAccumulatorBarrierDrag(
+      String phase, double growthRate, String side);
+
   /// Called to load additional history
   external static void loadHistory(JsLoadHistoryReq request);
 
@@ -147,7 +159,7 @@ extension JSContractsUpdateExtension on JSContractsUpdate {
   external int? get currentEpoch;
 
   /// Direction of the markers
-  /// 
+  ///
   /// Nullable because in dart2js the undefined→null coercion is silent,
   /// but dart2wasm (skwasm) throws a TypeError when converting undefined to the
   /// non-nullable String type.
@@ -208,6 +220,212 @@ extension JsMarkerExtension on JsMarker {
   /// Vertical pixel offset for the marker's rendered position.
   /// Negative values move the marker upward.
   external double? get displayOffsetY;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// Accumulators barrier payload.
+///
+/// Carries up to two bands at once, exactly as deriv_trader's chart does: the
+/// [live] one (pre-trade proposal or running contract) and a [closed] one for a
+/// contract that has just finished. Both can be on screen together — a knocked
+/// out contract keeps its frozen band while the next proposal is already
+/// drawing.
+///
+/// Every getter here and on the nested payloads is nullable on purpose. dart2js
+/// silently coerces a missing JS property to null, but dart2wasm (skwasm) —
+/// which is what `flutter build web --wasm` produces — throws a TypeError when
+/// converting `undefined` to a non-nullable Dart type. The same reasoning is
+/// spelled out on [JSContractsUpdateExtension.direction].
+class JSAccumulatorBarriers {
+  external factory JSAccumulatorBarriers();
+}
+
+// Extension for JSAccumulatorBarriers
+extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
+  /// The band tracking the current spot: a pre-trade proposal or a running
+  /// contract.
+  @JS('live')
+  external JSAny? get liveJs;
+
+  /// The frozen band of a contract that has just finished.
+  @JS('closed')
+  external JSAny? get closedJs;
+
+  /// How long to hold a [live] barrier update back, in milliseconds.
+  /// Defaults to 500.
+  external int? get barrierDelayMs;
+
+  /// Configuration that makes the [live] band draggable.
+  @JS('drag')
+  external JSAny? get dragJs;
+
+  /// The band tracking the current spot, or null.
+  JSAccumulatorLiveBarriers? get live => liveJs as JSAccumulatorLiveBarriers?;
+
+  /// The frozen band of a just-finished contract, or null.
+  JSAccumulatorClosedBarriers? get closed =>
+      closedJs as JSAccumulatorClosedBarriers?;
+
+  /// The drag configuration, or null when the band is read-only.
+  JSAccumulatorBarrierDrag? get drag => dragJs as JSAccumulatorBarrierDrag?;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// Turns the Accumulators barriers into a growth-rate control.
+///
+/// The host owns the enablement rules and the ladder; the chart only snaps the
+/// band to the nearest rung and reports it back.
+class JSAccumulatorBarrierDrag {
+  /// JSAccumulatorBarrierDrag Object
+  external factory JSAccumulatorBarrierDrag();
+}
+
+/// Extension for JSAccumulatorBarrierDrag
+extension JSAccumulatorBarrierDragExtension on JSAccumulatorBarrierDrag {
+  /// Whether the barriers can be dragged right now.
+  external bool? get enabled;
+
+  /// The growth rates the user may pick between.
+  @JS('steps')
+  external JSAny? get stepsJs;
+
+  /// The ladder, or an empty list when the host supplied none.
+  List<JSAccumulatorGrowthRateStep> get steps {
+    final JSArray<JSAny?>? array = stepsJs as JSArray<JSAny?>?;
+    if (array == null) {
+      return <JSAccumulatorGrowthRateStep>[];
+    }
+    return array.toDart
+        .whereType<JSObject>()
+        .cast<JSAccumulatorGrowthRateStep>()
+        .toList();
+  }
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// One selectable rung of the Accumulators growth-rate ladder.
+class JSAccumulatorGrowthRateStep {
+  /// JSAccumulatorGrowthRateStep Object
+  external factory JSAccumulatorGrowthRateStep();
+}
+
+/// Extension for JSAccumulatorGrowthRateStep
+extension JSAccumulatorGrowthRateStepExtension on JSAccumulatorGrowthRateStep {
+  /// Growth rate as a fraction, e.g. 0.03 for 3%.
+  external double? get growthRate;
+
+  /// Distance between the spot and each barrier at this rung, in quote units.
+  external double? get barrierSpotDistance;
+
+  /// Pre-formatted [barrierSpotDistance] for the `±` labels.
+  external String? get barrierSpotDistanceDisplay;
+
+  /// Pre-formatted [growthRate], e.g. `'3%'`.
+  external String? get growthRateDisplay;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// The Accumulators band that tracks the current spot.
+///
+/// [profit] absent means this is a pre-trade proposal; present means a running
+/// contract, and the painter colours the band by its sign.
+class JSAccumulatorLiveBarriers {
+  external factory JSAccumulatorLiveBarriers();
+}
+
+// Extension for JSAccumulatorLiveBarriers
+extension JSAccumulatorLiveBarriersExtension on JSAccumulatorLiveBarriers {
+  /// High barrier, as the display string the API returned.
+  ///
+  /// Kept as a string because its decimal count is what the barrier-distance
+  /// label is rounded to.
+  external String? get highBarrier;
+
+  /// Low barrier, as the display string the API returned.
+  external String? get lowBarrier;
+
+  /// Epoch (seconds) of the tick these barriers belong to.
+  external int? get barrierEpoch;
+
+  /// Pre-formatted distance between a barrier and the spot. Computed from
+  /// [highBarrier] when absent.
+  external String? get barrierSpotDistance;
+
+  /// The quote the painter compares against the barriers to detect a hit.
+  external double? get spot;
+
+  /// Epoch (seconds) of [spot].
+  external int? get spotEpoch;
+
+  /// Contract profit. Absent for a pre-trade proposal.
+  external double? get profit;
+
+  /// Currency shown next to [profit].
+  external String? get currency;
+
+  /// Decimals [profit] is rendered with. Defaults to 2.
+  external int? get fractionalDigits;
+
+  /// Whether the contract has been sold but its exit tick hasn't arrived yet.
+  /// The band stays, the P/L overlay goes.
+  external bool? get isSold;
+}
+
+@JS()
+@staticInterop
+@anonymous
+
+/// The frozen Accumulators band of a contract that has just finished.
+class JSAccumulatorClosedBarriers {
+  external factory JSAccumulatorClosedBarriers();
+}
+
+// Extension for JSAccumulatorClosedBarriers
+extension JSAccumulatorClosedBarriersExtension on JSAccumulatorClosedBarriers {
+  /// High barrier at exit time, as the display string the API returned.
+  external String? get highBarrier;
+
+  /// Low barrier at exit time, as the display string the API returned.
+  external String? get lowBarrier;
+
+  /// Epoch (seconds) of the tick before the exit — where the band starts.
+  external int? get barrierEpoch;
+
+  /// Pre-formatted distance between a barrier and the exit spot.
+  external String? get barrierSpotDistance;
+
+  /// Exit quote — where the band ends.
+  external double? get exitSpot;
+
+  /// Epoch (seconds) of [exitSpot].
+  external int? get exitEpoch;
+
+  /// Final profit or loss of the contract.
+  external double? get profit;
+
+  /// Currency shown next to [profit].
+  external String? get currency;
+
+  /// Decimals [profit] is rendered with. Defaults to 2.
+  external int? get fractionalDigits;
+
+  /// How long to keep this band before retiring it, in milliseconds.
+  ///
+  /// Absent means keep it indefinitely — what a contract-details replay wants,
+  /// since the finished contract is the whole point of that chart.
+  external int? get retentionMs;
 }
 
 @JS()
@@ -421,9 +639,8 @@ extension JsDrawingsExtension on JsDrawings {
     if (jsFunc == null) {
       return null;
     }
-    return (String deletedToolName, String? config) =>
-        (jsFunc as JSFunction)
-            .callAsFunction(null, deletedToolName.toJS, config?.toJS);
+    return (String deletedToolName, String? config) => (jsFunc as JSFunction)
+        .callAsFunction(null, deletedToolName.toJS, config?.toJS);
   }
 
   /// Called when a drawing is edited
