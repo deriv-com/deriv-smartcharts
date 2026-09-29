@@ -120,6 +120,8 @@ class ChartConfigWrapper {
   void updateLiveStatus(bool isLive) => _model.updateLiveStatus(isLive);
   void updateLastDigitEmphasis(bool shouldEmphasize) =>
       _model.updateLastDigitEmphasis(shouldEmphasize);
+  void updateVerticalPaddingFraction(double? fraction) =>
+      _model.updateVerticalPaddingFraction(fraction);
   void updateCrosshairVisibility(bool visible) =>
       _model.updateCrosshairVisibility(visible);
   void updateLeftMargin(double? margin) {

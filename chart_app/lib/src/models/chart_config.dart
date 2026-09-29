@@ -78,6 +78,15 @@ class ChartConfigModel extends ChangeNotifier {
   /// Whether smooth chart animations are enabled.
   bool isSmoothChartEnabled = true;
 
+  /// The vertical zoom to open the chart at, or null to derive one from
+  /// [yAxisMargin].
+  ///
+  /// Sets the scale rather than fixing it: the user can still drag the quote
+  /// labels away from it. The host changes it when the trade type changes —
+  /// Accumulators wants the barriers as tall as possible, since a squashed band
+  /// is neither readable nor draggable.
+  double? verticalPaddingFraction;
+
   /// Whether the current spot's label should emphasise the quote's last digit.
   ///
   /// Digit contracts (Matches/Differs, Over/Under, Even/Odd) are decided by
@@ -270,6 +279,12 @@ class ChartConfigModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Sets the chart's vertical zoom. Pass null to fall back to [yAxisMargin].
+  void updateVerticalPaddingFraction(double? _verticalPaddingFraction) {
+    verticalPaddingFraction = _verticalPaddingFraction;
+    notifyListeners();
+  }
+
   /// To update the theme of the chart
   // ignore: avoid_positional_boolean_parameters
   void updateCrosshairVisibility(bool _showCrosshair) {
@@ -315,6 +330,7 @@ class ChartConfigModel extends ChangeNotifier {
     symbol = payload.symbol ?? '';
     isSmoothChartEnabled = payload.isSmoothChartEnabled ?? true;
     shouldEmphasizeLastDigit = payload.shouldEmphasizeLastDigit ?? false;
+    verticalPaddingFraction = payload.verticalPaddingFraction;
 
     _setAreaStyle(
       color: payload.areaLineColor,

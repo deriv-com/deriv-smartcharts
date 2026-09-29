@@ -280,6 +280,17 @@ export type TChartProps = {
      * require the chart to be re-created.
      */
     shouldEmphasizeLastDigit?: boolean;
+    /**
+     * The chart's vertical zoom, as the share of its height given up to padding
+     * above and below the data. Less padding stretches the quote range over more
+     * pixels; the chart clamps it to 0.05 (most zoomed in) - 0.49.
+     *
+     * Sets the scale rather than fixing it: the user can still drag the quote
+     * labels away from it. Changing the value re-applies it, so it can follow the
+     * trade type without the chart being re-created. Omit it to let `yAxisMargin`
+     * decide, as before.
+     */
+    verticalPaddingFraction?: number;
     scrollToEpoch?: number | null;
     clearChart?: () => void;
     shouldFetchTradingTimes?: boolean;
@@ -609,6 +620,7 @@ export type TNewChartPayload = {
     isMobile: boolean;
     isSmoothChartEnabled?: boolean;
     shouldEmphasizeLastDigit?: boolean;
+    verticalPaddingFraction?: number;
     areaLineColor?: string;
     areaLineThickness?: number;
     areaHasGradient?: boolean;
@@ -658,6 +670,7 @@ export type TFlutterChart = {
         updateAreaStyle: (color: string | undefined, thickness: number, hasGradient: boolean) => void;
         updateLiveStatus: (isLive: boolean) => void;
         updateLastDigitEmphasis: (shouldEmphasize: boolean) => void;
+        updateVerticalPaddingFraction: (fraction?: number) => void;
         updateContracts: (markers: any[]) => void;
         updateAccumulatorBarriers: (barriers: TAccumulatorBarriers | null) => void;
         updateCrosshairVisibility: (visibility: boolean) => void;

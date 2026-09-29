@@ -365,6 +365,7 @@ export default class ChartAdapterStore {
             isMobile: this.mainStore.chart.isMobile || false,
             isSmoothChartEnabled: this.mainStore.chartSetting.isSmoothChartEnabled,
             shouldEmphasizeLastDigit: this.mainStore.state.shouldEmphasizeLastDigit,
+            verticalPaddingFraction: this.mainStore.state.verticalPaddingFraction,
             ...this.mainStore.areaStyle.payload,
             yAxisMargin: this.mainStore.state.yAxisMargin,
         });
@@ -448,6 +449,11 @@ export default class ChartAdapterStore {
     async updateLastDigitEmphasis(shouldEmphasize: boolean) {
         await when(() => this.isChartLoaded);
         this.flutterChart?.config.updateLastDigitEmphasis(shouldEmphasize);
+    }
+
+    async updateVerticalPaddingFraction(fraction?: number) {
+        await when(() => this.isChartLoaded);
+        this.flutterChart?.config.updateVerticalPaddingFraction(fraction);
     }
 
     async setSymbolClosed(isClosed: boolean) {

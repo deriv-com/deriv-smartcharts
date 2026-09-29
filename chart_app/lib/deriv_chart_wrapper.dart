@@ -92,6 +92,13 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
   }
 
   double? _getVerticalPaddingFraction(double height) {
+    // An explicit zoom from the host wins: `yAxisMargin` exists to reserve room
+    // for chrome overlapping the chart, and its derived fraction bottoms out at
+    // 0.1, well short of how far in the chart itself can go.
+    if (configModel.verticalPaddingFraction != null) {
+      return configModel.verticalPaddingFraction;
+    }
+
     if (configModel.yAxisMargin != null && height != 0) {
       // We are converting yAxisMargin to verticalPaddingFraction to make it
       // compatible with ChartIQ.

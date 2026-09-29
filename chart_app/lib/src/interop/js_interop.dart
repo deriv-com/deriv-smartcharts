@@ -121,6 +121,9 @@ extension JSNewChartExtension on JSNewChart {
   /// Whether the current spot's label should emphasise the quote's last digit.
   external bool? get shouldEmphasizeLastDigit;
 
+  /// The vertical zoom to open at, or null to derive one from [yAxisMargin].
+  external double? get verticalPaddingFraction;
+
   /// The Area chart's line colour, or null to keep the theme's own area colour.
   external String? get areaLineColor;
 
