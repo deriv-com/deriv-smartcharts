@@ -22,7 +22,6 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { TNotification } from 'src/store/Notifier';
 import {
-    TAccumulatorBarrierDragPhase,
     TAccumulatorBarriers,
     TGranularity,
     TNetworkConfig,
@@ -409,7 +408,9 @@ const App = () => {
     // --- Accumulators drag demo ------------------------------------------
     const [accumulatorsEnabled, setAccumulatorsEnabled] = React.useState(false);
     const [growthRate, setGrowthRate] = React.useState(0.03);
-    const [draggedGrowthRate, setDraggedGrowthRate] = React.useState<number | null>(null);
+    // Non-null while the demo's stand-in picker is open, which is also what the
+    // chart previews the band at.
+    const [pickedGrowthRate, setPickedGrowthRate] = React.useState<number | null>(null);
     const [lastQuote, setLastQuote] = React.useState<{ spot: number; epoch: number } | null>(null);
     const hideGrowthRateTimer = React.useRef<ReturnType<typeof setTimeout>>();
 
@@ -442,6 +443,7 @@ const App = () => {
             },
             drag: {
                 enabled: true,
+                previewGrowthRate: pickedGrowthRate,
                 steps: GROWTH_RATES.map(rate => ({
                     growthRate: rate,
                     barrierSpotDistance: barrierDistanceFor(rate, lastQuote.spot),
@@ -450,18 +452,29 @@ const App = () => {
                 })),
             },
         };
-    }, [accumulatorsEnabled, growthRate, lastQuote]);
+    }, [accumulatorsEnabled, growthRate, lastQuote, pickedGrowthRate]);
 
-    const handleAccumulatorBarrierDrag = React.useCallback((phase: TAccumulatorBarrierDragPhase, rate: number) => {
+    // The band is a tap target: tapping it opens the host's control. This demo
+    // stands in for that control with a pair of buttons, and previews the band
+    // at whatever is picked so it keeps up with them.
+    const handleAccumulatorBarrierTap = React.useCallback(() => {
         clearTimeout(hideGrowthRateTimer.current);
-        setDraggedGrowthRate(rate);
+        setPickedGrowthRate(current => current ?? growthRate);
+    }, [growthRate]);
 
-        if (phase === 'end') {
-            // A real host would round-trip a proposal here; the chart holds
-            // the previewed band until the new barriers come back.
-            setGrowthRate(rate);
-            hideGrowthRateTimer.current = setTimeout(() => setDraggedGrowthRate(null), 1500);
-        }
+    const pickGrowthRate = React.useCallback((delta: number) => {
+        setPickedGrowthRate(current => {
+            const index = GROWTH_RATES.indexOf(current ?? GROWTH_RATES[0]);
+            return GROWTH_RATES[Math.min(Math.max(index + delta, 0), GROWTH_RATES.length - 1)];
+        });
+        clearTimeout(hideGrowthRateTimer.current);
+        // Settling commits and closes, the way an idle timeout does in the app.
+        hideGrowthRateTimer.current = setTimeout(() => {
+            setPickedGrowthRate(current => {
+                if (current !== null) setGrowthRate(current);
+                return null;
+            });
+        }, 1000);
     }, []);
 
     React.useEffect(() => () => clearTimeout(hideGrowthRateTimer.current), []);
@@ -555,9 +568,19 @@ const App = () => {
                 />
                 <span>Accumulators</span>
                 <span>
-                    Growth rate: {Math.round((draggedGrowthRate ?? growthRate) * 100)}%
-                    {draggedGrowthRate !== null && ' (dragging)'}
+                    Growth rate: {Math.round((pickedGrowthRate ?? growthRate) * 100)}%
+                    {pickedGrowthRate !== null && ' (picking)'}
                 </span>
+                {pickedGrowthRate !== null && (
+                    <>
+                        <button type='button' onClick={() => pickGrowthRate(-1)}>
+                            -
+                        </button>
+                        <button type='button' onClick={() => pickGrowthRate(1)}>
+                            +
+                        </button>
+                    </>
+                )}
             </div>
             <SmartChart
                 drawingToolFloatingMenuPosition={isMobile ? { x: 100, y: 100 } : { x: 200, y: 200 }}
@@ -587,7 +610,7 @@ const App = () => {
                 getQuotes={getQuotes}
                 subscribeQuotes={subscribeQuotesWithSpot}
                 accumulatorBarriers={accumulatorBarriers}
-                onAccumulatorBarrierDrag={handleAccumulatorBarrierDrag}
+                onAccumulatorBarrierTap={handleAccumulatorBarrierTap}
                 getIndicatorHeightRatio={(chart_height: number, indicator_count: number) => {
                     const isSmallScreen = chart_height < 780;
                     const denominator = indicator_count >= 5 ? indicator_count : indicator_count + 1;

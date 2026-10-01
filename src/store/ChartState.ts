@@ -84,6 +84,8 @@ class ChartState {
         growthRate: number,
         side: TAccumulatorBarrierSide
     ) => void;
+    onAccumulatorBarrierTap?: () => void;
+    onAccumulatorBarrierPress?: () => void;
     settings?: TSettings;
     showLastDigitStats = false;
     shouldEmphasizeLastDigit = false;
@@ -245,6 +247,8 @@ class ChartState {
         shouldEmphasizeLastDigit = false,
         verticalPaddingFraction,
         onAccumulatorBarrierDrag,
+        onAccumulatorBarrierTap,
+        onAccumulatorBarrierPress,
         allowTickChartTypeOnly = false,
         allowedChartTypes,
         allowedGranularities,
@@ -495,6 +499,8 @@ class ChartState {
         // Plain assignment, no observable: the adapter only ever reads it when
         // relaying a drag, so a stale-closure-free latest value is all we need.
         this.onAccumulatorBarrierDrag = onAccumulatorBarrierDrag;
+        this.onAccumulatorBarrierTap = onAccumulatorBarrierTap;
+        this.onAccumulatorBarrierPress = onAccumulatorBarrierPress;
 
         if (
             startWithDataFitMode !== null &&

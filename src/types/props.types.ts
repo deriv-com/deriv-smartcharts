@@ -355,6 +355,23 @@ export type TChartProps = {
         growthRate: number,
         side: TAccumulatorBarrierSide
     ) => void;
+    /**
+     * Called when the Accumulators band is tapped.
+     *
+     * The cue to put your growth-rate control on screen; move the band from
+     * there with `accumulatorBarriers.drag.previewGrowthRate`.
+     */
+    onAccumulatorBarrierTap?: () => void;
+    /**
+     * Called the moment a press lands on the Accumulators band, before it is
+     * known whether it will become a tap or a pan.
+     *
+     * How to tell your own gestures apart from the chart's. A document listener
+     * in the capture phase decides what a gesture means before the chart sees
+     * it at all, so `onAccumulatorBarrierTap` arrives too late to stop a
+     * tap-anywhere handler acting on the same press; this does not.
+     */
+    onAccumulatorBarrierPress?: () => void;
     isLive?: boolean;
     startWithDataFitMode?: boolean;
     leftMargin?: number;
@@ -475,6 +492,14 @@ export type TAccumulatorGrowthRateStep = {
  * the host's job to commit the value and push the real barriers back down.
  */
 export type TAccumulatorBarrierDrag = {
+    /**
+     * The rate to show the band at, ahead of the barriers that go with it.
+     *
+     * The band is a tap target, not a drag handle: your own control moves it,
+     * and without this the band would only catch up a proposal round-trip later.
+     * Null or omitted hands the band back to the barriers you send.
+     */
+    previewGrowthRate?: number | null;
     /** Whether the barriers can be dragged right now. */
     enabled: boolean;
     /** The growth rates the user may pick between. */
@@ -711,6 +736,8 @@ export type JSInterop = {
         growthRate: number,
         side: TAccumulatorBarrierSide
     ) => void;
+    onAccumulatorBarrierTap: () => void;
+    onAccumulatorBarrierPress: () => void;
     loadHistory: (request: TLoadHistoryParams) => void;
     indicators: {
         onRemove: (index: number) => void;

@@ -68,6 +68,8 @@ export default class ChartAdapterStore {
             onVisibleAreaChanged: action.bound,
             onQuoteAreaChanged: action.bound,
             onAccumulatorBarrierDrag: action.bound,
+            onAccumulatorBarrierTap: action.bound,
+            onAccumulatorBarrierPress: action.bound,
             setMsPerPx: action.bound,
             newChart: action.bound,
             enableXScrollTimer: observable,
@@ -119,6 +121,8 @@ export default class ChartAdapterStore {
             onVisibleAreaChanged: this.onVisibleAreaChanged,
             onQuoteAreaChanged: this.onQuoteAreaChanged,
             onAccumulatorBarrierDrag: this.onAccumulatorBarrierDrag,
+            onAccumulatorBarrierTap: this.onAccumulatorBarrierTap,
+            onAccumulatorBarrierPress: this.onAccumulatorBarrierPress,
             loadHistory: this.loadHistory,
             indicators: {
                 onRemove: (index: number) => {
@@ -340,6 +344,22 @@ export default class ChartAdapterStore {
      */
     onAccumulatorBarrierDrag(phase: TAccumulatorBarrierDragPhase, growthRate: number, side: TAccumulatorBarrierSide) {
         this.mainStore.state.onAccumulatorBarrierDrag?.(phase, growthRate, side);
+    }
+
+    /**
+     * The Accumulators band was tapped — the host's cue to show its growth-rate
+     * control, which then moves the band via `drag.previewGrowthRate`.
+     */
+    onAccumulatorBarrierTap() {
+        this.mainStore.state.onAccumulatorBarrierTap?.();
+    }
+
+    /**
+     * A press landed on the Accumulators band — early enough for the host to
+     * claim the gesture before its own tap handling runs. See the prop's docs.
+     */
+    onAccumulatorBarrierPress() {
+        this.mainStore.state.onAccumulatorBarrierPress?.();
     }
 
     getGranularityInMs() {

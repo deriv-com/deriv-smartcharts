@@ -29,6 +29,12 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     // Block bodies, not arrows: an arrow body swallows a following `..`, which
     // would chain the cascade onto the callback's own (void) result.
     _dragController
+      ..onTap = () {
+        JsInterop.onAccumulatorBarrierTap();
+      }
+      ..onPressStart = () {
+        JsInterop.onAccumulatorBarrierPress();
+      }
       ..onDragStart = (AccumulatorBarrierSide side) {
         _reportDrag('start', _dragController.committedStep, side);
       }
@@ -42,6 +48,8 @@ class AccumulatorBarriersModel extends ChangeNotifier {
       };
   }
 
+  /// Reports a barrier drag. Only ever fires for a host that turns dragging
+  /// back on — see [_dragController].
   void _reportDrag(
     String phase,
     AccumulatorGrowthRateStep? step,
@@ -74,9 +82,15 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     textStyle: TextStyle(color: Colors.transparent),
   );
 
-  /// Makes the live band draggable. Created once and kept for the lifetime of
-  /// the model: the annotation around it is rebuilt on every tick, but the drag
-  /// state (hover, preview, pending commit) has to survive that.
+  /// Makes the live band interactive. Created once and kept for the lifetime of
+  /// the model: the annotation around it is rebuilt on every tick, but the
+  /// interaction state (hover, preview, pending commit) has to survive that.
+  ///
+  /// The band is a tap target, not a drag handle: the host puts its own control
+  /// on screen when the tap is reported, and moves the band from there with
+  /// `previewGrowthRate`. Dragging the barriers stays implemented in the chart
+  /// but is not offered here, so there are no grips and a press that turns into
+  /// a pan still pans.
   final AccumulatorBarrierDragController _dragController =
       AccumulatorBarrierDragController(enabled: false);
 
@@ -137,6 +151,8 @@ class AccumulatorBarriersModel extends ChangeNotifier {
       return;
     }
 
+    // Order matters: the preview is applied last, so the rate it names always
+    // has a rung in the ladder to land on.
     _dragController
       ..steps = drag.steps
           .map((JSAccumulatorGrowthRateStep step) => AccumulatorGrowthRateStep(
@@ -148,7 +164,8 @@ class AccumulatorBarriersModel extends ChangeNotifier {
           .where((AccumulatorGrowthRateStep step) =>
               step.growthRate > 0 && step.barrierSpotDistance > 0)
           .toList()
-      ..enabled = drag.enabled ?? false;
+      ..enabled = drag.enabled ?? false
+      ..previewGrowthRate(drag.previewGrowthRate);
   }
 
   void _applyLive(JSAccumulatorLiveBarriers? live, int? barrierDelayMs) {

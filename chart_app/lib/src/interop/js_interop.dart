@@ -45,6 +45,22 @@ class JsInterop {
   external static void onAccumulatorBarrierDrag(
       String phase, double growthRate, String side);
 
+  /// Called when the Accumulators band is tapped.
+  ///
+  /// The band is a tap target rather than a drag handle: this is the host's cue
+  /// to put its growth-rate control on screen, and the host then moves the band
+  /// with `previewGrowthRate`.
+  external static void onAccumulatorBarrierTap();
+
+  /// Called the moment a press lands on the Accumulators band, before it is
+  /// known whether it will become a tap or a pan.
+  ///
+  /// How a host tells its own gestures apart from the chart's: a document
+  /// listener in the capture phase decides what a gesture means before the
+  /// chart ever sees it, so the tap above arrives too late to stop a
+  /// tap-anywhere handler acting on the same press.
+  external static void onAccumulatorBarrierPress();
+
   /// Called to load additional history
   external static void loadHistory(JsLoadHistoryReq request);
 
@@ -291,8 +307,14 @@ class JSAccumulatorBarrierDrag {
 
 /// Extension for JSAccumulatorBarrierDrag
 extension JSAccumulatorBarrierDragExtension on JSAccumulatorBarrierDrag {
-  /// Whether the barriers can be dragged right now.
+  /// Whether the barriers are interactive right now.
   external bool? get enabled;
+
+  /// The rate to show the band at, ahead of the barriers that go with it.
+  ///
+  /// The host's control moves the band; without this it would only catch up a
+  /// proposal round-trip later. Null hands the band back to the model.
+  external double? get previewGrowthRate;
 
   /// The growth rates the user may pick between.
   @JS('steps')
