@@ -500,6 +500,14 @@ export type TAccumulatorBarrierDrag = {
      * Null or omitted hands the band back to the barriers you send.
      */
     previewGrowthRate?: number | null;
+    /**
+     * Whether to show the one-time hint that the band can be tapped.
+     *
+     * A pulsing hand on the band. The chart drops it the instant the band is
+     * tapped, so it never sits over the control it just opened and you do not
+     * have to race it; remembering that it has been shown is yours.
+     */
+    showTapGuide?: boolean;
     /** Whether the barriers can be dragged right now. */
     enabled: boolean;
     /** The growth rates the user may pick between. */

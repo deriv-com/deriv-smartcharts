@@ -99,8 +99,7 @@ class _DerivChartWebAdapterState extends State<_DerivChartWebAdapter> {
 
   @override
   void dispose() {
-    web.document
-        .removeEventListener('visibilitychange', _jsVisibilityHandler);
+    web.document.removeEventListener('visibilitychange', _jsVisibilityHandler);
     super.dispose();
   }
 

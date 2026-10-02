@@ -412,6 +412,10 @@ const App = () => {
     // chart previews the band at.
     const [pickedGrowthRate, setPickedGrowthRate] = React.useState<number | null>(null);
     const [lastQuote, setLastQuote] = React.useState<{ spot: number; epoch: number } | null>(null);
+    // Stands in for the host's "has this user been shown the hint" memory,
+    // which in a real host is persisted. Resets with the Accumulators toggle so
+    // the hint can be seen more than once while poking at the demo.
+    const [tapGuideSeen, setTapGuideSeen] = React.useState(false);
     const hideGrowthRateTimer = React.useRef<ReturnType<typeof setTimeout>>();
 
     // Wraps the module-level subscription so the demo can see the spot the
@@ -443,6 +447,7 @@ const App = () => {
             },
             drag: {
                 enabled: true,
+                showTapGuide: !tapGuideSeen,
                 previewGrowthRate: pickedGrowthRate,
                 steps: GROWTH_RATES.map(rate => ({
                     growthRate: rate,
@@ -452,13 +457,15 @@ const App = () => {
                 })),
             },
         };
-    }, [accumulatorsEnabled, growthRate, lastQuote, pickedGrowthRate]);
+    }, [accumulatorsEnabled, growthRate, lastQuote, pickedGrowthRate, tapGuideSeen]);
 
     // The band is a tap target: tapping it opens the host's control. This demo
     // stands in for that control with a pair of buttons, and previews the band
     // at whatever is picked so it keeps up with them.
     const handleAccumulatorBarrierTap = React.useCallback(() => {
         clearTimeout(hideGrowthRateTimer.current);
+        // The hint has done its job; a real host would remember this for good.
+        setTapGuideSeen(true);
         setPickedGrowthRate(current => current ?? growthRate);
     }, [growthRate]);
 
@@ -564,7 +571,11 @@ const App = () => {
                     type='checkbox'
                     aria-label='Toggle the accumulators band'
                     checked={accumulatorsEnabled}
-                    onChange={event => setAccumulatorsEnabled(event.target.checked)}
+                    onChange={event => {
+                        setAccumulatorsEnabled(event.target.checked);
+                        // So the hint can be seen again on the next toggle.
+                        setTapGuideSeen(false);
+                    }}
                 />
                 <span>Accumulators</span>
                 <span>

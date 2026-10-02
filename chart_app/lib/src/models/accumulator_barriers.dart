@@ -146,6 +146,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     if (drag == null) {
       _dragController
         ..enabled = false
+        ..showTapGuide = false
         ..clearPreview()
         ..steps = const <AccumulatorGrowthRateStep>[];
       return;
@@ -165,6 +166,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
               step.growthRate > 0 && step.barrierSpotDistance > 0)
           .toList()
       ..enabled = drag.enabled ?? false
+      ..showTapGuide = drag.showTapGuide ?? false
       ..previewGrowthRate(drag.previewGrowthRate);
   }
 

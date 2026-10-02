@@ -316,6 +316,9 @@ extension JSAccumulatorBarrierDragExtension on JSAccumulatorBarrierDrag {
   /// proposal round-trip later. Null hands the band back to the model.
   external double? get previewGrowthRate;
 
+  /// Whether to show the one-time hint that the band can be tapped.
+  external bool? get showTapGuide;
+
   /// The growth rates the user may pick between.
   @JS('steps')
   external JSAny? get stepsJs;

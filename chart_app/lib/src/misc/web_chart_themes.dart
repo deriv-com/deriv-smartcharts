@@ -31,9 +31,8 @@ mixin _WebIndicatorLabelSizing on ChartDefaultTheme {
   double get indicatorLabelIconSize => _labelIconSize;
 
   @override
-  TextStyle get indicatorLabelTextStyle => super
-      .indicatorLabelTextStyle
-      .copyWith(fontSize: _labelFontSize);
+  TextStyle get indicatorLabelTextStyle =>
+      super.indicatorLabelTextStyle.copyWith(fontSize: _labelFontSize);
 
   @override
   Color get base03Color => _accumulatorBarrierColor;
