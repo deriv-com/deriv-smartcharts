@@ -110,6 +110,7 @@ const Chart = React.forwardRef<
         toolbarWidget = () => null,
         historical,
         contracts_array = [],
+        accumulatorBarriers = null,
     } = props;
 
     const hasPosition = chartControlsWidgets && position && !isMobile;
@@ -128,6 +129,10 @@ const Chart = React.forwardRef<
     React.useEffect(() => {
         chartAdapter.updateContracts(contracts_array);
     }, [contracts_array]);
+
+    React.useEffect(() => {
+        chartAdapter.updateAccumulatorBarriers(accumulatorBarriers);
+    }, [accumulatorBarriers]);
 
     return (
         <div

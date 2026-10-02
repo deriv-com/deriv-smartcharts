@@ -5,6 +5,7 @@ import 'package:chart_app/src/chart_app.dart';
 import 'package:chart_app/src/helpers/marker_painter.dart';
 import 'package:chart_app/src/helpers/series.dart';
 import 'package:chart_app/src/interop/js_interop.dart';
+import 'package:chart_app/src/models/accumulator_barriers.dart';
 import 'package:chart_app/src/models/chart_config.dart';
 import 'package:chart_app/src/models/chart_feed.dart';
 import 'package:chart_app/src/models/drawing_tool.dart';
@@ -63,6 +64,10 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
   /// DrawingToolModel
   DrawingToolModel get drawingToolModel => widget.app.drawingToolModel;
 
+  /// AccumulatorBarriersModel
+  AccumulatorBarriersModel get accumulatorBarriersModel =>
+      widget.app.accumulatorBarriersModel;
+
   bool _useLowAnimation = false;
 
   final EdgeInsets _minFitPadding = const EdgeInsets.only(left: 16, right: 120);
@@ -87,6 +92,13 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
   }
 
   double? _getVerticalPaddingFraction(double height) {
+    // An explicit zoom from the host wins: `yAxisMargin` exists to reserve room
+    // for chrome overlapping the chart, and its derived fraction bottoms out at
+    // 0.1, well short of how far in the chart itself can go.
+    if (configModel.verticalPaddingFraction != null) {
+      return configModel.verticalPaddingFraction;
+    }
+
     if (configModel.yAxisMargin != null && height != 0) {
       // We are converting yAxisMargin to verticalPaddingFraction to make it
       // compatible with ChartIQ.
@@ -207,17 +219,21 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
   Widget build(BuildContext context) => MultiProvider(
         providers: <ChangeNotifierProvider<ChangeNotifier>>[
           ChangeNotifierProvider<ChartConfigModel>.value(value: configModel),
-          ChangeNotifierProvider<ChartFeedModel>.value(value: feedModel)
+          ChangeNotifierProvider<ChartFeedModel>.value(value: feedModel),
+          ChangeNotifierProvider<AccumulatorBarriersModel>.value(
+              value: accumulatorBarriersModel),
         ],
         child: Scaffold(
           body: LayoutBuilder(
             builder: (BuildContext _, BoxConstraints constraints) => Center(
               child: Column(
                 children: <Widget>[
-                  Expanded(child: Consumer2<ChartConfigModel, ChartFeedModel>(
+                  Expanded(child: Consumer3<ChartConfigModel, ChartFeedModel,
+                          AccumulatorBarriersModel>(
                       builder: (BuildContext context,
                           ChartConfigModel configModel,
                           ChartFeedModel feedModel,
+                          AccumulatorBarriersModel accumulatorBarriersModel,
                           Widget? child) {
                     final int granularity = app.getQuotesInterval();
 
@@ -262,7 +278,7 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                       activeSymbol: configModel.symbol,
                       mainSeries: mainSeries,
                       annotations: feedModel.ticks.isNotEmpty
-                          ? <Barrier>[
+                          ? <ChartAnnotation<ChartObject>>[
                               if (configModel.isLive)
                                 CurrentTickIndicator(
                                   feedModel.ticks.last,
@@ -299,6 +315,12 @@ class DerivChartWrapperState extends State<DerivChartWrapper> {
                                     hasArrow: false,
                                   ),
                                 ),
+                              // Accumulators bands — the live one, plus the
+                              // frozen band of a contract that just finished.
+                              // Each keeps itself in the Y-axis range through
+                              // its own `recalculateMinMax`, so the barriers
+                              // never leave the viewport.
+                              ...accumulatorBarriersModel.annotations,
                             ]
                           : null,
                       pipSize: configModel.pipSize,
