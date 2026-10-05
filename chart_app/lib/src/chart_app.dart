@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:chart_app/src/interop/js_interop.dart';
 import 'package:chart_app/src/misc/wrapped_controller.dart';
+import 'package:chart_app/src/models/accumulator_barriers.dart';
 import 'package:chart_app/src/models/chart_config.dart';
 import 'package:chart_app/src/models/chart_feed.dart';
 import 'package:chart_app/src/models/drawing_tool.dart';
@@ -18,6 +19,7 @@ class ChartApp {
     this.feedModel,
     this.indicatorsModel,
     this.drawingToolModel,
+    this.accumulatorBarriersModel,
   ) {
     // [yAxisWidth] and [currentTickWidth] are derived from the config's theme,
     // pip size and last-digit emphasis, but [calculateTickWidth] is otherwise
@@ -44,6 +46,9 @@ class ChartApp {
 
   /// drawingtool config
   DrawingToolModel drawingToolModel;
+
+  /// Accumulators barrier band
+  AccumulatorBarriersModel accumulatorBarriersModel;
 
   /// WrappedController
   WrappedController wrappedController = WrappedController();
@@ -137,6 +142,9 @@ class ChartApp {
     configModel.newChart(payload);
     drawingToolModel.newChart(payload);
     feedModel.newChart();
+    // The band belongs to the outgoing symbol's contract; leaving it up would
+    // draw stale barriers over the new symbol's prices.
+    accumulatorBarriersModel.newChart();
 
     // Defer drawing-tool load until the chart's render surface and feed are
     // live.

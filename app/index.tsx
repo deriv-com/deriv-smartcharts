@@ -22,6 +22,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { TNotification } from 'src/store/Notifier';
 import {
+    TAccumulatorBarriers,
     TGranularity,
     TNetworkConfig,
     TQuote,
@@ -252,6 +253,25 @@ const unsubscribeQuotes = (request?: TGetQuotesRequest) => {
     //     }
     // });
 };
+/**
+ * Accumulators band demo.
+ *
+ * Stands in for a host: a fixed growth-rate ladder, a band built from the
+ * selected rung, and a commit that lands a beat later — enough to exercise the
+ * whole JS -> Dart -> JS chain without a trading backend.
+ */
+const GROWTH_RATES = [0.01, 0.02, 0.03, 0.04, 0.05];
+
+/**
+ * Barrier offset per growth rate, as contracts_for returns them. Real values,
+ * so the demo shows the shape that matters: they barely change across rates.
+ */
+const GROWTH_RATE_BARRIER_OFFSETS = [0.000064970949, 0.000060725407, 0.000056949789, 0.000054185412, 0.000051575021];
+
+/** Each barrier sits at `current_spot * offset` either side of the spot. */
+const barrierDistanceFor = (growthRate: number, spot: number) =>
+    spot * GROWTH_RATE_BARRIER_OFFSETS[GROWTH_RATES.indexOf(growthRate)];
+
 const App = () => {
     const startingLanguageRef = React.useRef('en');
     const [tradingTimes, setTradingTimes] = React.useState<
@@ -384,6 +404,87 @@ const App = () => {
     const [networkStatus, setNetworkStatus] = React.useState<TNetworkConfig>();
     const [symbol, setSymbol] = React.useState<string>(memoizedValues.symbol);
     const contractInfo: keyof ProposalOpenContract | Record<string, never> = {};
+
+    // --- Accumulators band demo ------------------------------------------
+    const [accumulatorsEnabled, setAccumulatorsEnabled] = React.useState(false);
+    const [growthRate, setGrowthRate] = React.useState(0.03);
+    // Non-null while the demo's stand-in picker is open, which is also what the
+    // chart previews the band at.
+    const [pickedGrowthRate, setPickedGrowthRate] = React.useState<number | null>(null);
+    const [lastQuote, setLastQuote] = React.useState<{ spot: number; epoch: number } | null>(null);
+    // Stands in for the host's "has this user been shown the hint" memory,
+    // which in a real host is persisted. Resets with the Accumulators toggle so
+    // the hint can be seen more than once while poking at the demo.
+    const [tapGuideSeen, setTapGuideSeen] = React.useState(false);
+    const hideGrowthRateTimer = React.useRef<ReturnType<typeof setTimeout>>();
+
+    // Wraps the module-level subscription so the demo can see the spot the
+    // band has to be built around.
+    const subscribeQuotesWithSpot = React.useCallback(
+        (request: Parameters<typeof subscribeQuotes>[0], callback: (quote: TQuote) => void) =>
+            subscribeQuotes(request, quote => {
+                const epoch = quote.tick?.epoch ?? quote.ohlc?.open_time;
+                if (epoch) {
+                    setLastQuote({ spot: quote.Close, epoch: Number(epoch) });
+                }
+                callback(quote);
+            }),
+        []
+    );
+
+    const accumulatorBarriers: TAccumulatorBarriers | null = React.useMemo(() => {
+        if (!accumulatorsEnabled || !lastQuote) return null;
+
+        const distance = barrierDistanceFor(growthRate, lastQuote.spot);
+
+        return {
+            live: {
+                highBarrier: (lastQuote.spot + distance).toFixed(4),
+                lowBarrier: (lastQuote.spot - distance).toFixed(4),
+                barrierEpoch: lastQuote.epoch,
+                spot: lastQuote.spot,
+                spotEpoch: lastQuote.epoch,
+            },
+            interaction: {
+                enabled: true,
+                showTapGuide: !tapGuideSeen,
+                previewGrowthRate: pickedGrowthRate,
+                steps: GROWTH_RATES.map(rate => ({
+                    growthRate: rate,
+                    barrierSpotDistance: barrierDistanceFor(rate, lastQuote.spot),
+                    barrierSpotDistanceDisplay: barrierDistanceFor(rate, lastQuote.spot).toFixed(4),
+                    growthRateDisplay: `${Math.round(rate * 100)}%`,
+                })),
+            },
+        };
+    }, [accumulatorsEnabled, growthRate, lastQuote, pickedGrowthRate, tapGuideSeen]);
+
+    // The band is a tap target: tapping it opens the host's control. This demo
+    // stands in for that control with a pair of buttons, and previews the band
+    // at whatever is picked so it keeps up with them.
+    const handleAccumulatorBarrierTap = React.useCallback(() => {
+        clearTimeout(hideGrowthRateTimer.current);
+        // The hint has done its job; a real host would remember this for good.
+        setTapGuideSeen(true);
+        setPickedGrowthRate(current => current ?? growthRate);
+    }, [growthRate]);
+
+    const pickGrowthRate = React.useCallback((delta: number) => {
+        setPickedGrowthRate(current => {
+            const index = GROWTH_RATES.indexOf(current ?? GROWTH_RATES[0]);
+            return GROWTH_RATES[Math.min(Math.max(index + delta, 0), GROWTH_RATES.length - 1)];
+        });
+        clearTimeout(hideGrowthRateTimer.current);
+        // Settling commits and closes, the way an idle timeout does in the app.
+        hideGrowthRateTimer.current = setTimeout(() => {
+            setPickedGrowthRate(current => {
+                if (current !== null) setGrowthRate(current);
+                return null;
+            });
+        }, 1000);
+    }, []);
+
+    React.useEffect(() => () => clearTimeout(hideGrowthRateTimer.current), []);
     React.useEffect(() => {
         connectionManager.on(ConnectionManager.EVENT_CONNECTION_CLOSE, () => setIsConnectionOpened(false));
         connectionManager.on(ConnectionManager.EVENT_CONNECTION_REOPEN, () => setIsConnectionOpened(true));
@@ -464,58 +565,89 @@ const App = () => {
     }
 
     return (
-        <SmartChart
-            drawingToolFloatingMenuPosition={isMobile ? { x: 100, y: 100 } : { x: 200, y: 200 }}
-            ref={ref}
-            id={chartId}
-            chartStatusListener={(isChartReady: boolean) => getIsChartReady(isChartReady)}
-            stateChangeListener={handleStateChange}
-            isMobile={isMobile}
-            symbol={symbol}
-            settings={settings}
-            onMessage={onMessage}
-            enableRouting
-            topWidgets={renderTopWidgets}
-            toolbarWidget={renderToolbarWidget}
-            chartControlsWidgets={renderControls}
-            unsubscribeQuotes={unsubscribeQuotes}
-            endEpoch={endEpoch}
-            chartType={chartType}
-            granularity={granularity}
-            onSettingsChange={saveSettings}
-            isConnectionOpened={isConnectionOpened}
-            networkStatus={networkStatus}
-            isLive
-            enabledChartFooter
-            contractInfo={contractInfo}
-            chartData={{ tradingTimes, activeSymbols }}
-            getQuotes={getQuotes}
-            subscribeQuotes={subscribeQuotes}
-            getIndicatorHeightRatio={(chart_height: number, indicator_count: number) => {
-                const isSmallScreen = chart_height < 780;
-                const denominator = indicator_count >= 5 ? indicator_count : indicator_count + 1;
-                const reservedHeight = isMobile ? 100 : 320;
-                const indicatorsHeight = Math.round(
-                    (chart_height - (reservedHeight + (isSmallScreen ? 20 : 0))) / denominator
-                );
-                return {
-                    height: indicatorsHeight,
-                    percent: indicatorsHeight / chart_height,
-                };
-            }}
-        >
-            {endEpoch ? (
-                <Marker className='chart-marker-historical' markerRef={onMarkerRef}>
-                    <span>
-                        {dayjs(endEpoch * 1000)
-                            .utc()
-                            .format('DD MMMM YYYY - HH:mm')}
-                    </span>
-                </Marker>
-            ) : (
-                ''
-            )}
-        </SmartChart>
+        <>
+            <div className='accumulators-demo'>
+                <input
+                    type='checkbox'
+                    aria-label='Toggle the accumulators band'
+                    checked={accumulatorsEnabled}
+                    onChange={event => {
+                        setAccumulatorsEnabled(event.target.checked);
+                        // So the hint can be seen again on the next toggle.
+                        setTapGuideSeen(false);
+                    }}
+                />
+                <span>Accumulators</span>
+                <span>
+                    Growth rate: {Math.round((pickedGrowthRate ?? growthRate) * 100)}%
+                    {pickedGrowthRate !== null && ' (picking)'}
+                </span>
+                {pickedGrowthRate !== null && (
+                    <>
+                        <button type='button' onClick={() => pickGrowthRate(-1)}>
+                            -
+                        </button>
+                        <button type='button' onClick={() => pickGrowthRate(1)}>
+                            +
+                        </button>
+                    </>
+                )}
+            </div>
+            <SmartChart
+                drawingToolFloatingMenuPosition={isMobile ? { x: 100, y: 100 } : { x: 200, y: 200 }}
+                ref={ref}
+                id={chartId}
+                chartStatusListener={(isChartReady: boolean) => getIsChartReady(isChartReady)}
+                stateChangeListener={handleStateChange}
+                isMobile={isMobile}
+                symbol={symbol}
+                settings={settings}
+                onMessage={onMessage}
+                enableRouting
+                topWidgets={renderTopWidgets}
+                toolbarWidget={renderToolbarWidget}
+                chartControlsWidgets={renderControls}
+                unsubscribeQuotes={unsubscribeQuotes}
+                endEpoch={endEpoch}
+                chartType={chartType}
+                granularity={granularity}
+                onSettingsChange={saveSettings}
+                isConnectionOpened={isConnectionOpened}
+                networkStatus={networkStatus}
+                isLive
+                enabledChartFooter
+                contractInfo={contractInfo}
+                chartData={{ tradingTimes, activeSymbols }}
+                getQuotes={getQuotes}
+                subscribeQuotes={subscribeQuotesWithSpot}
+                accumulatorBarriers={accumulatorBarriers}
+                onAccumulatorBarrierTap={handleAccumulatorBarrierTap}
+                getIndicatorHeightRatio={(chart_height: number, indicator_count: number) => {
+                    const isSmallScreen = chart_height < 780;
+                    const denominator = indicator_count >= 5 ? indicator_count : indicator_count + 1;
+                    const reservedHeight = isMobile ? 100 : 320;
+                    const indicatorsHeight = Math.round(
+                        (chart_height - (reservedHeight + (isSmallScreen ? 20 : 0))) / denominator
+                    );
+                    return {
+                        height: indicatorsHeight,
+                        percent: indicatorsHeight / chart_height,
+                    };
+                }}
+            >
+                {endEpoch ? (
+                    <Marker className='chart-marker-historical' markerRef={onMarkerRef}>
+                        <span>
+                            {dayjs(endEpoch * 1000)
+                                .utc()
+                                .format('DD MMMM YYYY - HH:mm')}
+                        </span>
+                    </Marker>
+                ) : (
+                    ''
+                )}
+            </SmartChart>
+        </>
     );
 };
 const container = document.getElementById('root');

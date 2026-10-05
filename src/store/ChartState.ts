@@ -72,6 +72,8 @@ class ChartState {
     isChartReady = false;
     chartStatusListener?: (isChartReady: boolean) => boolean;
     stateChangeListener?: (state: string, option?: TStateChangeOption) => void;
+    onAccumulatorBarrierTap?: () => void;
+    onAccumulatorBarrierPress?: () => void;
     settings?: TSettings;
     showLastDigitStats = false;
     shouldEmphasizeLastDigit = false;
@@ -96,6 +98,7 @@ class ChartState {
     enableScroll: boolean | null = true;
     enableZoom: boolean | null = true;
     yAxisMargin = { top: 106, bottom: 64 };
+    verticalPaddingFraction?: number;
     tradingTimes: string | null = null;
     activeSymbols: string | null = null;
     masterData: string | null = null;
@@ -161,6 +164,7 @@ class ChartState {
             enableScroll: observable,
             enableZoom: observable,
             yAxisMargin: observable,
+            verticalPaddingFraction: observable,
             updateProps: action.bound,
             setChartIsReady: action.bound,
             setChartClosed: action.bound,
@@ -229,6 +233,9 @@ class ChartState {
         contractInfo = {},
         showLastDigitStats = false,
         shouldEmphasizeLastDigit = false,
+        verticalPaddingFraction,
+        onAccumulatorBarrierTap,
+        onAccumulatorBarrierPress,
         allowTickChartTypeOnly = false,
         allowedChartTypes,
         allowedGranularities,
@@ -468,6 +475,19 @@ class ChartState {
             this.shouldEmphasizeLastDigit = shouldEmphasizeLastDigit;
             this.mainStore.chartAdapter.updateLastDigitEmphasis(shouldEmphasizeLastDigit);
         }
+
+        // Pushed on change for the same reason: the trade type decides the zoom,
+        // and a trade-type switch does not re-create the chart.
+        if (this.verticalPaddingFraction !== verticalPaddingFraction) {
+            this.verticalPaddingFraction = verticalPaddingFraction;
+            this.mainStore.chartAdapter.updateVerticalPaddingFraction(verticalPaddingFraction);
+        }
+
+        // Plain assignment, no observable: the adapter only ever reads these
+        // when relaying a gesture, so a stale-closure-free latest value is all
+        // we need.
+        this.onAccumulatorBarrierTap = onAccumulatorBarrierTap;
+        this.onAccumulatorBarrierPress = onAccumulatorBarrierPress;
 
         if (
             startWithDataFitMode !== null &&
