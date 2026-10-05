@@ -247,12 +247,16 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     int? barrierDelayMs, {
     bool immediate = false,
   }) {
+    // Cancelled before the early return, not after it. `_live` stays null for
+    // the whole delay window — only the timer sets it — so a payload that
+    // clears the band mid-window satisfies the guard below and would leave the
+    // pending timer alive to paint a band the host had already taken away.
+    _liveDelayTimer?.cancel();
+    _liveDelayTimer = null;
+
     if (next == null && _live == null) {
       return;
     }
-
-    _liveDelayTimer?.cancel();
-    _liveDelayTimer = null;
 
     if (immediate) {
       _setLive(next);
