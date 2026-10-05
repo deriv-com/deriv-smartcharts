@@ -15,6 +15,14 @@ module.exports = {
             '@semantic-release/commit-analyzer',
             {
                 releaseRules: [
+                    // First, and deliberately: custom rules are consulted before
+                    // the defaults, and once one matches the defaults are never
+                    // reached. Without this a breaking `feat` matched the rule
+                    // below and was capped at a minor, silently.
+                    {
+                        breaking: true,
+                        release: 'major',
+                    },
                     {
                         type: 'feat',
                         release: 'minor',

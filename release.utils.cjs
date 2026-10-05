@@ -148,14 +148,15 @@ const COMMIT_HASH_LENGTH = 7;
  * @return {Object} the transformed commit.
  */
 const customTransform = (commit, context) => {
-    // Create a copy of the commit object to avoid modifying the immutable object
-    const transformedCommit = { ...commit };
-
-    if (transformedCommit.notes) {
-        transformedCommit.notes.forEach(note => {
-            note.title = 'Breaking changes';
-        });
-    }
+    // A spread copies the commit's own properties but shares every nested object
+    // with it, so retitling the notes in place wrote straight through to the
+    // commit the writer hands us — which it wraps in an immutable Proxy. The
+    // notes are rebuilt instead. Only breaking commits carry notes, which is why
+    // this never surfaced until the first one.
+    const transformedCommit = {
+        ...commit,
+        notes: (commit.notes ?? []).map(note => ({ ...note, title: 'Breaking changes' })),
+    };
 
     if (
         types.types[transformedCommit.type] &&
