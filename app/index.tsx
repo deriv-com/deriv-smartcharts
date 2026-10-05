@@ -254,7 +254,7 @@ const unsubscribeQuotes = (request?: TGetQuotesRequest) => {
     // });
 };
 /**
- * Accumulators drag demo.
+ * Accumulators band demo.
  *
  * Stands in for a host: a fixed growth-rate ladder, a band built from the
  * selected rung, and a commit that lands a beat later — enough to exercise the
@@ -405,7 +405,7 @@ const App = () => {
     const [symbol, setSymbol] = React.useState<string>(memoizedValues.symbol);
     const contractInfo: keyof ProposalOpenContract | Record<string, never> = {};
 
-    // --- Accumulators drag demo ------------------------------------------
+    // --- Accumulators band demo ------------------------------------------
     const [accumulatorsEnabled, setAccumulatorsEnabled] = React.useState(false);
     const [growthRate, setGrowthRate] = React.useState(0.03);
     // Non-null while the demo's stand-in picker is open, which is also what the
@@ -445,7 +445,7 @@ const App = () => {
                 spot: lastQuote.spot,
                 spotEpoch: lastQuote.epoch,
             },
-            drag: {
+            interaction: {
                 enabled: true,
                 showTapGuide: !tapGuideSeen,
                 previewGrowthRate: pickedGrowthRate,

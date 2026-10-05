@@ -33,18 +33,6 @@ class JsInterop {
   /// Called when visible quote area is change
   external static void onQuoteAreaChanged(double topQuote, double bottomQuote);
 
-  /// Called while the user drags an Accumulators barrier.
-  ///
-  /// [phase] is `start`, `change` or `end`. The first two report the growth
-  /// rate the band is previewing; only `end` is the value to commit.
-  ///
-  /// [side] is the grip in hand, `high` or `low`. It decides which way the user
-  /// has to drag to leave an end of the ladder — at the tightest band the top
-  /// grip goes up and the bottom one goes down — so the host cannot word its
-  /// limit hint without it.
-  external static void onAccumulatorBarrierDrag(
-      String phase, double growthRate, String side);
-
   /// Called when the Accumulators band is tapped.
   ///
   /// The band is a tap target rather than a drag handle: this is the host's cue
@@ -277,9 +265,9 @@ extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
   /// Defaults to 500.
   external int? get barrierDelayMs;
 
-  /// Configuration that makes the [live] band draggable.
-  @JS('drag')
-  external JSAny? get dragJs;
+  /// Configuration that makes the [live] band interactive.
+  @JS('interaction')
+  external JSAny? get interactionJs;
 
   /// The band tracking the current spot, or null.
   JSAccumulatorLiveBarriers? get live => liveJs as JSAccumulatorLiveBarriers?;
@@ -288,8 +276,9 @@ extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
   JSAccumulatorClosedBarriers? get closed =>
       closedJs as JSAccumulatorClosedBarriers?;
 
-  /// The drag configuration, or null when the band is read-only.
-  JSAccumulatorBarrierDrag? get drag => dragJs as JSAccumulatorBarrierDrag?;
+  /// The interaction configuration, or null when the band is read-only.
+  JSAccumulatorBarrierInteraction? get interaction =>
+      interactionJs as JSAccumulatorBarrierInteraction?;
 }
 
 @JS()
@@ -300,13 +289,14 @@ extension JSAccumulatorBarriersExtension on JSAccumulatorBarriers {
 ///
 /// The host owns the enablement rules and the ladder; the chart only snaps the
 /// band to the nearest rung and reports it back.
-class JSAccumulatorBarrierDrag {
-  /// JSAccumulatorBarrierDrag Object
-  external factory JSAccumulatorBarrierDrag();
+class JSAccumulatorBarrierInteraction {
+  /// JSAccumulatorBarrierInteraction Object
+  external factory JSAccumulatorBarrierInteraction();
 }
 
-/// Extension for JSAccumulatorBarrierDrag
-extension JSAccumulatorBarrierDragExtension on JSAccumulatorBarrierDrag {
+/// Extension for JSAccumulatorBarrierInteraction
+extension JSAccumulatorBarrierInteractionExtension
+    on JSAccumulatorBarrierInteraction {
   /// Whether the barriers are interactive right now.
   external bool? get enabled;
 

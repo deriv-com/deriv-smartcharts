@@ -28,37 +28,13 @@ class AccumulatorBarriersModel extends ChangeNotifier {
 
     // Block bodies, not arrows: an arrow body swallows a following `..`, which
     // would chain the cascade onto the callback's own (void) result.
-    _dragController
+    _controller
       ..onTap = () {
         JsInterop.onAccumulatorBarrierTap();
       }
       ..onPressStart = () {
         JsInterop.onAccumulatorBarrierPress();
-      }
-      ..onDragStart = (AccumulatorBarrierSide side) {
-        _reportDrag('start', _dragController.committedStep, side);
-      }
-      ..onDragUpdate =
-          (AccumulatorGrowthRateStep step, AccumulatorBarrierSide side) {
-        _reportDrag('change', step, side);
-      }
-      ..onDragEnd =
-          (AccumulatorGrowthRateStep step, AccumulatorBarrierSide side) {
-        _reportDrag('end', step, side);
       };
-  }
-
-  /// Reports a barrier drag. Only ever fires for a host that turns dragging
-  /// back on — see [_dragController].
-  void _reportDrag(
-    String phase,
-    AccumulatorGrowthRateStep? step,
-    AccumulatorBarrierSide side,
-  ) {
-    if (step == null) {
-      return;
-    }
-    JsInterop.onAccumulatorBarrierDrag(phase, step.growthRate, side.name);
   }
 
   final ChartFeedModel _feedModel;
@@ -84,15 +60,12 @@ class AccumulatorBarriersModel extends ChangeNotifier {
 
   /// Makes the live band interactive. Created once and kept for the lifetime of
   /// the model: the annotation around it is rebuilt on every tick, but the
-  /// interaction state (hover, preview, pending commit) has to survive that.
+  /// interaction state (hover, preview) has to survive that.
   ///
-  /// The band is a tap target, not a drag handle: the host puts its own control
-  /// on screen when the tap is reported, and moves the band from there with
-  /// `previewGrowthRate`. Dragging the barriers stays implemented in the chart
-  /// but is not offered here, so there are no grips and a press that turns into
-  /// a pan still pans.
-  final AccumulatorBarrierDragController _dragController =
-      AccumulatorBarrierDragController(enabled: false);
+  /// The band is a tap target: the host puts its own control on screen when the
+  /// tap is reported, and moves the band from there with `previewGrowthRate`.
+  final AccumulatorBarrierController _controller =
+      AccumulatorBarrierController(enabled: false);
 
   ChartAnnotation<ChartObject>? _live;
   ChartAnnotation<ChartObject>? _closed;
@@ -137,14 +110,14 @@ class AccumulatorBarriersModel extends ChangeNotifier {
       return;
     }
 
-    _applyDrag(payload.drag);
+    _applyInteraction(payload.interaction);
     _applyLive(payload.live, payload.barrierDelayMs);
     _applyClosed(payload.closed);
   }
 
-  void _applyDrag(JSAccumulatorBarrierDrag? drag) {
-    if (drag == null) {
-      _dragController
+  void _applyInteraction(JSAccumulatorBarrierInteraction? interaction) {
+    if (interaction == null) {
+      _controller
         ..enabled = false
         ..showTapGuide = false
         ..clearPreview()
@@ -154,8 +127,8 @@ class AccumulatorBarriersModel extends ChangeNotifier {
 
     // Order matters: the preview is applied last, so the rate it names always
     // has a rung in the ladder to land on.
-    _dragController
-      ..steps = drag.steps
+    _controller
+      ..steps = interaction.steps
           .map((JSAccumulatorGrowthRateStep step) => AccumulatorGrowthRateStep(
                 growthRate: step.growthRate ?? 0,
                 barrierSpotDistance: step.barrierSpotDistance ?? 0,
@@ -165,9 +138,9 @@ class AccumulatorBarriersModel extends ChangeNotifier {
           .where((AccumulatorGrowthRateStep step) =>
               step.growthRate > 0 && step.barrierSpotDistance > 0)
           .toList()
-      ..enabled = drag.enabled ?? false
-      ..showTapGuide = drag.showTapGuide ?? false
-      ..previewGrowthRate(drag.previewGrowthRate);
+      ..enabled = interaction.enabled ?? false
+      ..showTapGuide = interaction.showTapGuide ?? false
+      ..previewGrowthRate(interaction.previewGrowthRate);
   }
 
   void _applyLive(JSAccumulatorLiveBarriers? live, int? barrierDelayMs) {
@@ -236,7 +209,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
         // contract's POC keeps streaming with a profit that no longer moves,
         // so the band stays and the P/L overlay goes.
         activeContract: band.isSold ? null : band.activeContract,
-        dragController: _dragController,
+        controller: _controller,
       );
 
   AccumulatorsRecentlyClosedIndicator _buildClosed(_ClosedBand band) =>
@@ -328,7 +301,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     _cancelClosedExpiry();
     _closedExitEpochMs = null;
     _retiredExitEpochMs = null;
-    _dragController.clearPreview();
+    _controller.clearPreview();
     _setLive(null);
     _setClosed(null);
   }
@@ -341,7 +314,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
     _liveDelayTimer?.cancel();
     _cancelClosedExpiry();
     _feedModel.removeListener(_onFeedChanged);
-    _dragController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 }

@@ -343,23 +343,10 @@ export type TChartProps = {
      */
     accumulatorBarriers?: TAccumulatorBarriers | null;
     /**
-     * Fired while the user drags an Accumulators barrier.
-     *
-     * `start` and `change` carry the rung the band is previewing — show it, do
-     * not commit it. `end` carries the rung the user settled on: that is the one
-     * to write to the store. The chart holds the previewed band until new
-     * barriers arrive, so there is no need to rush the round-trip.
-     */
-    onAccumulatorBarrierDrag?: (
-        phase: TAccumulatorBarrierDragPhase,
-        growthRate: number,
-        side: TAccumulatorBarrierSide
-    ) => void;
-    /**
      * Called when the Accumulators band is tapped.
      *
      * The cue to put your growth-rate control on screen; move the band from
-     * there with `accumulatorBarriers.drag.previewGrowthRate`.
+     * there with `accumulatorBarriers.interaction.previewGrowthRate`.
      */
     onAccumulatorBarrierTap?: () => void;
     /**
@@ -461,10 +448,10 @@ export type TAccumulatorBarriers = {
      */
     barrierDelayMs?: number;
     /**
-     * Makes the `live` band draggable. Omit it (or disable it) and the band is
-     * read-only, exactly as before.
+     * Makes the `live` band interactive. Omit it (or disable it) and the band
+     * is read-only, exactly as before.
      */
-    drag?: TAccumulatorBarrierDrag | null;
+    interaction?: TAccumulatorBarrierInteraction | null;
 };
 
 /** One selectable rung of the Accumulators growth-rate ladder. */
@@ -473,8 +460,7 @@ export type TAccumulatorGrowthRateStep = {
     growthRate: number;
     /**
      * Distance between the spot and each barrier at this growth rate, in quote
-     * units. This is what the drag snaps to, so it decides both the order of the
-     * rungs and how far apart they feel.
+     * units. This is what the band is drawn at for a previewed rate.
      */
     barrierSpotDistance: number;
     /** Pre-formatted `barrierSpotDistance` for the `±` labels beside the barriers. */
@@ -484,20 +470,20 @@ export type TAccumulatorGrowthRateStep = {
 };
 
 /**
- * Turns the Accumulators barriers into a growth-rate control.
+ * Makes the Accumulators band a growth-rate control.
  *
  * The host owns every rule behind `enabled` — pre-purchase only, market open,
- * trade params unlocked — and owns the ladder. The chart only snaps the band to
- * the nearest rung and reports which one via `onAccumulatorBarrierDrag`; it is
- * the host's job to commit the value and push the real barriers back down.
+ * trade params unlocked — and owns the ladder. The band is a tap target: the
+ * chart reports the tap and the host puts its own picker on screen, moving the
+ * band from there with `previewGrowthRate`.
  */
-export type TAccumulatorBarrierDrag = {
+export type TAccumulatorBarrierInteraction = {
     /**
      * The rate to show the band at, ahead of the barriers that go with it.
      *
-     * The band is a tap target, not a drag handle: your own control moves it,
-     * and without this the band would only catch up a proposal round-trip later.
-     * Null or omitted hands the band back to the barriers you send.
+     * Your own control moves the band; without this it would only catch up a
+     * proposal round-trip later. Null or omitted hands the band back to the
+     * barriers you send.
      */
     previewGrowthRate?: number | null;
     /**
@@ -508,17 +494,11 @@ export type TAccumulatorBarrierDrag = {
      * have to race it; remembering that it has been shown is yours.
      */
     showTapGuide?: boolean;
-    /** Whether the barriers can be dragged right now. */
+    /** Whether the band is interactive right now. */
     enabled: boolean;
     /** The growth rates the user may pick between. */
     steps: TAccumulatorGrowthRateStep[];
 };
-
-/** Phase of an Accumulators barrier drag. */
-export type TAccumulatorBarrierDragPhase = 'start' | 'change' | 'end';
-
-/** Which of the two Accumulators barriers is being dragged. */
-export type TAccumulatorBarrierSide = 'high' | 'low';
 
 export type TQuote = {
     Date: string;
@@ -739,11 +719,6 @@ export type JSInterop = {
     onMainSeriesPaint: (currentTickPercent: number, lerpedQuote?: number | null) => void;
     onVisibleAreaChanged: (leftEpoch: number, rightEpoch: number) => void;
     onQuoteAreaChanged: (topQuote: number, bottomQuote: number) => void;
-    onAccumulatorBarrierDrag: (
-        phase: TAccumulatorBarrierDragPhase,
-        growthRate: number,
-        side: TAccumulatorBarrierSide
-    ) => void;
     onAccumulatorBarrierTap: () => void;
     onAccumulatorBarrierPress: () => void;
     loadHistory: (request: TLoadHistoryParams) => void;

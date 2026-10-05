@@ -1,8 +1,6 @@
 /* eslint-disable no-new */
 import { action, observable, when, makeObservable, reaction } from 'mobx';
 import {
-    TAccumulatorBarrierDragPhase,
-    TAccumulatorBarrierSide,
     TChartControlsWidgets,
     TChartProps,
     TGetIndicatorHeightRatio,
@@ -74,16 +72,6 @@ class ChartState {
     isChartReady = false;
     chartStatusListener?: (isChartReady: boolean) => boolean;
     stateChangeListener?: (state: string, option?: TStateChangeOption) => void;
-    /**
-     * Host handler for Accumulators barrier drags, relayed by
-     * {@link ChartAdapterStore.onAccumulatorBarrierDrag}. Held here rather than
-     * on the adapter because that is where every other host prop lives.
-     */
-    onAccumulatorBarrierDrag?: (
-        phase: TAccumulatorBarrierDragPhase,
-        growthRate: number,
-        side: TAccumulatorBarrierSide
-    ) => void;
     onAccumulatorBarrierTap?: () => void;
     onAccumulatorBarrierPress?: () => void;
     settings?: TSettings;
@@ -246,7 +234,6 @@ class ChartState {
         showLastDigitStats = false,
         shouldEmphasizeLastDigit = false,
         verticalPaddingFraction,
-        onAccumulatorBarrierDrag,
         onAccumulatorBarrierTap,
         onAccumulatorBarrierPress,
         allowTickChartTypeOnly = false,
@@ -496,9 +483,9 @@ class ChartState {
             this.mainStore.chartAdapter.updateVerticalPaddingFraction(verticalPaddingFraction);
         }
 
-        // Plain assignment, no observable: the adapter only ever reads it when
-        // relaying a drag, so a stale-closure-free latest value is all we need.
-        this.onAccumulatorBarrierDrag = onAccumulatorBarrierDrag;
+        // Plain assignment, no observable: the adapter only ever reads these
+        // when relaying a gesture, so a stale-closure-free latest value is all
+        // we need.
         this.onAccumulatorBarrierTap = onAccumulatorBarrierTap;
         this.onAccumulatorBarrierPress = onAccumulatorBarrierPress;
 
