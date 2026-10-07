@@ -120,6 +120,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
       _controller
         ..enabled = false
         ..showTapGuide = false
+        ..tapGuideLabel = null
         ..clearPreview()
         ..steps = const <AccumulatorGrowthRateStep>[];
       return;
@@ -139,6 +140,7 @@ class AccumulatorBarriersModel extends ChangeNotifier {
               step.growthRate > 0 && step.barrierSpotDistance > 0)
           .toList()
       ..enabled = interaction.enabled ?? false
+      ..tapGuideLabel = interaction.tapGuideLabel
       ..showTapGuide = interaction.showTapGuide ?? false
       ..previewGrowthRate(interaction.previewGrowthRate);
   }

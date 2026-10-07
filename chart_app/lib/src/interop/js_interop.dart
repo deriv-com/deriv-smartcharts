@@ -309,6 +309,9 @@ extension JSAccumulatorBarrierInteractionExtension
   /// Whether to show the one-time hint that the band can be tapped.
   external bool? get showTapGuide;
 
+  /// Copy for the tap hint's label, or null to show the hand alone.
+  external String? get tapGuideLabel;
+
   /// The growth rates the user may pick between.
   @JS('steps')
   external JSAny? get stepsJs;
