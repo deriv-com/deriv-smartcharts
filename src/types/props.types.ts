@@ -494,6 +494,14 @@ export type TAccumulatorBarrierInteraction = {
      * have to race it; remembering that it has been shown is yours.
      */
     showTapGuide?: boolean;
+    /**
+     * Copy for the tap hint's label, e.g. `'Tap to adjust'`.
+     *
+     * Yours to supply and to translate: the chart has no locale of its own, so
+     * a string it invented would ship in English everywhere. Omit it to show
+     * the pulsing hand alone.
+     */
+    tapGuideLabel?: string;
     /** Whether the band is interactive right now. */
     enabled: boolean;
     /** The growth rates the user may pick between. */
