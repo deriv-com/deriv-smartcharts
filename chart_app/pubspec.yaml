@@ -13,7 +13,7 @@ dependencies:
     deriv_chart:
         git:
             url: https://github.com/deriv-com/flutter-chart.git
-            ref: e864291381c6a21ee3320bc2b997dc046e16a75d
+            ref: 645c87e5761d6fe941203d5d0cf005a0bfb6efb8
     web: ^1.1.1
 
 dev_dependencies:
