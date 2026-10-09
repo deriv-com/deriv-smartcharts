@@ -206,7 +206,8 @@
         "serialize-javascript": ">=7.0.3",
         "svg-baker": {
             "postcss": ">=8.4.31"
-        }
+        },
+        "proxy-addr": "^2.0.8"
     },
     "husky": {
         "hooks": {
