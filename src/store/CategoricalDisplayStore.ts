@@ -1,6 +1,7 @@
 import { action, computed, observable, reaction, makeObservable, toJS } from 'mobx';
 import React from 'react';
 import { STATE } from 'src/Constant';
+import { localize } from 'src/translations';
 import MainStore from '.';
 import { TProcessedSymbolItem } from '../types/active-symbols.types';
 import {
@@ -149,13 +150,13 @@ export default class CategoricalDisplayStore {
     getFavorites(): Omit<TCategorizedSymbolItem<TSubCategory | string>, 'data'> {
         this.pauseScrollSpy = true;
         const favoritesCategory = {
-            categoryName: t.translate('Favorites'),
+            categoryName: localize('Favorites'),
             categoryId: 'favorite',
             hasSubcategory: false,
             hasSubgroup: false,
             active: true,
             subgroups: [],
-            emptyDescription: t.translate('There are no favorites yet.'),
+            emptyDescription: localize('There are no favorites yet.'),
         };
         setTimeout(() => {
             this.pauseScrollSpy = false;

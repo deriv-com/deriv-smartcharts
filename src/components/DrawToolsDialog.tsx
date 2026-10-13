@@ -5,6 +5,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { useStores } from 'src/store';
 import { TIcon } from 'src/types';
+import { localize } from 'src/translations';
 import DialogShell from './DialogShell';
 import EmptyStateImage from './EmptyStateImage';
 
@@ -50,7 +51,7 @@ const DrawToolRow = ({ Icon, label, onClick, onDelete }: TDrawToolRowProps) => {
                 <button
                     type='button'
                     className='sc-draw-tools-dialog__item__delete'
-                    aria-label={t.translate('Delete')}
+                    aria-label={localize('Delete')}
                     onClick={onDelete}
                 >
                     {/* Design calls for quill's `trash-sm` standalone icon. */}
@@ -90,14 +91,14 @@ const DrawToolsDialogBody = observer(() => {
     );
 
     const options = [
-        { label: activeToolsNo ? `${t.translate('Active')} (${activeToolsNo})` : t.translate('Active') },
-        { label: t.translate('All drawings') },
+        { label: activeToolsNo ? `${localize('Active')} (${activeToolsNo})` : localize('Active') },
+        { label: localize('All drawings') },
     ];
 
     return (
         <div className='sc-draw-tools-dialog__content'>
             {/* On mobile the sheet header already carries the title. */}
-            {!isMobile && <h2 className='sc-draw-tools-dialog__title'>{t.translate('Drawing tools')}</h2>}
+            {!isMobile && <h2 className='sc-draw-tools-dialog__title'>{localize('Drawing tools')}</h2>}
 
             {/* The design separates the title from the switch+list group by 32px, while the
                     group itself is spaced at 16px - hence the extra wrapper. */}
@@ -120,7 +121,7 @@ const DrawToolsDialogBody = observer(() => {
                     {tab === TAB_ACTIVE && activeItems.length > 0 && (
                         <div className='sc-draw-tools-dialog__actions'>
                             <button type='button' className='sc-draw-tools-dialog__clear-all' onClick={clearAll}>
-                                {t.translate('Clear all')}
+                                {localize('Clear all')}
                             </button>
                         </div>
                     )}
@@ -132,7 +133,7 @@ const DrawToolsDialogBody = observer(() => {
                                     <DrawToolRow
                                         key={item.id}
                                         Icon={item.icon}
-                                        label={t.translate(item.text, { num: ' ' }).trim()}
+                                        label={localize(item.text, { num: ' ' }).trim()}
                                         onClick={() => startAddingNewTool(item.id)}
                                     />
                                 ))}
@@ -151,7 +152,7 @@ const DrawToolsDialogBody = observer(() => {
                                         {i > 0 && <div className='sc-draw-tools-dialog__separator' />}
                                         <DrawToolRow
                                             Icon={item.icon}
-                                            label={t.translate(item.text, { num: item.num || ' ' }).trim()}
+                                            label={localize(item.text, { num: item.num || ' ' }).trim()}
                                             onDelete={() => onDeleted(item.index)}
                                         />
                                     </React.Fragment>
@@ -164,7 +165,7 @@ const DrawToolsDialogBody = observer(() => {
                                 <EmptyStateImage className='sc-draw-tools-dialog__empty__image' />
                                 <div className='sc-draw-tools-dialog__empty__text'>
                                     <p className='sc-draw-tools-dialog__empty__title'>
-                                        {t.translate('No drawing tool added yet')}
+                                        {localize('No drawing tool added yet')}
                                     </p>
                                 </div>
                             </div>
@@ -191,7 +192,7 @@ const DrawToolsDialog = () => {
         <DialogShell
             open={menuStore.open}
             onClose={close}
-            mobileTitle={t.translate('Drawing tools')}
+            mobileTitle={localize('Drawing tools')}
             className='sc-draw-tools-dialog'
         >
             <DrawToolsDialogBody />

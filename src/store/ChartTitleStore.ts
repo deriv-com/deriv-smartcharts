@@ -2,6 +2,7 @@ import { action, computed, observable, when, makeObservable } from 'mobx';
 import { TChartTitleProps } from 'src/components/ChartTitle';
 import Context from 'src/components/ui/Context';
 import { TChanges, TOpenMarket, TQuote, TTimes } from 'src/types';
+import { localize } from 'src/translations';
 import MainStore from '.';
 import ServerTime from '../utils/ServerTime';
 import AnimatedPriceStore from './AnimatedPriceStore';
@@ -48,7 +49,7 @@ export default class ChartTitleStore {
         this.categoricalDisplay = new CategoricalDisplayStore({
             getCategoricalItems: () => this.mainStore.chart.categorizedSymbols,
             getIsShown: () => this.menuStore.open,
-            placeholderText: t.translate('Search...'),
+            placeholderText: localize('Search...'),
             favoritesId: 'chartTitle&Comparison',
             mainStore,
             id: 'market_dropdown',

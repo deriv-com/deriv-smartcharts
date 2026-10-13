@@ -13,6 +13,7 @@ import {
     TSelectParameter,
     TSettingsParameter,
 } from 'src/types';
+import { localize } from 'src/translations';
 
 /**
  * The swatches offered by the colour dropdown, taken from the design's picker.
@@ -443,7 +444,7 @@ const IndicatorSettings = ({
                         <StandaloneCircleInfoRegularIcon iconSize='sm' className='sc-indicators-dialog__note__icon' />
                         <div className='sc-indicators-dialog__note__body'>
                             <p className='sc-indicators-dialog__note__title'>
-                                {t.translate('What is [name]?', { name: indicator.short_name })}
+                                {localize('What is {{name}}?', { name: indicator.short_name })}
                             </p>
                             <p className='sc-indicators-dialog__note__text'>{indicator.description}</p>
                         </div>
@@ -458,7 +459,7 @@ const IndicatorSettings = ({
                     disabled={!isDirty}
                     onClick={onReset}
                 >
-                    {t.translate('Reset')}
+                    {localize('Reset')}
                 </button>
                 <button
                     type='button'
@@ -466,7 +467,7 @@ const IndicatorSettings = ({
                     disabled={!canApply}
                     onClick={onApply}
                 >
-                    {t.translate('Apply')}
+                    {localize('Apply')}
                 </button>
             </div>
         </div>

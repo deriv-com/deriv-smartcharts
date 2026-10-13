@@ -1,3 +1,5 @@
+import { localize } from 'src/translations';
+
 export type TNotification = {
     text: string;
     type?: 'info' | 'warning' | 'success' | 'error' | 'warning';
@@ -29,7 +31,7 @@ class Notifier {
 
     notifyMarketOpen(symbol: string) {
         this.notify({
-            text: t.translate('[symbol] market is now opened.', { symbol }),
+            text: localize('{{symbol}} market is now opened.', { symbol }),
             type: 'info',
             category: Notifier.CATEGORY_ACTIVE_SYMBOL,
         });
@@ -37,21 +39,21 @@ class Notifier {
 
     notifyMarketClose(symbol: string) {
         this.notify({
-            text: t.translate('[symbol] market is presently closed.', { symbol }),
+            text: localize('{{symbol}} market is presently closed.', { symbol }),
             category: Notifier.CATEGORY_ACTIVE_SYMBOL,
         });
     }
 
     notifyDelayedMarket(symbol: string, delay: number) {
         this.notify({
-            text: t.translate('[symbol] feed is delayed by [delay] minutes', { symbol, delay }),
+            text: localize('{{symbol}} feed is delayed by {{delay}} minutes', { symbol, delay }),
             category: Notifier.CATEGORY_ACTIVE_SYMBOL,
         });
     }
 
     notifyFeedUnavailable(symbol: string) {
         this.notify({
-            text: t.translate('Streaming for [symbol] is not available due to license restrictions', { symbol }),
+            text: localize('Streaming for {{symbol}} is not available due to license restrictions', { symbol }),
             type: 'error',
             category: Notifier.CATEGORY_ACTIVE_SYMBOL,
         });

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
 import { TGranularity } from 'src/types';
+import { localize } from 'src/translations';
 import '../../sass/components/_chart-mode.scss';
 import ChartTypeDialog from './ChartTypeDialog';
 import DialogTrigger from './DialogTrigger';
@@ -33,7 +34,7 @@ const ChartMode = ({ onChartType, onGranularity }: TChartModeProps) => {
             <DialogTrigger
                 store={menuStore}
                 className='ciq-display sc-chart-mode'
-                tooltip={t.translate('Chart types')}
+                tooltip={localize('Chart types')}
             >
                 <div className={classNames('sc-chart-mode__menu', { 'sc-chart-mode__menu--active': menuOpen })}>
                     <ChartAreaIcon />

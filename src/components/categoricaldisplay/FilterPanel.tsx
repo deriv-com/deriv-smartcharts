@@ -1,5 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
+import { localize } from 'src/translations';
 import { CategoryIconMap, ArrowIcon } from '../Icons';
 import { TCategorizedSymbolItem, TCategorizedSymbols } from '../../types/categorical-display.types';
 
@@ -36,7 +37,7 @@ const FilterItem = React.memo(
                 onClick={() => handleFilterClick(category.categoryId)}
             >
                 <FilterItemIcon categoryId={category.categoryId} />
-                {t.translate(category.categoryName)}
+                {localize(category.categoryName)}
             </div>
         );
     }
@@ -90,7 +91,7 @@ const FilterGroup = React.memo(
                                 } ${isActive && !isSearching ? 'sc-mcd__filter__item--selected' : ''}`}
                                 onClick={() => handleFilterClick(subgroup.categoryId)}
                             >
-                                {t.translate(subgroup.categoryName)}
+                                {localize(subgroup.categoryName)}
                             </div>
                         );
                     })}

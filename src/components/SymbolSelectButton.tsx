@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
 import AnimatedPriceStore from 'src/store/AnimatedPriceStore';
 import ChartTitleStore from 'src/store/ChartTitleStore';
+import { localize } from 'src/translations';
 import { ItemIconMap, SymbolPlaceholderIcon, ArrowIcon, TimeIcon } from './Icons';
 import { MarketOpeningTimeCounter } from './MarketOpeningTimeCounter';
 import AnimatedPrice from './AnimatedPrice';
@@ -66,7 +67,7 @@ const SymbolSelectButtonBase = () => {
         <div className='cq-symbol-select-btn'>
             <div className='cq-symbol-select-btn__container'>
                 <SymbolInfo />
-                {!isSymbolOpen && <div className='cq-symbol-closed-text'>{t.translate('CLOSED')}</div>}
+                {!isSymbolOpen && <div className='cq-symbol-closed-text'>{localize('CLOSED')}</div>}
             </div>
             <ArrowIcon className='cq-symbol-dropdown' />
         </div>
@@ -102,7 +103,7 @@ const ClosedSymbol = ({ symbolOpenTime }: TClosedSymbolProps) => (
     <div className='cq-chart-closed'>
         <TimeIcon className='cq-closed-icon' />
         <div className='cq-closed-opening'>
-            {t.translate('Opens in:')} &nbsp;
+            {localize('Opens in:')} &nbsp;
             <span className='cq-closed-opening-time'>
                 <MarketOpeningTimeCounter symbolOpenTime={symbolOpenTime} />
             </span>

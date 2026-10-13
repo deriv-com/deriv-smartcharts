@@ -2,6 +2,7 @@
    React is injected by webpack's ProvidePlugin, so importing it here would be unused. */
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import '../../sass/components/_quill-dialogs.scss';
 import DialogShell from './DialogShell';
 
@@ -20,9 +21,9 @@ const IndicatorPredictionDialog = () => {
     return (
         <DialogShell open={open} onClose={onCancel} showCloseButton={false} className='sc-confirm-dialog'>
             <div className='sc-confirm-dialog__content'>
-                <p className='sc-confirm-dialog__title'>{t.translate('Are you sure?')}</p>
+                <p className='sc-confirm-dialog__title'>{localize('Are you sure?')}</p>
                 <p className='sc-confirm-dialog__text'>
-                    {t.translate(
+                    {localize(
                         'Some of your active indicators don’t support 1-tick intervals. If you change to a 1-tick interval, these indicators will be removed from your chart.'
                     )}
                 </p>
@@ -32,14 +33,14 @@ const IndicatorPredictionDialog = () => {
                         className='sc-confirm-dialog__btn sc-confirm-dialog__btn--secondary'
                         onClick={onCancel}
                     >
-                        {t.translate('Cancel')}
+                        {localize('Cancel')}
                     </button>
                     <button
                         type='button'
                         className='sc-confirm-dialog__btn sc-confirm-dialog__btn--primary'
                         onClick={onContinue}
                     >
-                        {t.translate('Continue')}
+                        {localize('Continue')}
                     </button>
                 </div>
             </div>

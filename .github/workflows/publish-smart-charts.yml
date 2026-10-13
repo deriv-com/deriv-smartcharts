@@ -51,3 +51,15 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: cd deriv-smartcharts && npx semantic-release
+
+    # The release's strings go to the production catalogues the published package reads.
+    # Called here rather than triggered by the release tag: tags semantic-release pushes with
+    # GITHUB_TOKEN trigger no workflows.
+    sync_translations_production:
+        needs: build_and_publish_smart_charts
+        permissions:
+            contents: read
+        uses: ./.github/workflows/sync_translations.yml
+        with:
+            environment: production
+        secrets: inherit

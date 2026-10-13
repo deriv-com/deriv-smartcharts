@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import { localize } from 'src/translations';
 import { ArrowIcon, CategoryIconMap } from '../Icons';
 import { stringToSlug } from '../../utils';
 import {
@@ -76,7 +77,7 @@ function getItemCount(category: TSubCategory | TCategorizedSymbolItem) {
 
 const EmptyCategory = React.memo(({ category }: TEmptyCategoryProps) => (
     <div className='sc-mcd__category__content'>
-        <div className='empty-category'>{t.translate(category.emptyDescription)}</div>
+        <div className='empty-category'>{localize(category.emptyDescription ?? '')}</div>
     </div>
 ));
 
@@ -93,7 +94,7 @@ const CategoryTitleLeft = React.memo(({ isNestedList, category }: TCategoryTitle
             ) : (
                 <div className='category-title-left__placeholder' />
             )}
-            {t.translate(category.categoryName)}
+            {localize(category.categoryName)}
         </span>
     );
 });
@@ -112,7 +113,7 @@ const CategoryTitle = ({ category, activeHeadKey, isNestedList, handleTitleClick
             category.categoryNamePostfix && (
                 <span className='category-name-postfix'>{category.categoryNamePostfix}</span>
             )}
-        {category.categorySubtitle && <div className='category-subtitle'>{t.translate(category.categorySubtitle)}</div>}
+        {category.categorySubtitle && <div className='category-subtitle'>{localize(category.categorySubtitle)}</div>}
         {!category.hasSubgroup && isNestedList ? <ArrowIcon className='arrow' /> : ''}
     </div>
 );
@@ -164,7 +165,7 @@ const Category = ({
                               )}
                               key={subcategory.subcategoryName}
                           >
-                              <div className='subcategory'>{t.translate(subcategory.subcategoryName)}</div>
+                              <div className='subcategory'>{localize(subcategory.subcategoryName)}</div>
                               {subcategory.data.map(item => (
                                   <ItemType
                                       key={item.display}

@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { useStores } from 'src/store';
 import { TIcon } from 'src/types';
+import { localize } from 'src/translations';
 import DialogShell from './DialogShell';
 import { CsvIcon, PngIcon } from './Icons';
 import { InlineLoader } from './Loader';
@@ -38,17 +39,17 @@ const DownloadDialogBody = observer(() => {
     return (
         <div className='sc-download-dialog__content'>
             {/* On mobile the sheet header already carries the title. */}
-            {!isMobile && <h2 className='sc-download-dialog__title'>{t.translate('Download')}</h2>}
+            {!isMobile && <h2 className='sc-download-dialog__title'>{localize('Download')}</h2>}
 
             <p className='sc-download-dialog__description'>
-                {t.translate(
+                {localize(
                     'Download your current chart view as a PNG or export the historical data for analysis as a CSV.'
                 )}
             </p>
 
             <div className='sc-download-dialog__tiles'>
-                <DownloadTile Icon={PngIcon} label={t.translate('PNG')} onClick={downloadPNG} loading={isLoadingPNG} />
-                <DownloadTile Icon={CsvIcon} label={t.translate('CSV')} onClick={downloadCSV} />
+                <DownloadTile Icon={PngIcon} label={localize('PNG')} onClick={downloadPNG} loading={isLoadingPNG} />
+                <DownloadTile Icon={CsvIcon} label={localize('CSV')} onClick={downloadCSV} />
             </div>
         </div>
     );
@@ -69,7 +70,7 @@ const DownloadDialog = () => {
         <DialogShell
             open={menuStore.open}
             onClose={close}
-            mobileTitle={t.translate('Download')}
+            mobileTitle={localize('Download')}
             className='sc-download-dialog'
         >
             <DownloadDialogBody />

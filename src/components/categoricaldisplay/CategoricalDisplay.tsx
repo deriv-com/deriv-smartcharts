@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import CategoricalDisplayStore from 'src/store/CategoricalDisplayStore';
 import { TProcessedSymbolItem } from 'src/types/active-symbols.types';
+import { localize } from 'src/translations';
 import Scroll from '../Scroll';
 import '../../../sass/components/_categorical-display.scss';
 import SearchInput from '../SearchInput';
@@ -68,7 +69,7 @@ const CategoricalDisplay = ({
         <div className={`sc-mcd ${isNestedList ? 'sc-mcd--nested' : ''}`} style={{ height }} id={id}>
             {!isMobile && (
                 <div className='sc-mcd__tabs'>
-                    <div className='sc-mcd__tabs__head'>{t.translate('Markets')}</div>
+                    <div className='sc-mcd__tabs__head'>{localize('Markets')}</div>
                     <div className='sc-mcd__tabs__body'>
                         {!isNestedList && (
                             <FilterPanel

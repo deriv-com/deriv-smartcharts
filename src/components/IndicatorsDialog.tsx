@@ -13,6 +13,7 @@ import { TooltipsContent } from 'src/Constant';
 import { useStores } from 'src/store';
 import { TActiveItem, TIndicatorItem, TSettingsParameter } from 'src/types';
 import { clone } from 'src/utils';
+import { localize } from 'src/translations';
 import '../../sass/components/_quill-dialogs.scss';
 import DialogShell from './DialogShell';
 import EmptyStateImage from './EmptyStateImage';
@@ -159,7 +160,7 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
     const blockedReason = (indicator: TIndicatorItem) => {
         if (indicator.isPrediction && isTick) return TooltipsContent.predictionIndicator;
         if (atCapacity) {
-            return t.translate('You can add up to [count] indicators.', { count: maxAllowedItem });
+            return localize('You can add up to {{count}} indicators.', { count: maxAllowedItem });
         }
         return undefined;
     };
@@ -215,9 +216,9 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                 <div className='sc-indicators-dialog__empty'>
                     <EmptyStateImage className='sc-indicators-dialog__empty__image' />
                     <div className='sc-indicators-dialog__empty__text'>
-                        <p className='sc-indicators-dialog__empty__title'>{t.translate('No indicator added yet')}</p>
+                        <p className='sc-indicators-dialog__empty__title'>{localize('No indicator added yet')}</p>
                         <p className='sc-indicators-dialog__empty__subtitle'>
-                            {t.translate('You can add up to [count] indicators.', { count: maxAllowedItem })}
+                            {localize('You can add up to {{count}} indicators.', { count: maxAllowedItem })}
                         </p>
                     </div>
                 </div>
@@ -235,7 +236,7 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                             <button
                                 type='button'
                                 className='sc-indicators-dialog__row__action'
-                                aria-label={t.translate('Settings')}
+                                aria-label={localize('Settings')}
                                 onClick={() => openSettings(item, item)}
                             >
                                 <StandaloneGearRegularIcon iconSize='sm' />
@@ -243,7 +244,7 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                             <button
                                 type='button'
                                 className='sc-indicators-dialog__row__action'
-                                aria-label={t.translate('Delete')}
+                                aria-label={localize('Delete')}
                                 onClick={() => deleteStudyById(item.id)}
                             >
                                 <StandaloneTrashRegularIcon iconSize='sm' />
@@ -297,10 +298,10 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                     <EmptyStateImage className='sc-indicators-dialog__empty__image' />
                     <div className='sc-indicators-dialog__empty__text'>
                         <p className='sc-indicators-dialog__empty__title'>
-                            {t.translate('No results for "[text]"', { text: search })}
+                            {localize('No results for "{{text}}"', { text: search })}
                         </p>
                         <p className='sc-indicators-dialog__empty__subtitle'>
-                            {t.translate('Try checking your spelling or use a different term')}
+                            {localize('Try checking your spelling or use a different term')}
                         </p>
                     </div>
                 </div>
@@ -313,13 +314,13 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
     };
 
     const activeLabel = activeItems.length
-        ? `${t.translate('Active')} (${activeItems.length})`
-        : t.translate('Active');
+        ? `${localize('Active')} (${activeItems.length})`
+        : localize('Active');
 
     return (
         <div className='sc-indicators-dialog__content'>
             <nav className='sc-indicators-dialog__nav'>
-                <p className='sc-indicators-dialog__nav__title'>{t.translate('Indicators')}</p>
+                <p className='sc-indicators-dialog__nav__title'>{localize('Indicators')}</p>
                 <div className='sc-indicators-dialog__nav__group'>
                     <NavItem
                         label={activeLabel}
@@ -347,7 +348,7 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                     </div>
                     <div className='sc-indicators-dialog__nav__divider' />
                     <NavItem
-                        label={t.translate('Guide')}
+                        label={localize('Guide')}
                         selected={!search && !editing && nav === NAV_GUIDE}
                         onSelect={() => {
                             setNav(NAV_GUIDE);
@@ -364,7 +365,7 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                         <button
                             type='button'
                             className='sc-indicators-dialog__icon-btn'
-                            aria-label={t.translate('Back')}
+                            aria-label={localize('Back')}
                             onClick={() => setEditing(null)}
                         >
                             <StandaloneChevronLeftRegularIcon iconSize='sm' />
@@ -380,8 +381,8 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                                 inputSize='sm'
                                 variant='fill'
                                 value={search}
-                                placeholder={t.translate('Search')}
-                                aria-label={t.translate('Search')}
+                                placeholder={localize('Search')}
+                                aria-label={localize('Search')}
                                 className={searchInputClassName}
                                 onChange={e => onSearchChange(e.target.value)}
                             />
@@ -390,7 +391,7 @@ const IndicatorsDialogBody = observer(({ searchInputClassName }: { searchInputCl
                     <button
                         type='button'
                         className='sc-indicators-dialog__icon-btn'
-                        aria-label={t.translate('Close')}
+                        aria-label={localize('Close')}
                         onClick={close}
                     >
                         <StandaloneXmarkRegularIcon iconSize='sm' />

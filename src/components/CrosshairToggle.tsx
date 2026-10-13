@@ -1,6 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import { ChartCrosshairDisabledIcon, ChartCrosshairEnabledIcon } from './Icons';
 import Tooltip from './Tooltip';
 
@@ -10,7 +11,7 @@ const CrosshairToggle = () => {
 
     const CrosshairIcon = crosshair.isEnabled ? ChartCrosshairEnabledIcon : ChartCrosshairDisabledIcon;
 
-    const crosshairLabel = crosshair.isEnabled ? t.translate('Disable Crosshair') : t.translate('Enable Crosshair');
+    const crosshairLabel = crosshair.isEnabled ? localize('Disable Crosshair') : localize('Enable Crosshair');
 
     // The contract details (replay) chart sits lower in the viewport, so its tooltip stays above
     // the button. Everywhere else — the trade page included — it drops below.

@@ -6,6 +6,7 @@ import { useStores } from 'src/store';
 import { TOpenMarket } from 'src/types';
 import { getSymbolMarketCategory } from 'src/utils';
 import { STATE } from 'src/Constant';
+import { localize } from 'src/translations';
 import '../../sass/components/_chart-title.scss';
 import { CategoricalDisplay } from './categoricaldisplay';
 import Menu from './Menu';
@@ -56,7 +57,7 @@ const ChartTitle = (props: TChartTitleProps) => {
             className='cq-chart-title stx-show cq-symbols-display'
             isFullscreen
             portalNodeId={portalNodeId}
-            title={isMobile ? t.translate('Markets') : ''}
+            title={isMobile ? localize('Markets') : ''}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >

@@ -322,6 +322,13 @@ export type TChartProps = {
     enableScroll?: boolean | null;
     enableZoom?: boolean | null;
     chartData?: TInitialChartData;
+    /**
+     * Base URL of SmartCharts' translation catalogues, read as
+     * `<translationsCdnUrl>/translations/<lang>.json`. Pass the folder of the host's
+     * environment, e.g. `https://translations.deriv.com/deriv-smartcharts/staging`.
+     * Defaults to the production folder.
+     */
+    translationsCdnUrl?: string;
     networkStatus?: TNetworkConfig;
     refreshActiveSymbols?: ChartState['refreshActiveSymbols'];
     chartStatusListener?: ChartState['chartStatusListener'];

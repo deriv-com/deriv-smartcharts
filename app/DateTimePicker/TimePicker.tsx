@@ -10,6 +10,7 @@ import './time-picker.scss';
 import { Wrapper } from '../../src/components/Icons';
 import Time from '../icons/ic-time.svg';
 import { usePrevious } from '../../src/hooks';
+import { localize } from '../../src/translations';
 
 type TimePickerDropdownProps = {
     className: string;
@@ -116,7 +117,7 @@ const TimePickerDropdown = React.memo(
                 <div className={`${preClass}-selector`}>
                     <div className={`${preClass}-hours`}>
                         <div className='list-title center-text'>
-                            <strong>{t.translate('Hour')}</strong>
+                            <strong>{localize('Hour')}</strong>
                         </div>
                         <div className='list-container'>
                             {hours.map((h, key) => {
@@ -140,7 +141,7 @@ const TimePickerDropdown = React.memo(
                     </div>
                     <div className={`${preClass}-minutes`}>
                         <div className='list-title center-text'>
-                            <strong>{t.translate('Minute')}</strong>
+                            <strong>{localize('Minute')}</strong>
                         </div>
                         <div className='list-container'>
                             {minutes.map((mm, key) => {

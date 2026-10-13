@@ -1,6 +1,7 @@
 import { action, observable, reaction, when, makeObservable } from 'mobx';
 import Context from 'src/components/ui/Context';
 import { ChartType } from 'src/types';
+import { localize } from 'src/translations';
 import MainStore from '.';
 import { ChartTypes } from '../Constant';
 import { LogActions, LogCategories, logEvent } from '../utils/ga';
@@ -111,7 +112,7 @@ export default class ChartTypeStore {
             if (isRestricted) {
                 disabledReason = state.restrictionMessage;
             } else if (isTickBlocked) {
-                disabledReason = t.translate('Available only for non-tick time intervals.');
+                disabledReason = localize('Available only for non-tick time intervals.');
             }
 
             return {

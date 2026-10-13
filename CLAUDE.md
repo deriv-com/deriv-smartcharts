@@ -39,8 +39,7 @@ SmartCharts is a React-based charting library published as `@deriv-com/smartchar
 
 ### Translations
 
--   `npm run translations` - Extract translation strings from the built library
--   `npm run translations:download` - Download translations from Crowdin
+-   `npm run translations:extract` - Extract `localize()` strings from `src` into `translations/en.json` (preview only; CI does the sync)
 
 ## Architecture Overview
 
@@ -216,10 +215,14 @@ npm run build && npm publish
 
 ## Translation System
 
--   All user-facing strings must be wrapped in `t.translate()`
--   Translation keys support interpolation: `t.translate('[currency] [amount] payout', { currency: 'USD', amount: 43.12 })`
--   Change language: `t.setLanguage('fr', callback)`
--   Translations managed via Crowdin
+-   Built on `@deriv-com/translations` (bundled, with its own i18next instance - never shared with the host); wrapper in `src/translations/index.ts`
+-   All user-facing strings must be wrapped in `localize()` from `src/translations`, with a string literal as the first argument (the extractor only collects literals)
+-   Interpolation uses `{{name}}`: `localize('{{currency}} {{amount}} payout', { currency: 'USD', amount: 43.12 })`
+-   A label stored in a constant is marked with a literal `localize` call where it is defined and passed through `localize` again where it is rendered, so it follows language changes
+-   Change language: `setLanguage('fr', callback)` from `src/translations` (driven by `ChartSettingStore.setLanguage`)
+-   Catalogues are keyed by crc32 of the English text and loaded from `<translationsCdnUrl>/translations/<lang>.json` (default `https://translations.deriv.com/deriv-smartcharts/production`)
+-   Translated with Makima by `.github/workflows/sync_translations.yml` (shared `extract_and_sync_translations_makima` action): staging on master pushes and every 12h, production after each publish; dry runs until `MAKIMA_LIVE=true` per environment
+-   Terms that must stay in English: `translations.protected-terms.json`
 
 ## Important Notes
 

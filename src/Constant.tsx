@@ -1,3 +1,4 @@
+import { localize } from 'src/translations';
 import {
     // DrawToolsChannelIcon,
     // DrawToolsContinuousIcon,
@@ -65,17 +66,17 @@ type TDrawTools = {
 };
 // TODO: Add back the drawing tools when their implementations are done.
 export const getDrawTools: () => TDrawTools = () => ({
-    // channel: { id: 'channel', text: t.translate('Channel [num]'), icon: DrawToolsChannelIcon },
-    // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsContinuousIcon },
-    // fibfan: { id: 'fibfan', text: t.translate('Fib Fan [num]'), icon: FibfanDrawingToolConfig },
+    // channel: { id: 'channel', text: localize('Channel {{num}}'), icon: DrawToolsChannelIcon },
+    // continuous: { id: 'continuous', text: localize('Continuous {{num}}'), icon: DrawToolsContinuousIcon },
+    // fibfan: { id: 'fibfan', text: localize('Fib Fan {{num}}'), icon: FibfanDrawingToolConfig },
     // Order matches the "All drawings" list in the design.
-    horizontal: { id: 'horizontal', text: t.translate('Horizontal line [num]'), icon: DrawToolsHorizontalIcon },
-    vertical: { id: 'vertical', text: t.translate('Vertical line [num]'), icon: DrawToolsVerticalIcon },
-    line: { id: 'line', text: t.translate('Trend line [num]'), icon: DrawToolsLineIcon },
-    // ray: { id: 'ray', text: t.translate('Ray [num]'), icon: DrawToolsRayIcon },
-    // continuous: { id: 'continuous', text: t.translate('Continuous [num]'), icon: DrawToolsRayIcon },
-    // rectangle: { id: 'rectangle', text: t.translate('Rectangle [num]'), icon: DrawToolsRectangleIcon },
-    // trend: { id: 'trend', text: t.translate('Trend [num]'), icon: DrawToolsTrendIcon },
+    horizontal: { id: 'horizontal', text: localize('Horizontal line {{num}}'), icon: DrawToolsHorizontalIcon },
+    vertical: { id: 'vertical', text: localize('Vertical line {{num}}'), icon: DrawToolsVerticalIcon },
+    line: { id: 'line', text: localize('Trend line {{num}}'), icon: DrawToolsLineIcon },
+    // ray: { id: 'ray', text: localize('Ray {{num}}'), icon: DrawToolsRayIcon },
+    // continuous: { id: 'continuous', text: localize('Continuous {{num}}'), icon: DrawToolsRayIcon },
+    // rectangle: { id: 'rectangle', text: localize('Rectangle {{num}}'), icon: DrawToolsRectangleIcon },
+    // trend: { id: 'trend', text: localize('Trend {{num}}'), icon: DrawToolsTrendIcon },
 });
 
 export const getTooltipLabels = (key: string, activeItem?: TActiveItem) => {
@@ -167,14 +168,14 @@ export const getTooltipLabels = (key: string, activeItem?: TActiveItem) => {
 export const getIndicatorsTree = (): TIndicatorsTree[] => [
     {
         category: 'momentum',
-        name: t.translate('Momentum'),
+        name: localize('Momentum'),
         icon: IndicatorCatMomentumIcon,
         items: [
             {
                 flutter_chart_id: 'AwesomeOscillator',
-                name: t.translate('Awesome Oscillator'),
-                short_name: t.translate('Awesome'),
-                description: t.translate(
+                name: localize('Awesome Oscillator'),
+                short_name: localize('Awesome'),
+                description: localize(
                     "The Awesome Oscillator is an indicator used to measure market momentum. AO calculates the difference of a 34 Period and 5 Period Simple Moving Averages. The Simple Moving Averages that are used are not calculated using closing price but rather each bar's midpoints. AO is generally used to affirm trends or to anticipate possible reversals."
                 ),
                 icon: IndicatorAwesomeOscillatorIcon,
@@ -182,18 +183,18 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'dpo',
-                name: t.translate('Detrended Price Oscillator'),
-                short_name: t.translate('Detrended'),
-                description: t.translate(
+                name: localize('Detrended Price Oscillator'),
+                short_name: localize('Detrended'),
+                description: localize(
                     'The Detrended Price Oscillator (DPO) helps to identify price cycles without the influence of short- and long-term trends. The DPO compares a simple moving average to a historical pricenear the middle of a specified period. It also shows the peaks and drops over that particular period, making it easier to predict buy points.'
                 ),
                 icon: IndicatorDTrendedIcon,
             },
             // {
             //     flutter_chart_id: 'gator',
-            //     name: t.translate('Gator Oscillator'),
-            //     short_name: t.translate('Gator'),
-            //     description: t.translate(
+            //     name: localize('Gator Oscillator'),
+            //     short_name: localize('Gator'),
+            //     description: localize(
             //         'The Gator Oscillator helps to detect trend changes in the market price. Based on the Alligator indicator, the Gator plots 2 histograms on either side of the zero line. The sleeping phase (absence of a trend) is when the bars on both sides are red. The awakening phase (formation of a trend) is when there are red and green bars on both sides. When there are green bars on both sides, it indicates the eating phase (trend strengthening). A solitary red bar appearing after the eating phase indicates the beginning of the sated phase (trend approaching its end).'
             //     ),
             //     icon: IndicatorGatorIcon,
@@ -201,36 +202,36 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             // },
             {
                 flutter_chart_id: 'macd',
-                name: t.translate('MACD'),
-                short_name: t.translate('MACD'),
-                description: t.translate(
+                name: localize('MACD'),
+                short_name: localize('MACD'),
+                description: localize(
                     "MACD is a trading indicator used in technical analysis of stock prices. It is supposed to reveal changes in the strength, direction, momentum, and duration of a trend in a stock's price."
                 ),
                 icon: IndicatorMacdIcon,
             },
             {
                 flutter_chart_id: 'ROC',
-                name: t.translate('Price Rate of Change'),
-                short_name: t.translate('Price ROC'),
-                description: t.translate(
+                name: localize('Price Rate of Change'),
+                short_name: localize('Price ROC'),
+                description: localize(
                     'The Price Rate-of-Change (ROC) indicator displays the difference between the current price and the price x-time periods ago. The difference can be displayed in either points or as a percentage.'
                 ),
                 icon: IndicatorRateChangeIcon,
             },
             {
                 flutter_chart_id: 'RSI',
-                name: t.translate('Relative Strength Index (RSI)'),
-                short_name: t.translate('RSI'),
-                description: t.translate(
+                name: localize('Relative Strength Index (RSI)'),
+                short_name: localize('RSI'),
+                description: localize(
                     'The Relative Strength Index (RSI) was published by J. Welles Wilder. The current price is normalized as a percentage between 0 and 100. The name of this oscillator is misleading because it does not compare the instrument relative to another instrument or set of instruments, but rather represents the current price relative to other recent prices within the selected lookback window length.'
                 ),
                 icon: IndicatorRSIIcon,
             },
             {
                 flutter_chart_id: 'StochasticOscillator',
-                name: t.translate('Stochastic Oscillator'),
-                short_name: t.translate('Stochastic'),
-                description: t.translate(
+                name: localize('Stochastic Oscillator'),
+                short_name: localize('Stochastic'),
+                description: localize(
                     "A technical momentum indicator that compares a security's closing price to its price range over a given time period. The oscillator's sensitivity to market movements can be reduced by adjusting the time period or by taking a moving average of the result."
                 ),
                 icon: IndicatorStochasticOscillatorIcon,
@@ -238,18 +239,18 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'SMI',
-                name: t.translate('Stochastic Momentum Index'),
-                short_name: t.translate('Stch Mtm'),
-                description: t.translate(
+                name: localize('Stochastic Momentum Index'),
+                short_name: localize('Stch Mtm'),
+                description: localize(
                     'The Stochastic Momentum Index (SMI) helps to identify overbought or oversold conditions in the market and to predict bearish or bullish trends. It calculates the distance between the current closing price and the median of the high/low range, and displays 2 lines on the chart: the first (known as %K) represents the price movement while the second (known as %D) is a moving average of the first line. If the closing price is higher than the median of the high/low range, the SMI returns a positive value. If the closing price is lower than the average price, a negative value is returned. Values above 40 indicate a bullish trend while values below -40 indicate a bearish trend.'
                 ),
                 icon: IndicatorStochasticMomentumIcon,
             },
             {
                 flutter_chart_id: 'WilliamsR',
-                name: t.translate("William's Percent Range"),
-                short_name: t.translate("William's %R"),
-                description: t.translate(
+                name: localize("William's Percent Range"),
+                short_name: localize("William's %R"),
+                description: localize(
                     'Developed by Larry Williams, Williams %R is a momentum indicator that is the inverse of the Fast Stochastic Oscillator. Also referred to as %R, Williams %R reflects the level of the close relative to the highest high for the look-back period.'
                 ),
                 icon: IndicatorWilliamPercentIcon,
@@ -259,23 +260,23 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
     },
     {
         category: 'trend',
-        name: t.translate('Trend'),
+        name: localize('Trend'),
         icon: IndicatorCatTrendLightIcon,
         items: [
             {
                 flutter_chart_id: 'Aroon',
-                name: t.translate('Aroon'),
-                short_name: t.translate('Aroon'),
-                description: t.translate(
+                name: localize('Aroon'),
+                short_name: localize('Aroon'),
+                description: localize(
                     'Developed by Tushar Chande in 1995, Aroon is an indicator system that determines whether a stock is trending or not and how strong the trend is. There are two separate indicators: Aroon-Up and Aroon-Down. A 25-day Aroon-Up measures the number of days since a 25-day high. A 25-day Aroon-Down measures the number of days since a 25-day low.'
                 ),
                 icon: IndicatorAroonIcon,
             },
             {
                 flutter_chart_id: 'adx',
-                name: t.translate('ADX/DMS'),
-                short_name: t.translate('ADX'),
-                description: t.translate(
+                name: localize('ADX/DMS'),
+                short_name: localize('ADX'),
+                description: localize(
                     'The Average Directional Movement Index index (ADX) was developed in 1978 by J. Welles Wilder as an indicator of trend strength in a series of prices of a financial instrument ADX will range between 0 and 100. Generally, ADX readings below 20 indicate trend weakness, and readings above 40 indicate trend strength.'
                 ),
                 icon: IndicatorAdxIcon,
@@ -283,9 +284,9 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'commodity_channel_index',
-                name: t.translate('Commodity Channel Index'),
-                short_name: t.translate('CCI'),
-                description: t.translate(
+                name: localize('Commodity Channel Index'),
+                short_name: localize('CCI'),
+                description: localize(
                     'The Commodity Channel Index (CCI) is a versatile indicator that can be used to identify a new trend or warn of extreme conditions.'
                 ),
                 icon: IndicatorCommodityChannelIndexIcon,
@@ -293,9 +294,9 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'ichimoku',
-                name: t.translate('Ichimoku Clouds'),
-                short_name: t.translate('Ichimoku Clouds'),
-                description: t.translate(
+                name: localize('Ichimoku Clouds'),
+                short_name: localize('Ichimoku Clouds'),
+                description: localize(
                     'The Ichimoku Cloud, also known as Ichimoku Kinko Hyo, is a versatile indicator that defines support and resistance, identifies trend direction, gauges momentum and provides trading signals. Ichimoku Kinko Hyo translates into “one look equilibrium chart”.'
                 ),
                 icon: IndicatorIchimokuIcon,
@@ -303,9 +304,9 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'ParabolicSAR',
-                name: t.translate('Parabolic SAR'),
-                short_name: t.translate('PSAR'),
-                description: t.translate(
+                name: localize('Parabolic SAR'),
+                short_name: localize('PSAR'),
+                description: localize(
                     'The parabolic SAR is calculated almost independently for each trend in the price. When the price is in an uptrend, the SAR emerges below the price and converges upwards towards it. Similarly, on a downtrend, the SAR emerges above the price and converges downwards. At each step within a trend, the SAR is calculated one period in advance.'
                 ),
                 icon: IndicatorParabolicIcon,
@@ -313,9 +314,9 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'zigzag',
-                name: t.translate('Zig Zag'),
-                short_name: t.translate('Zig Zag'),
-                description: t.translate(
+                name: localize('Zig Zag'),
+                short_name: localize('Zig Zag'),
+                description: localize(
                     'Zig Zag helps to identify trend reversals and filters out relatively small price movements by determining the support and resistance levels of the market. It accepts a percentage of deviation as the input and displays a line if the price change is larger than the percentage of deviation. Zig Zag ignores any sideways movement and is useful to filter out “market noise”.'
                 ),
                 icon: IndicatorZigZagIcon,
@@ -325,23 +326,23 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
     },
     {
         category: 'volatility',
-        name: t.translate('Volatility'),
+        name: localize('Volatility'),
         icon: IndicatorCatVolatilityIcon,
         items: [
             {
                 flutter_chart_id: 'bollinger_bands',
-                name: t.translate('Bollinger Bands'),
-                short_name: t.translate('Bollinger Bands'),
-                description: t.translate(
+                name: localize('Bollinger Bands'),
+                short_name: localize('Bollinger Bands'),
+                description: localize(
                     'Bollinger Bands can be used to measure the highness or lowness of the price relative to previous trades.'
                 ),
                 icon: IndicatorBollingerIcon,
             },
             {
                 flutter_chart_id: 'donchian_channel',
-                name: t.translate('Donchian Channel'),
-                short_name: t.translate('Donchian Channel'),
-                description: t.translate(
+                name: localize('Donchian Channel'),
+                short_name: localize('Donchian Channel'),
+                description: localize(
                     'The Donchian Channel is an indicator used in market trading developed by Richard Donchian. It is formed by taking the highest high and the lowest low of the last n periods. The area between the high and the low is the channel for the period chosen.'
                 ),
                 icon: IndicatorDonchianIcon,
@@ -351,23 +352,23 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
     },
     {
         category: 'moving-averages',
-        name: t.translate('Moving averages'),
+        name: localize('Moving averages'),
         icon: IndicatorCatAveragesIcon,
         items: [
             {
                 flutter_chart_id: 'moving_average',
-                name: t.translate('Moving Average (MA)'),
-                short_name: t.translate('MA'),
-                description: t.translate(
+                name: localize('Moving Average (MA)'),
+                short_name: localize('MA'),
+                description: localize(
                     'The Moving Average (MA) helps to identify the overall market trend by filtering out short-term price fluctuations. Using historical data, it calculates the average price over a specific period and plots a line on the chart. If the MA line moves upwards, it’s an indicator of an uptrend, a downtrend if it moves downwards. A buy signal occurs when the price moves above the MA line.'
                 ),
                 icon: IndicatorAveragesIcon,
             },
             {
                 flutter_chart_id: 'moving_envelope_average',
-                name: t.translate('Moving Average Envelope'),
-                short_name: t.translate('MA Env'),
-                description: t.translate(
+                name: localize('Moving Average Envelope'),
+                short_name: localize('MA Env'),
+                description: localize(
                     'The Moving Average Envelope (MAE) helps to identify strong price movement that indicates the start of a trend. The MAE creates a moving average line as well as 2 bands around it. In theory, when the market price touches the upper or lower bands, a trend reversal will occur, indicating a buy signal.'
                 ),
                 icon: IndicatorEnvelopeIcon,
@@ -375,9 +376,9 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'rainbow',
-                name: t.translate('Rainbow Moving Average'),
-                short_name: t.translate('Rainbow MA'),
-                description: t.translate(
+                name: localize('Rainbow Moving Average'),
+                short_name: localize('Rainbow MA'),
+                description: localize(
                     'The Rainbow Moving Average (RMA) displays several moving average lines simultaneously. When the lines intersect, it’s an indicator of price reversal and the angle of the lines are helpful to predict the trend strength. The steeper the curve, the stronger the trend. When the price crosses the moving average lines from below, it signals an upward trend. When the price crosses the moving average lines from above, it signals a downward trend. The RMA is easier to use compared to using several different moving average indicators at once.'
                 ),
                 icon: IndicatorRainbowIcon,
@@ -387,14 +388,14 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
     },
     {
         category: 'others',
-        name: t.translate('Others'),
+        name: localize('Others'),
         icon: IndicatorCatOtherIcon,
         items: [
             {
                 flutter_chart_id: 'alligator',
-                name: t.translate('Alligator'),
-                short_name: t.translate('Alligator'),
-                description: t.translate(
+                name: localize('Alligator'),
+                short_name: localize('Alligator'),
+                description: localize(
                     'Bill Williams introduced the Alligator indicator in 1995. The Alligator is as much a metaphor as it is an indicator. It consists of three lines, overlaid on a pricing chart, that represent the jaw, the teeth and the lips of the beast, and was created to help the trader confirm the presence of a trend and its direction. The Alligator indicator can also help traders designate impulse and corrective wave formations, but the tool works best when combined with a momentum indicator.'
                 ),
                 icon: IndicatorAlligatorIcon,
@@ -402,9 +403,9 @@ export const getIndicatorsTree = (): TIndicatorsTree[] => [
             },
             {
                 flutter_chart_id: 'fcb',
-                name: t.translate('Fractal Chaos Band'),
-                short_name: t.translate('Fractal Chaos Band'),
-                description: t.translate(
+                name: localize('Fractal Chaos Band'),
+                short_name: localize('Fractal Chaos Band'),
+                description: localize(
                     'Fractals are indicators on candlestick charts that identify reversal points in the market. Traders often use fractals to get an idea about the direction in which the price will develop. A fractal will form when a particular price pattern happens on a chart.'
                 ),
                 icon: IndicatorFractalChaosIcon,
@@ -435,14 +436,14 @@ const getVerticalDrawingConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'enableLabel',
-            title: t.translate('Axis Label'),
+            title: localize('Axis Label'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -460,7 +461,7 @@ const getLineDrawingConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
@@ -478,14 +479,14 @@ const getTrendlDrawingConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'fillStyle',
-            title: t.translate('Fill Color'),
+            title: localize('Fill Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
@@ -510,28 +511,28 @@ export const getDefaultDrawingConfig = (drawTool: keyof typeof defaultIndicatorC
 };
 
 const getFieldTypeOptions = () => ({
-    open: t.translate('Open'),
-    high: t.translate('High'),
-    low: t.translate('Low'),
-    close: t.translate('Close'),
-    'Hl/2': t.translate('Hl/2'),
-    'HlC/3': t.translate('Hlc/3'),
-    'HlCC/4': t.translate('Hlcc/4'),
-    'OHlC/4': t.translate('Ohlc/4'),
+    open: localize('Open'),
+    high: localize('High'),
+    low: localize('Low'),
+    close: localize('Close'),
+    'Hl/2': localize('Hl/2'),
+    'HlC/3': localize('Hlc/3'),
+    'HlCC/4': localize('Hlcc/4'),
+    'OHlC/4': localize('Ohlc/4'),
 });
 
 const getMovingAverageTypeOptions = () => ({
-    simple: t.translate('Simple'),
-    exponential: t.translate('Exponential'),
-    weighted: t.translate('Weighted'),
-    hull: t.translate('Hull'),
-    zeroLag: t.translate('Zero Lag'),
-    timeSeries: t.translate('Time Series'),
-    wellesWilder: t.translate('Welles Wilder'),
-    variable: t.translate('Variable'),
-    triangular: t.translate('Triangular'),
-    doubleExponential: t.translate('2-Exponential'),
-    tripleExponential: t.translate('3-Exponential'),
+    simple: localize('Simple'),
+    exponential: localize('Exponential'),
+    weighted: localize('Weighted'),
+    hull: localize('Hull'),
+    zeroLag: localize('Zero Lag'),
+    timeSeries: localize('Time Series'),
+    wellesWilder: localize('Welles Wilder'),
+    variable: localize('Variable'),
+    triangular: localize('Triangular'),
+    doubleExponential: localize('2-Exponential'),
+    tripleExponential: localize('3-Exponential'),
 });
 
 const getRSIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
@@ -548,21 +549,21 @@ const getRSIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -574,7 +575,7 @@ const getRSIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'oscillatorLinesConfig.overboughtStyle.color',
             },
             group_key: 'over_bought',
-            title: t.translate('OverBought'),
+            title: localize('OverBought'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -588,7 +589,7 @@ const getRSIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'oscillatorLinesConfig.oversoldStyle.color',
             },
             group_key: 'over_sold',
-            title: t.translate('OverSold'),
+            title: localize('OverSold'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -599,7 +600,7 @@ const getRSIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'showZones',
             group_key: 'show_zones',
-            title: t.translate('Show Zones'),
+            title: localize('Show Zones'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -618,70 +619,70 @@ const getADXIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'positiveLineStyle.color',
-            title: t.translate('+DI'),
+            title: localize('+DI'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'negativeLineStyle.color',
-            title: t.translate('-DI'),
+            title: localize('-DI'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'barStyle.positiveColor',
-            title: t.translate('Positive Bar'),
+            title: localize('Positive Bar'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'barStyle.negativeColor',
-            title: t.translate('Negative Bar'),
+            title: localize('Negative Bar'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'smoothingPeriod',
-            title: t.translate('Smoothing Period'),
+            title: localize('Smoothing Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'showSeries',
-            title: t.translate('Series'),
+            title: localize('Series'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
         },
         {
             path: 'showShading',
-            title: t.translate('Shading'),
+            title: localize('Shading'),
             type: 'switch',
             category: 'parameters',
             defaultValue: false,
         },
         {
             path: 'showHistogram',
-            title: t.translate('Histogram'),
+            title: localize('Histogram'),
             type: 'switch',
             category: 'parameters',
             defaultValue: false,
@@ -697,14 +698,14 @@ const getAwesomeOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'barStyle.positiveColor',
-            title: t.translate('Increasing Bar'),
+            title: localize('Increasing Bar'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'barStyle.negativeColor',
-            title: t.translate('Decreasing Bar'),
+            title: localize('Decreasing Bar'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
@@ -722,21 +723,21 @@ const getDPOIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -744,7 +745,7 @@ const getDPOIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'movingAverageType',
-            title: t.translate('Moving Average Type'),
+            title: localize('Moving Average Type'),
             defaultValue: 'simple',
             category: 'inputs',
             type: 'select',
@@ -761,56 +762,56 @@ const getGatorIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'barStyle.positiveColor',
-            title: t.translate('Increasing Bar'),
+            title: localize('Increasing Bar'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'barStyle.negativeColor',
-            title: t.translate('Decreasing Bar'),
+            title: localize('Decreasing Bar'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'jawPeriod',
-            title: t.translate('Jaw Period'),
+            title: localize('Jaw Period'),
             defaultValue: 13,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'jawOffset',
-            title: t.translate('Jaw Offset'),
+            title: localize('Jaw Offset'),
             defaultValue: 8,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'teethPeriod',
-            title: t.translate('Teeth Period'),
+            title: localize('Teeth Period'),
             defaultValue: 8,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'teethOffset',
-            title: t.translate('Teeth Offset'),
+            title: localize('Teeth Offset'),
             defaultValue: 5,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'lipsPeriod',
-            title: t.translate('Lips Period'),
+            title: localize('Lips Period'),
             defaultValue: 5,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'lipsOffset',
-            title: t.translate('Lips Offset'),
+            title: localize('Lips Offset'),
             defaultValue: 3,
             category: 'inputs',
             type: 'number',
@@ -828,49 +829,49 @@ const getMACDIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'signalLineStyle.color',
-            title: t.translate('Signal'),
+            title: localize('Signal'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'barStyle.positiveColor',
-            title: t.translate('Increasing Bar'),
+            title: localize('Increasing Bar'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'barStyle.negativeColor',
-            title: t.translate('Decreasing Bar'),
+            title: localize('Decreasing Bar'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'fastMAPeriod',
-            title: t.translate('Fast MA Period'),
+            title: localize('Fast MA Period'),
             defaultValue: 12,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'slowMAPeriod',
-            title: t.translate('Slow MA Period'),
+            title: localize('Slow MA Period'),
             defaultValue: 26,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'signalPeriod',
-            title: t.translate('Signal Period'),
+            title: localize('Signal Period'),
             defaultValue: 9,
             category: 'inputs',
             type: 'number',
@@ -887,21 +888,21 @@ const getROCIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -928,28 +929,28 @@ const getStochasticOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => 
     parameters: [
         {
             path: 'fastLineStyle.color',
-            title: t.translate('Fast'),
+            title: localize('Fast'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'slowLineStyle.color',
-            title: t.translate('Slow'),
+            title: localize('Slow'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -957,7 +958,7 @@ const getStochasticOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => 
         },
         {
             path: 'isSmooth',
-            title: t.translate('Smooth'),
+            title: localize('Smooth'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -968,7 +969,7 @@ const getStochasticOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => 
                 color: 'oscillatorLinesConfig.overboughtStyle.color',
             },
             group_key: 'over_bought',
-            title: t.translate('OverBought'),
+            title: localize('OverBought'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -982,7 +983,7 @@ const getStochasticOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => 
                 color: 'oscillatorLinesConfig.oversoldStyle.color',
             },
             group_key: 'over_sold',
-            title: t.translate('OverSold'),
+            title: localize('OverSold'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -993,7 +994,7 @@ const getStochasticOscillatorIndicatorConfig: TDefaultIndicatorConfigFn = () => 
         {
             path: 'showZones',
             group_key: 'show_zones',
-            title: t.translate('Show Zones'),
+            title: localize('Show Zones'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1018,7 +1019,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'lineStyle.color',
             group_key: '%k',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
@@ -1026,7 +1027,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'period',
             group_key: '%k',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 10,
             category: 'inputs',
             type: 'number',
@@ -1034,7 +1035,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'smoothingPeriod',
             group_key: '%k',
-            title: t.translate('Smoothing Period'),
+            title: localize('Smoothing Period'),
             defaultValue: 3,
             category: 'inputs',
             type: 'number',
@@ -1042,7 +1043,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'doubleSmoothingPeriod',
             group_key: '%k',
-            title: t.translate('Double Smoothing Period'),
+            title: localize('Double Smoothing Period'),
             defaultValue: 3,
             category: 'inputs',
             type: 'number',
@@ -1050,7 +1051,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'signalLineStyle.color',
             group_key: '%d',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
@@ -1058,7 +1059,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'signalPeriod',
             group_key: '%d',
-            title: t.translate('Signal Period'),
+            title: localize('Signal Period'),
             defaultValue: 10,
             category: 'inputs',
             type: 'number',
@@ -1066,7 +1067,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'maType',
             group_key: '%d',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'exponential',
             category: 'inputs',
             type: 'select',
@@ -1078,7 +1079,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'smiOscillatorLimits.overboughtStyle.color',
             },
             group_key: 'over_bought',
-            title: t.translate('OverBought'),
+            title: localize('OverBought'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -1092,7 +1093,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'smiOscillatorLimits.oversoldStyle.color',
             },
             group_key: 'over_sold',
-            title: t.translate('OverSold'),
+            title: localize('OverSold'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -1103,7 +1104,7 @@ const getSMIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'showZones',
             group_key: 'show_zones',
-            title: t.translate('Show Zones'),
+            title: localize('Show Zones'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1125,14 +1126,14 @@ const getWilliamsRIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
@@ -1143,7 +1144,7 @@ const getWilliamsRIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'oscillatorLimits.overboughtStyle.color',
             },
             group_key: 'over_bought',
-            title: t.translate('OverBought'),
+            title: localize('OverBought'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -1157,7 +1158,7 @@ const getWilliamsRIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'oscillatorLimits.oversoldStyle.color',
             },
             group_key: 'over_sold',
-            title: t.translate('OverSold'),
+            title: localize('OverSold'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -1168,7 +1169,7 @@ const getWilliamsRIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'showZones',
             group_key: 'show_zones',
-            title: t.translate('Show Zones'),
+            title: localize('Show Zones'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1186,21 +1187,21 @@ const getAroonIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'upLineStyle.color',
-            title: t.translate('Aroon Up'),
+            title: localize('Aroon Up'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'downLineStyle.color',
-            title: t.translate('Aroon Down'),
+            title: localize('Aroon Down'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 14,
             category: 'inputs',
             type: 'number',
@@ -1221,14 +1222,14 @@ const getCCIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 20,
             category: 'inputs',
             type: 'number',
@@ -1239,7 +1240,7 @@ const getCCIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'oscillatorLinesConfig.overboughtStyle.color',
             },
             group_key: 'over_bought',
-            title: t.translate('OverBought'),
+            title: localize('OverBought'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -1253,7 +1254,7 @@ const getCCIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
                 color: 'oscillatorLinesConfig.oversoldStyle.color',
             },
             group_key: 'over_sold',
-            title: t.translate('OverSold'),
+            title: localize('OverSold'),
             type: 'numbercolorpicker',
             category: 'parameters',
             defaultValue: {
@@ -1264,7 +1265,7 @@ const getCCIIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         {
             path: 'showZones',
             group_key: 'show_zones',
-            title: t.translate('Show Zones'),
+            title: localize('Show Zones'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1285,63 +1286,63 @@ const getIchimokuIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'conversionLineStyle.color',
-            title: t.translate('Conversion Line'),
+            title: localize('Conversion Line'),
             defaultValue: '#5569f9',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'baseLineStyle.color',
-            title: t.translate('Base Line'),
+            title: localize('Base Line'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'spanALineStyle.color',
-            title: t.translate('Leading Span A'),
+            title: localize('Leading Span A'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'spanBLineStyle.color',
-            title: t.translate('Leading Span B'),
+            title: localize('Leading Span B'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'laggingLineStyle.color',
-            title: t.translate('Lagging Span'),
+            title: localize('Lagging Span'),
             defaultValue: '#e18d00',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'conversionLinePeriod',
-            title: t.translate('Conversion Line Period'),
+            title: localize('Conversion Line Period'),
             defaultValue: 9,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'baseLinePeriod',
-            title: t.translate('Base Line Period'),
+            title: localize('Base Line Period'),
             defaultValue: 26,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'spanBPeriod',
-            title: t.translate('Leading Span B Period'),
+            title: localize('Leading Span B Period'),
             defaultValue: 52,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'laggingSpanOffset',
-            title: t.translate('Lagging Span Period'),
+            title: localize('Lagging Span Period'),
             defaultValue: -26,
             category: 'inputs',
             type: 'number',
@@ -1361,14 +1362,14 @@ const getParabolicSARIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'scatterStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'minAccelerationFactor',
-            title: t.translate('Minimum AF'),
+            title: localize('Minimum AF'),
             defaultValue: 0.02,
             category: 'inputs',
             type: 'number',
@@ -1376,7 +1377,7 @@ const getParabolicSARIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'maxAccelerationFactor',
-            title: t.translate('Maximum AF'),
+            title: localize('Maximum AF'),
             defaultValue: 0.2,
             category: 'inputs',
             type: 'number',
@@ -1393,14 +1394,14 @@ const getZigzagIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'distance',
-            title: t.translate('Distance(%)'),
+            title: localize('Distance(%)'),
             defaultValue: 10,
             category: 'inputs',
             type: 'number',
@@ -1418,42 +1419,42 @@ const getBollingerBandsIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'upperLineStyle.color',
-            title: t.translate('Bollinger Bands Top'),
+            title: localize('Bollinger Bands Top'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'middleLineStyle.color',
-            title: t.translate('Bollinger Bands Median'),
+            title: localize('Bollinger Bands Median'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'lowerLineStyle.color',
-            title: t.translate('Bollinger Bands Bottom'),
+            title: localize('Bollinger Bands Bottom'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'fillColor',
-            title: t.translate('Fill Color'),
+            title: localize('Fill Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 20,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -1461,14 +1462,14 @@ const getBollingerBandsIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'standardDeviation',
-            title: t.translate('Standard Deviations'),
+            title: localize('Standard Deviations'),
             defaultValue: 2,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'movingAverageType',
-            title: t.translate('Moving Average Type'),
+            title: localize('Moving Average Type'),
             defaultValue: 'simple',
             category: 'inputs',
             type: 'select',
@@ -1476,7 +1477,7 @@ const getBollingerBandsIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'showChannelFill',
-            title: t.translate('Channel Fill'),
+            title: localize('Channel Fill'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1494,49 +1495,49 @@ const getDonchianChannelIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'upperLineStyle.color',
-            title: t.translate('Donchian High'),
+            title: localize('Donchian High'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'middleLineStyle.color',
-            title: t.translate('Donchian Median'),
+            title: localize('Donchian Median'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'lowerLineStyle.color',
-            title: t.translate('Donchian Low'),
+            title: localize('Donchian Low'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'fillColor',
-            title: t.translate('Fill Color'),
+            title: localize('Fill Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'highPeriod',
-            title: t.translate('High Period'),
+            title: localize('High Period'),
             defaultValue: 20,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'lowPeriod',
-            title: t.translate('Low Period'),
+            title: localize('Low Period'),
             defaultValue: 20,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'showChannelFill',
-            title: t.translate('Channel Fill'),
+            title: localize('Channel Fill'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1553,21 +1554,21 @@ const getMAIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'lineStyle.color',
-            title: t.translate('Color'),
+            title: localize('Color'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 50,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -1575,7 +1576,7 @@ const getMAIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'movingAverageType',
-            title: t.translate('Type'),
+            title: localize('Type'),
             defaultValue: 'simple',
             category: 'inputs',
             type: 'select',
@@ -1583,7 +1584,7 @@ const getMAIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'offset',
-            title: t.translate('Offset'),
+            title: localize('Offset'),
             defaultValue: 0,
             category: 'inputs',
             type: 'number',
@@ -1601,42 +1602,42 @@ const getMAEnvIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'upperLineStyle.color',
-            title: t.translate('MA Env Top'),
+            title: localize('MA Env Top'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'middleLineStyle.color',
-            title: t.translate('MA Env Median'),
+            title: localize('MA Env Median'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'lowerLineStyle.color',
-            title: t.translate('MA Env Bottom'),
+            title: localize('MA Env Bottom'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'fillColor',
-            title: t.translate('Fill Color'),
+            title: localize('Fill Color'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 50,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -1644,18 +1645,18 @@ const getMAEnvIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'shiftType',
-            title: t.translate('Shift Type'),
+            title: localize('Shift Type'),
             defaultValue: 'percent',
             category: 'inputs',
             type: 'select',
             options: {
-                percent: t.translate('Percent'),
-                point: t.translate('Point'),
+                percent: localize('Percent'),
+                point: localize('Point'),
             },
         },
         {
             path: 'shift',
-            title: t.translate('Shift'),
+            title: localize('Shift'),
             defaultValue: 5,
             category: 'inputs',
             type: 'number',
@@ -1663,7 +1664,7 @@ const getMAEnvIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
 
         {
             path: 'movingAverageType',
-            title: t.translate('Type'),
+            title: localize('Type'),
             defaultValue: 'simple',
             category: 'inputs',
             type: 'select',
@@ -1671,7 +1672,7 @@ const getMAEnvIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'showChannelFill',
-            title: t.translate('Channel Fill'),
+            title: localize('Channel Fill'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1689,14 +1690,14 @@ const getRainbowIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'period',
-            title: t.translate('Period'),
+            title: localize('Period'),
             defaultValue: 2,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'fieldType',
-            title: t.translate('Field'),
+            title: localize('Field'),
             defaultValue: 'close',
             category: 'inputs',
             type: 'select',
@@ -1704,70 +1705,70 @@ const getRainbowIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
         },
         {
             path: 'rainbowLineStyles[0].color',
-            title: t.translate('SMA1'),
+            title: localize('SMA1'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[1].color',
-            title: t.translate('SMA2'),
+            title: localize('SMA2'),
             defaultValue: '#f88f54',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[2].color',
-            title: t.translate('SMA3'),
+            title: localize('SMA3'),
             defaultValue: '#ffbe4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[3].color',
-            title: t.translate('SMA4'),
+            title: localize('SMA4'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[4].color',
-            title: t.translate('SMA5'),
+            title: localize('SMA5'),
             defaultValue: '#00822a',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[5].color',
-            title: t.translate('SMA6'),
+            title: localize('SMA6'),
             defaultValue: '#54bdc8',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[6].color',
-            title: t.translate('SMA7'),
+            title: localize('SMA7'),
             defaultValue: '#098d9c',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[7].color',
-            title: t.translate('SMA8'),
+            title: localize('SMA8'),
             defaultValue: '#53b9ff',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[8].color',
-            title: t.translate('SMA9'),
+            title: localize('SMA9'),
             defaultValue: '#5569f9',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'rainbowLineStyles[9].color',
-            title: t.translate('SMA10'),
+            title: localize('SMA10'),
             defaultValue: '#a556dd',
             category: 'inputs',
             type: 'colorpicker',
@@ -1785,77 +1786,77 @@ const getAlligatorIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'jawLineStyle.color',
-            title: t.translate('Jaw'),
+            title: localize('Jaw'),
             defaultValue: '#5569f9',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'teethLineStyle.color',
-            title: t.translate('Teeth'),
+            title: localize('Teeth'),
             defaultValue: '#ff4d4d',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'lipsLineStyle.color',
-            title: t.translate('Lips'),
+            title: localize('Lips'),
             defaultValue: '#4dbc6b',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'showLines',
-            title: t.translate('Show Lines'),
+            title: localize('Show Lines'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
         },
         {
             path: 'jawPeriod',
-            title: t.translate('Jaw Period'),
+            title: localize('Jaw Period'),
             defaultValue: 13,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'jawOffset',
-            title: t.translate('Jaw Offset'),
+            title: localize('Jaw Offset'),
             defaultValue: 8,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'teethPeriod',
-            title: t.translate('Teeth Period'),
+            title: localize('Teeth Period'),
             defaultValue: 8,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'teethOffset',
-            title: t.translate('Teeth Offset'),
+            title: localize('Teeth Offset'),
             defaultValue: 5,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'lipsPeriod',
-            title: t.translate('Lips Period'),
+            title: localize('Lips Period'),
             defaultValue: 5,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'lipsOffset',
-            title: t.translate('Lips Offset'),
+            title: localize('Lips Offset'),
             defaultValue: 3,
             category: 'inputs',
             type: 'number',
         },
         {
             path: 'showFractal',
-            title: t.translate('Show Fractals'),
+            title: localize('Show Fractals'),
             type: 'switch',
             category: 'parameters',
             defaultValue: false,
@@ -1872,28 +1873,28 @@ const getFractalChaosBandIndicatorConfig: TDefaultIndicatorConfigFn = () => ({
     parameters: [
         {
             path: 'highLineStyle.color',
-            title: t.translate('Fractal High'),
+            title: localize('Fractal High'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'lowLineStyle.color',
-            title: t.translate('Fractal Low'),
+            title: localize('Fractal Low'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'fillColor',
-            title: t.translate('Fractal Channel'),
+            title: localize('Fractal Channel'),
             defaultValue: '#787d88',
             category: 'inputs',
             type: 'colorpicker',
         },
         {
             path: 'showChannelFill',
-            title: t.translate('Channel Fill'),
+            title: localize('Channel Fill'),
             type: 'switch',
             category: 'parameters',
             defaultValue: true,
@@ -1932,10 +1933,10 @@ export const getDefaultIndicatorConfig = (indicator: keyof typeof defaultIndicat
 };
 
 export const ChartTypes = [
-    { id: 'line', text: t.translate('Area'), candleOnly: false, icon: TypeAreaIcon },
-    { id: 'candles', text: t.translate('Candle'), candleOnly: true, icon: TypeCandleIcon },
-    { id: 'hollow', text: t.translate('Hollow'), candleOnly: true, icon: TypeHollowIcon },
-    { id: 'ohlc', text: t.translate('OHLC'), candleOnly: true, icon: TypeOhlcIcon },
+    { id: 'line', text: localize('Area'), candleOnly: false, icon: TypeAreaIcon },
+    { id: 'candles', text: localize('Candle'), candleOnly: true, icon: TypeCandleIcon },
+    { id: 'hollow', text: localize('Hollow'), candleOnly: true, icon: TypeHollowIcon },
+    { id: 'ohlc', text: localize('OHLC'), candleOnly: true, icon: TypeOhlcIcon },
 ];
 
 type TInterval = {
@@ -1951,7 +1952,7 @@ type TInterval = {
 export const Intervals: TInterval = [
     {
         key: 'tick',
-        single: t.translate('tick'),
+        single: localize('tick'),
         items: [
             {
                 interval: 0,
@@ -1961,8 +1962,8 @@ export const Intervals: TInterval = [
     },
     {
         key: 'minute',
-        single: t.translate('minute'),
-        plural: t.translate('minutes'),
+        single: localize('minute'),
+        plural: localize('minutes'),
         items: [
             { interval: 60, num: 1 },
             { interval: 120, num: 2 },
@@ -1975,8 +1976,8 @@ export const Intervals: TInterval = [
     },
     {
         key: 'hour',
-        single: t.translate('hour'),
-        plural: t.translate('hours'),
+        single: localize('hour'),
+        plural: localize('hours'),
         items: [
             { interval: 3600, num: 1 },
             { interval: 7200, num: 2 },
@@ -1986,8 +1987,8 @@ export const Intervals: TInterval = [
     },
     {
         key: 'day',
-        single: t.translate('day'),
-        plural: t.translate('days'),
+        single: localize('day'),
+        plural: localize('days'),
         items: [{ interval: 86400, num: 1 }],
     },
 ];
@@ -2140,7 +2141,7 @@ export const STATE = {
 } as const;
 
 export const TooltipsContent = {
-    predictionIndicator: t.translate(
+    predictionIndicator: localize(
         'This indicator does not support 1-tick intervals. To use this indicator, change your chart time interval to 1 minute or more.'
     ),
 };

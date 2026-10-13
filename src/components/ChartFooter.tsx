@@ -2,6 +2,7 @@ import React from 'react';
 import { TMainStore } from 'src/types';
 import { useStores } from 'src/store';
 import { observer } from 'mobx-react-lite';
+import { localize } from 'src/translations';
 import { HelpCenterIcon, FullScreenIcon } from './Icons';
 import Tooltip from './Tooltip';
 import ChartSetting from './ChartSetting';
@@ -14,7 +15,7 @@ type TChartFooterNetworkProps = {
 const ChartFooterNetwork = React.memo(({ networkStatus }: TChartFooterNetworkProps) => (
     <Tooltip
         className='sc-chart-footer__item sc-chart-footer__item--status'
-        content={`${t.translate('Network status')}: ${networkStatus ? t.translate(networkStatus.tooltip) : ''}`}
+        content={`${localize('Network status')}: ${networkStatus ? localize(networkStatus.tooltip) : ''}`}
         enabled
     >
         <div className={`sc-chart__status sc-chart__status--${networkStatus ? networkStatus.class : 'offline'}`} />

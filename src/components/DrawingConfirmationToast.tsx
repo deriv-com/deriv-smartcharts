@@ -2,6 +2,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
+import { localize } from 'src/translations';
 import { useStores } from '../store';
 import { isHorizontalOrVerticalTool } from '../constants/drawingTools';
 
@@ -26,21 +27,21 @@ const DrawingConfirmationToast = observer(({ className }: TDrawingConfirmationTo
     const getDynamicMessage = useCallback(() => {
         // For horizontal and vertical tools (single step tools)
         if (isHorizontalOrVerticalTool(selectedToolId)) {
-            return t.translate('Click on the chart to place the line.');
+            return localize('Click on the chart to place the line.');
         }
 
         // For multi-step tools
         if (addingStateInfo.currentStep === 0 && addingStateInfo.totalSteps > 1) {
-            return t.translate('Click on the chart to confirm the start point.');
+            return localize('Click on the chart to confirm the start point.');
         }
 
         if (addingStateInfo.currentStep === 1 && addingStateInfo.totalSteps > 1) {
-            return t.translate('Click on the chart to confirm the end point.');
+            return localize('Click on the chart to confirm the end point.');
         }
 
         // For any other steps in multi-step tools (if needed for future tools)
         if (addingStateInfo.currentStep > 1 && !addingStateInfo.isFinished) {
-            return t.translate('Click on the chart to confirm point {{step}}.', {
+            return localize('Click on the chart to confirm point {{step}}.', {
                 step: (addingStateInfo.currentStep + 1).toString(),
             });
         }
@@ -89,10 +90,10 @@ const DrawingConfirmationToast = observer(({ className }: TDrawingConfirmationTo
                 <button
                     className='sc-drawing-toast__cancel'
                     onClick={onCancel}
-                    aria-label={t.translate('Cancel')}
+                    aria-label={localize('Cancel')}
                     type='button'
                 >
-                    {t.translate('Cancel')}
+                    {localize('Cancel')}
                 </button>
             </div>
         </div>

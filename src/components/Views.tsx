@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
 import { ArrayElement, TCustomEvent, TGranularity, TMainStore } from 'src/types';
 import { TViews } from 'src/store/ViewStore';
+import { localize } from 'src/translations';
 import Tooltip from './Tooltip';
 import Scroll from './Scroll';
 import { wrapText } from '../utils';
@@ -56,10 +57,10 @@ const ViewItem = ({ disabled=false, view, remove, onClick }: TViewItemProps) => 
 const EmptyView = ({ onClick }: { onClick: (event: React.MouseEvent<HTMLElement>) => void }) => (
     <div className='sc-views--empty'>
         <EmptyStateIcon />
-        <p>{t.translate('You have no saved templates yet.')}</p>
+        <p>{localize('You have no saved templates yet.')}</p>
         <button type='button' className='sc-btn' onClick={onClick}>
             <AddIcon />
-            {t.translate('Add new template')}
+            {localize('Add new template')}
         </button>
     </div>
 );
@@ -69,17 +70,17 @@ const OverwriteView = ({ templateName, onCancel, onOverwrite }: TOverwriteViewPr
         <div className='sc-views--overwrite__content'>
             <OverwriteStateIcon />
             <p>
-                {`${templateName} ${t.translate('already exists.')}`}
+                {`${templateName} ${localize('already exists.')}`}
                 <br />
-                {t.translate('Would you like to overwrite it?')}
+                {localize('Would you like to overwrite it?')}
             </p>
         </div>
         <div className='sc-views--overwrite__footer'>
             <button type='button' className='sc-btn sc-btn--outline-secondary' onClick={onCancel}>
-                {t.translate('Cancel')}
+                {localize('Cancel')}
             </button>
             <button type='button' className='sc-btn sc-btn--primary' onClick={onOverwrite}>
-                {t.translate('Overwrite')}
+                {localize('Overwrite')}
             </button>
         </div>
     </div>
@@ -105,9 +106,9 @@ const ActiveListView = ({
     return (
         <div className='sc-views__views'>
             <div className='sc-views__views__head'>
-                <h5>{t.translate('Saved templates')}</h5>
+                <h5>{localize('Saved templates')}</h5>
                 <button type='button' onClick={removeAll} className='sc-btn sc-btn--sm sc-btn--outline-secondary'>
-                    {t.translate('Clear all')}
+                    {localize('Clear all')}
                 </button>
             </div>
             <div className='sc-views__views__content'>
@@ -159,8 +160,8 @@ const Views = ({ portalNodeId, onChartType, onGranularity }: TViewsProps) => {
         <Menu
             store={menuStore}
             className='sc-views-menu'
-            title={t.translate('Templates')}
-            tooltip={t.translate('Templates')}
+            title={localize('Templates')}
+            tooltip={localize('Templates')}
             modalMode
             portalNodeId={portalNodeId}
         >
@@ -191,14 +192,14 @@ const Views = ({ portalNodeId, onChartType, onGranularity }: TViewsProps) => {
                                                     })}
                                                 >
                                                     <div className='subtitle'>
-                                                        <span>{t.translate('Add new templates')}</span>
+                                                        <span>{localize('Add new templates')}</span>
                                                     </div>
                                                     <input
                                                         type='text'
                                                         className={classNames('sc-input', {
                                                             'sc-input--active': isActive,
                                                         })}
-                                                        placeholder={isActive ? '' : t.translate('Add new templates')}
+                                                        placeholder={isActive ? '' : localize('Add new templates')}
                                                         ref={inputRef}
                                                         value={templateName}
                                                         onKeyUp={onSubmit}
@@ -237,7 +238,7 @@ const Views = ({ portalNodeId, onChartType, onGranularity }: TViewsProps) => {
                 {allowTickChartTypeOnly && (
                     <InfoFootnote
                         isMobile={isMobile}
-                        text={t.translate('Some of your templates may not work with this trade type.')}
+                        text={localize('Some of your templates may not work with this trade type.')}
                     />
                 )}
             </Menu.Body>

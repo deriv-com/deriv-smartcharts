@@ -1,6 +1,7 @@
 import { action, computed, observable, reaction, when, makeObservable } from 'mobx';
 import { TGranularity } from 'src/types';
 import { ChartTypes, Intervals, STATE } from 'src/Constant';
+import { localize } from 'src/translations';
 import MainStore from '.';
 import { displayMilliseconds, getTimeIntervalName, getTimeUnit } from '../utils';
 import { LogActions, LogCategories, logEvent } from '../utils/ga';
@@ -193,7 +194,7 @@ export default class TimeperiodStore {
             category.items.map(item => {
                 const isTick = category.key === 'tick';
                 const label = isTick
-                    ? `${item.num} ${t.translate(category.single)}`
+                    ? `${item.num} ${localize(category.single)}`
                     : `${item.num}${CompactUnitMap[category.key] ?? ''}`;
 
                 // Host restriction (e.g. Accumulators) outranks the per-chart-type rules.
@@ -205,9 +206,9 @@ export default class TimeperiodStore {
                 if (isRestricted) {
                     disabledReason = state.restrictionMessage;
                 } else if (isTickBlocked) {
-                    disabledReason = t.translate('Available only for "Area" chart type.');
+                    disabledReason = localize('Available only for "Area" chart type.');
                 } else if (isNonTickBlocked) {
-                    disabledReason = t.translate(
+                    disabledReason = localize(
                         'Only selected charts and time intervals are available for this trade type.'
                     );
                 }

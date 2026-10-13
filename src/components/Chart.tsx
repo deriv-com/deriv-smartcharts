@@ -7,6 +7,7 @@ import { TChartProps } from 'src/types';
 import { safeParse } from 'src/utils';
 
 /* css + scss */
+import { getLanguage, localize } from 'src/translations';
 import '../../sass/main.scss';
 import { initGA, logPageView } from '../utils/ga';
 import Barrier from './Barrier';
@@ -85,7 +86,7 @@ const Chart = React.forwardRef<
         updateProps(props);
     });
 
-    // NOTE: do not show the loader from a `t.lang` effect here. `t.lang` only
+    // NOTE: do not show the loader from a `getLanguage()` effect here. It only
     // flips *inside* the translation-loaded callback that hides the loader, so a
     // show driven off it always lands after that hide and can never be balanced —
     // it wedges "Retrieving Chart Data..." on for good.
@@ -117,7 +118,7 @@ const Chart = React.forwardRef<
     const TopWidgets = topWidgets || defaultTopWidgets;
     // if there are any markers, then increase the subholder z-index
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const ToolbarWidget = React.useCallback(toolbarWidget, [t.lang]);
+    const ToolbarWidget = React.useCallback(toolbarWidget, [getLanguage()]);
 
     React.useEffect(() => {
         chartAdapter.onMount(chartContainerRef.current as HTMLDivElement);
@@ -193,7 +194,7 @@ const Chart = React.forwardRef<
                                 {ToolbarWidget && <ToolbarWidget />}
                                 {!isChartAvailable && (
                                     <div className='cq-chart-unavailable'>
-                                        {t.translate('Chart data is not available for this symbol.')}
+                                        {localize('Chart data is not available for this symbol.')}
                                     </div>
                                 )}
                                 <div className='cq-inchart-subholder' />

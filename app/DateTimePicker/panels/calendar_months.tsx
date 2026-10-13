@@ -1,20 +1,21 @@
 /* eslint-disable react/no-array-index-key */
 import dayjs from '../../../src/utils/dayjs-config';
 import { TCalendarViewProps } from '../calendar.props';
+import { localize } from '../../../src/translations';
 
 const getMonthHeaders = () => ({
-    Jan: t.translate('Jan'),
-    Feb: t.translate('Feb'),
-    Mar: t.translate('Mar'),
-    Apr: t.translate('Apr'),
-    May: t.translate('May'),
-    Jun: t.translate('Jun'),
-    Jul: t.translate('Jul'),
-    Aug: t.translate('Aug'),
-    Sep: t.translate('Sep'),
-    Oct: t.translate('Oct'),
-    Nov: t.translate('Nov'),
-    Dec: t.translate('Dec'),
+    Jan: localize('Jan'),
+    Feb: localize('Feb'),
+    Mar: localize('Mar'),
+    Apr: localize('Apr'),
+    May: localize('May'),
+    Jun: localize('Jun'),
+    Jul: localize('Jul'),
+    Aug: localize('Aug'),
+    Sep: localize('Sep'),
+    Oct: localize('Oct'),
+    Nov: localize('Nov'),
+    Dec: localize('Dec'),
 });
 
 export const CalendarMonths = ({ calendar_date, isPeriodDisabled, onClick, selected_date }: TCalendarViewProps) => {

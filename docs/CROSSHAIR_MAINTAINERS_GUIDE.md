@@ -66,7 +66,7 @@ get isFunctionallyActive(): boolean {
 const CrosshairIcon = crosshair.isEnabled ? CrosshairOnIcon : CrosshairOffIcon;
 
 // Label shows available action  
-const crosshairLabel = crosshair.isEnabled ? t.translate('Disable Crosshair') : t.translate('Enable Crosshair');
+const crosshairLabel = crosshair.isEnabled ? localize('Disable Crosshair') : localize('Enable Crosshair');
 ```
 
 ### 3. Integration Points

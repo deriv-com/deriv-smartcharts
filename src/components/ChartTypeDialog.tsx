@@ -8,6 +8,7 @@ import { useStores } from 'src/store';
 import { INTERVALS_PER_ROW, TIntervalOption } from 'src/store/TimeperiodStore';
 import { ChartType, TGranularity } from 'src/types';
 import { getTimeIntervalName } from 'src/utils';
+import { localize } from 'src/translations';
 import AreaStyleSection from './AreaStylePicker';
 import DialogShell from './DialogShell';
 
@@ -239,7 +240,7 @@ const ChartTypeTile = observer(
                 }}
             >
                 {Icon && <Icon />}
-                <span className='sc-chart-type-dialog__tile__label'>{t.translate(chartType.text)}</span>
+                <span className='sc-chart-type-dialog__tile__label'>{localize(chartType.text)}</span>
             </div>
         );
     }
@@ -295,7 +296,7 @@ const ChartTypeDialogBody = observer(({ onChartType, onGranularity }: TChartType
     return (
         <div className='sc-chart-type-dialog__content'>
             <section className='sc-chart-type-dialog__section'>
-                <h2 className='sc-quill-dialog__heading'>{t.translate('Chart type')}</h2>
+                <h2 className='sc-quill-dialog__heading'>{localize('Chart type')}</h2>
                 <div className='sc-chart-type-dialog__types'>
                     {types.map(item => (
                         <Slot
@@ -318,7 +319,7 @@ const ChartTypeDialogBody = observer(({ onChartType, onGranularity }: TChartType
             <div className='sc-quill-dialog__divider' />
 
             <section className='sc-chart-type-dialog__section'>
-                <h2 className='sc-quill-dialog__heading'>{t.translate('Time interval')}</h2>
+                <h2 className='sc-quill-dialog__heading'>{localize('Time interval')}</h2>
                 <div className='sc-chart-type-dialog__intervals'>
                     {chunk(intervals, INTERVALS_PER_ROW).map(row => (
                         <div className='sc-chart-type-dialog__interval-row' key={`row-${row[0].interval}`}>

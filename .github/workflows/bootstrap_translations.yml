@@ -1,0 +1,72 @@
+name: Bootstrap translations (one-off)
+
+# Uploads the translations SmartCharts used to bundle (translation/*.json), converted to the
+# `@deriv-com/translations` format, to the CDN folder the Makima sync uses as its translation
+# memory - so the first sync reuses them instead of retranslating everything.
+# Run once per environment before the first live sync, then delete this workflow together
+# with scripts/bootstrap-cdn-translations.cjs and translation/.
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: Target environment
+                required: true
+                default: staging
+                type: choice
+                options:
+                    - staging
+                    - production
+            upload:
+                description: Upload to R2 (unticked writes the catalogues as a workflow artifact only)
+                required: false
+                type: boolean
+                default: false
+
+jobs:
+    bootstrap_translations:
+        runs-on: ubuntu-latest
+        environment: ${{ inputs.environment }}
+        timeout-minutes: 15
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+            - name: Use Node.js
+              uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8
+              with:
+                  node-version: 20.x
+
+            - name: Install dependencies
+              run: npm ci --ignore-scripts --no-audit --no-fund
+
+            - name: Extract strings
+              run: npm run translations:extract
+
+            - name: Convert the bundled translations
+              run: node scripts/bootstrap-cdn-translations.cjs translations-bootstrap | tee -a "$GITHUB_STEP_SUMMARY"
+
+            - name: Keep the protected-terms suggestion out of the upload
+              run: mkdir -p bootstrap-report && mv translations-bootstrap/protected-terms.suggested.json bootstrap-report/
+
+            - name: Upload catalogues as an artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: translations-bootstrap-${{ inputs.environment }}
+                  path: |
+                      translations-bootstrap/
+                      bootstrap-report/
+                  retention-days: 14
+
+            - name: Upload catalogues to R2
+              if: ${{ inputs.upload }}
+              # The same pinned action extract_and_sync_translations_makima uploads with.
+              uses: ryand56/r2-upload-action@33ebb7a494b3a8a3c5ed2ea6bbdc72e707090317 # v1.5
+              with:
+                  r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+                  r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+                  r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+                  r2-bucket: ${{ secrets.R2_BUCKET_NAME }}
+                  source-dir: translations-bootstrap
+                  destination-dir: ./${{ vars.R2_PROJECT_NAME || 'deriv-smartcharts' }}/${{ inputs.environment }}/translations

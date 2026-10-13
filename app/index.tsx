@@ -81,6 +81,8 @@ const chartId = '1';
 const appId = localStorage.getItem('config.app_id') || 12812;
 const serverUrl = getServerUrl();
 const language = new URLSearchParams(window.location.search).get('l') || getLanguageStorage();
+// e.g. ?translations=https://translations.deriv.com/deriv-smartcharts/staging to preview a catalogue folder
+const translationsCdnUrl = new URLSearchParams(window.location.search).get('translations') || undefined;
 const today = dayjs().format('YYYY/MM/DD 00:00');
 const connectionManager = new ConnectionManager({
     appId,
@@ -602,6 +604,7 @@ const App = () => {
                 isMobile={isMobile}
                 symbol={symbol}
                 settings={settings}
+                translationsCdnUrl={translationsCdnUrl}
                 onMessage={onMessage}
                 enableRouting
                 topWidgets={renderTopWidgets}

@@ -2,6 +2,7 @@
    React is injected by webpack's ProvidePlugin, so importing it here would be unused. */
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import DialogTrigger from './DialogTrigger';
 import { ChartIndicatorsIcon } from './Icons';
 import IndicatorsDialog from './IndicatorsDialog';
@@ -29,7 +30,7 @@ const StudyLegend = ({ searchInputClassName }: TStudyLegendProps) => {
 
     return (
         <>
-            <DialogTrigger store={menuStore} className='sc-studies' tooltip={t.translate('Indicators')}>
+            <DialogTrigger store={menuStore} className='sc-studies' tooltip={localize('Indicators')}>
                 <div className={`sc-studies__menu${menuStore.open ? ' sc-studies__menu--active' : ''}`}>
                     <ChartIndicatorsIcon />
                     <NotificationBadge notificationCount={activeItems.length} />

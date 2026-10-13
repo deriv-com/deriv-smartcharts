@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
 import { useStores } from 'src/store';
 import { TMainStore, TLanguage, TIcon } from 'src/types';
+import { localize } from 'src/translations';
 import '../../sass/components/_chart-setting.scss';
 import { FormGroup, SwitchIcon } from './Form';
 import {
@@ -65,14 +66,14 @@ const ChartSetting = () => {
         <Menu
             store={menuStore}
             className='sc-chart-setting'
-            title={t.translate('Platform settings')}
+            title={localize('Platform settings')}
             enableTabular
             modalMode
         >
             <Menu.Title>
                 <SettingIcon
                     className={classNames('ic-icon-with-sub', { active: menuOpen })}
-                    tooltip-title={t.translate('Settings')}
+                    tooltip-title={localize('Settings')}
                 />
             </Menu.Title>
             <Menu.Body>
@@ -80,20 +81,20 @@ const ChartSetting = () => {
                     <TabList>
                         <Tab key='theme'>
                             <ThemeIcon />
-                            {t.translate('Themes')}
+                            {localize('Themes')}
                         </Tab>
                         <Tab key='language'>
                             <LanguageIcon />
-                            {t.translate('Language')}
+                            {localize('Language')}
                         </Tab>
                         <Tab key='platform'>
                             <ChartIcon />
-                            {t.translate('Charts')}
+                            {localize('Charts')}
                         </Tab>
                     </TabList>
                     <TabPanel>
                         <div className='sc-chart-setting__panel'>
-                            <FormGroup title={t.translate('Select theme')} type='theme'>
+                            <FormGroup title={localize('Select theme')} type='theme'>
                                 <div
                                     className={classNames('form__group__item', {
                                         'form__group__item--active': theme === 'dark',
@@ -101,7 +102,7 @@ const ChartSetting = () => {
                                     onClick={() => setTheme('dark')}
                                 >
                                     <ThemeDarkIcon />
-                                    <div className='text'>{t.translate('Dark')}</div>
+                                    <div className='text'>{localize('Dark')}</div>
                                 </div>
                                 <div
                                     className={classNames('form__group__item', {
@@ -110,14 +111,14 @@ const ChartSetting = () => {
                                     onClick={() => setTheme('light')}
                                 >
                                     <ThemeLightIcon />
-                                    <div className='text'>{t.translate('Light')}</div>
+                                    <div className='text'>{localize('Light')}</div>
                                 </div>
                             </FormGroup>
                         </div>
                     </TabPanel>
                     <TabPanel>
                         <div className='sc-chart-setting__panel'>
-                            <FormGroup title={t.translate('Select language')} type='language'>
+                            <FormGroup title={localize('Select language')} type='language'>
                                 {(languages as Array<TLanguage>).map(language => (
                                     <div
                                         key={language.key}
@@ -137,9 +138,9 @@ const ChartSetting = () => {
                     <TabPanel>
                         <div className='sc-chart-setting__panel'>
                             <ChartSettingItem
-                                title={t.translate('Interval duration')}
+                                title={localize('Interval duration')}
                                 id='countdown'
-                                label={t.translate('Display remaining time for each interval')}
+                                label={localize('Display remaining time for each interval')}
                                 value={countdown}
                                 onChange={showCountdown}
                                 noramIcon={SettingCountdownMap[theme as keyof typeof SettingCountdownMap].normal}
@@ -147,19 +148,19 @@ const ChartSetting = () => {
                             />
 
                             <ChartSettingItem
-                                title={t.translate('Historical data mode')}
+                                title={localize('Historical data mode')}
                                 id='historical'
-                                label={t.translate('Display data for a specific date and time')}
+                                label={localize('Display data for a specific date and time')}
                                 value={historical}
                                 onChange={setHistorical}
                                 noramIcon={SettingHistoricalMap[theme as keyof typeof SettingHistoricalMap].normal}
                                 activeIcon={SettingHistoricalMap[theme as keyof typeof SettingHistoricalMap].active}
                             />
 
-                            <FormGroup title={t.translate('Highest and lowest spot')}>
+                            <FormGroup title={localize('Highest and lowest spot')}>
                                 <SwitchIcon
                                     id='highestlowest'
-                                    label={t.translate('Display the highest and lowest spot price')}
+                                    label={localize('Display the highest and lowest spot price')}
                                     value={isHighestLowestMarkerEnabled}
                                     onChange={toggleHighestLowestMarker}
                                     noramIcon={

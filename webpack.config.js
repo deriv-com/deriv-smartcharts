@@ -167,14 +167,6 @@ const config = {
                 loader: 'babel-loader',
             },
             {
-                test: /\.po$/,
-                use: [path.resolve('./loaders/translation-loader.js'), 'json-loader', 'po-loader'],
-            },
-            {
-                test: /\.pot$/,
-                use: [path.resolve('./loaders/pot-loader.js'), 'json-loader', 'po-loader'],
-            },
-            {
                 include: path.resolve(__dirname, 'src/utils/ga.js'),
                 use: [
                     {
@@ -190,7 +182,6 @@ const config = {
     },
     plugins: [
         new webpack.ProvidePlugin({
-            t: [path.resolve(__dirname, './src/Translation.ts'), 't'],
             React: 'react', // Automatically provide React variable
         }),
         new MiniCssExtractPlugin({ filename: 'smartcharts.css' }),
@@ -301,13 +292,6 @@ if (production) {
             minSize: 20000, // Minimum size for a chunk (20KB)
             maxSize: 244000, // Split chunks larger than ~240KB
             cacheGroups: {
-                // Translation files can be split as they're loaded async
-                translations: {
-                    test: /\.po$/,
-                    name: 'translations',
-                    priority: 20,
-                    chunks: 'all',
-                },
                 // Split html2canvas into its own chunk (already lazy-loaded)
                 html2canvas: {
                     test: /[\\/]node_modules[\\/]html2canvas[\\/]/,

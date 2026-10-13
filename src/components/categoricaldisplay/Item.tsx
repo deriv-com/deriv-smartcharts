@@ -1,4 +1,5 @@
 import React from 'react';
+import { localize } from 'src/translations';
 import { ItemIconMap } from '../Icons';
 import Favorite from '../Favorite';
 import { TProcessedSymbolItem } from '../../types/active-symbols.types';
@@ -35,7 +36,7 @@ const ItemDetail = React.memo(
             {dataObject && (dataObject.exchange_is_open === undefined || dataObject.exchange_is_open) ? (
                 ''
             ) : (
-                <span className='closed-market'>{t.translate('CLOSED')}</span>
+                <span className='closed-market'>{localize('CLOSED')}</span>
             )}
             <Favorite category={favoritesId} id={itemId} />
         </div>

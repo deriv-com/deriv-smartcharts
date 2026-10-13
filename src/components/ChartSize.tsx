@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import '../../sass/components/_chart-size.scss';
 import { ZoomInIcon, ZoomOutIcon } from './Icons';
 
@@ -12,14 +13,14 @@ const ChartSize = () => {
             <div className='cq-menu-btn'>
                 <ZoomOutIcon
                     className='ic-icon-with-sub cq-zoom-out'
-                    tooltip-title={t.translate('Zoom out')}
+                    tooltip-title={localize('Zoom out')}
                     onClick={zoomOut}
                 />
             </div>
             <div className='cq-menu-btn'>
                 <ZoomInIcon
                     className='ic-icon-with-sub cq-zoom-in'
-                    tooltip-title={t.translate('Zoom in')}
+                    tooltip-title={localize('Zoom in')}
                     onClick={zoomIn}
                 />
             </div>
