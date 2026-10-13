@@ -118,7 +118,9 @@ for (const r of report) {
     fs.writeFileSync(path.join(outDir, `${r.locale}.json`), JSON.stringify(catalogues[r.locale]));
 }
 // Candidates for translations.protected-terms.json: what the translators kept in English.
-const suggestedTerms = keptEnglish.map(key => en[key]).filter(term => term.length > 1 && !PLACEHOLDER.test(term));
+// Not PLACEHOLDER: `.test()` on a /g regex resumes from its previous match.
+const HAS_PLACEHOLDER = /\{\{\s*\w+\s*\}\}/;
+const suggestedTerms = keptEnglish.map(key => en[key]).filter(term => term.length > 1 && !HAS_PLACEHOLDER.test(term));
 fs.writeFileSync(path.join(outDir, 'protected-terms.suggested.json'), `${JSON.stringify(suggestedTerms, null, 4)}\n`);
 
 console.log(`en.json: ${Object.keys(en).length} strings; ${keyFor.size} have an existing translation key.`);

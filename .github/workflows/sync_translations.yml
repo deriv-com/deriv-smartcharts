@@ -75,7 +75,9 @@ jobs:
                   MAKIMA_API_BASE: ${{ vars.MAKIMA_API_BASE }}
                   # Names that must stay in English: indicator abbreviations and the like.
                   PROTECTED_TERMS_FILE: translations.protected-terms.json
-                  DRY_RUN: ${{ vars.MAKIMA_LIVE != 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run) }}
+                  # `== true`: called from publish-smart-charts.yml, event_name is still workflow_dispatch but
+                  # inputs has no dry_run, and a bare `inputs.dry_run` would make this an empty string.
+                  DRY_RUN: ${{ vars.MAKIMA_LIVE != 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == true) }}
                   R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
                   R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
                   R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

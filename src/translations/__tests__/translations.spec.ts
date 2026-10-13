@@ -72,6 +72,22 @@ describe('translations', () => {
         expect(seen[seen.length - 1]).to.equal('Fläche');
     });
 
+    it('does not HTML-escape interpolated values', () => {
+        // React escapes text itself; i18next escaping would show `&#x2F;` in `EUR/USD`.
+        expect(localize('Trend line {{num}}', { num: `EUR/USD & "x" O'Neil <b>` })).to.equal(
+            `Trendlinie EUR/USD & "x" O'Neil <b>`
+        );
+    });
+
+    it('reads from a new CDN folder when translationsCdnUrl changes after a language is loaded', async () => {
+        // Relies on the package backend's `cdnUrl` field; this flags an upgrade that renames it.
+        const before = requests.length;
+        setTranslationsCdnUrl('https://cdn.test/deriv-smartcharts/production');
+        await new Promise(resolve => setTimeout(resolve, 0));
+        expect(requests.slice(before)).to.include('https://cdn.test/deriv-smartcharts/production/translations/de.json');
+        expect(localize('Area')).to.equal('Fläche');
+    });
+
     it('never writes the host-owned localStorage language', () => {
         expect(storage.get('i18n_language')).to.not.equal('"DE"');
         expect(storage.get('i18n_language')).to.not.equal('"FR"');
