@@ -162,14 +162,20 @@ import Vol1S200 from '../../sass/icons/active-symbols/volatility/1s200 index/ic-
 import Vol1S250 from '../../sass/icons/active-symbols/volatility/1s250 index/ic-250-1s-index.svg';
 import Vol1S300 from '../../sass/icons/active-symbols/volatility/1s300 index/ic-300-1s-index.svg';
 import Crash50 from '../../sass/icons/active-symbols/volatility/crash50 index/crash50 index.svg';
+import Crash99 from '../../sass/icons/active-symbols/volatility/crash99 index/crash99 index.svg';
+import Crash100 from '../../sass/icons/active-symbols/volatility/crash100 index/crash100 index.svg';
 import Crash150 from '../../sass/icons/active-symbols/volatility/crash150 index/crash150 index.svg';
+import Crash200 from '../../sass/icons/active-symbols/volatility/crash200 index/crash200 index.svg';
 import Crash300 from '../../sass/icons/active-symbols/volatility/crash300 index/crash300 index.svg';
 import Crash500 from '../../sass/icons/active-symbols/volatility/crash500 index/crash500 index.svg';
 import Crash600 from '../../sass/icons/active-symbols/volatility/crash600 index/crash600 index.svg';
 import Crash900 from '../../sass/icons/active-symbols/volatility/crash900 index/crash900 index.svg';
 import Crash1000 from '../../sass/icons/active-symbols/volatility/crash1000 index/crash1000 index.svg';
 import Boom50 from '../../sass/icons/active-symbols/volatility/boom50 index/boom50 index.svg';
+import Boom99 from '../../sass/icons/active-symbols/volatility/boom99 index/boom99 index.svg';
+import Boom100 from '../../sass/icons/active-symbols/volatility/boom100 index/boom100 index.svg';
 import Boom150 from '../../sass/icons/active-symbols/volatility/boom150 index/boom150 index.svg';
+import Boom200 from '../../sass/icons/active-symbols/volatility/boom200 index/boom200 index.svg';
 import Boom300 from '../../sass/icons/active-symbols/volatility/boom300 index/boom300 index.svg';
 import Boom500 from '../../sass/icons/active-symbols/volatility/boom500 index/boom500 index.svg';
 import Boom600 from '../../sass/icons/active-symbols/volatility/boom600 index/boom600 index.svg';
@@ -571,14 +577,20 @@ export const ItemIconMap = {
     '1HZ250V': Wrapper(Vol1S250),
     '1HZ300V': Wrapper(Vol1S300),
     BOOM50: Wrapper(Boom50),
+    BOOM99: Wrapper(Boom99),
+    BOOM100: Wrapper(Boom100),
     BOOM150N: Wrapper(Boom150),
+    BOOM200: Wrapper(Boom200),
     BOOM300N: Wrapper(Boom300),
     BOOM500: Wrapper(Boom500),
     BOOM600: Wrapper(Boom600),
     BOOM900: Wrapper(Boom900),
     BOOM1000: Wrapper(Boom1000),
     CRASH50: Wrapper(Crash50),
+    CRASH99: Wrapper(Crash99),
+    CRASH100: Wrapper(Crash100),
     CRASH150N: Wrapper(Crash150),
+    CRASH200: Wrapper(Crash200),
     CRASH300N: Wrapper(Crash300),
     CRASH500: Wrapper(Crash500),
     CRASH600: Wrapper(Crash600),
