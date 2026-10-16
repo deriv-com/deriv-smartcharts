@@ -11,6 +11,7 @@ import {
     AREA_THICKNESSES,
 } from 'src/constants/areaStyle';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 
 /**
  * The sample series drawn in the fill previews - a plausible price line rather than a
@@ -132,12 +133,12 @@ const AreaStyleControls = observer(() => {
 
     return (
         <div className='sc-area-style'>
-            <Group label={t.translate('Fill')} cellsClassName='sc-area-style__fills'>
+            <Group label={localize('Fill')} cellsClassName='sc-area-style__fills'>
                 {AREA_FILLS.map(option => (
                     <Option
                         key={option.id}
                         className='sc-area-style__fill'
-                        label={t.translate(option.label)}
+                        label={localize(option.label)}
                         selected={fill === option.id}
                         onSelect={() => setFill(option.id)}
                     >
@@ -149,7 +150,7 @@ const AreaStyleControls = observer(() => {
                         >
                             <AreaPreview hasGradient={option.id === AREA_FILL.GRADIENT} thickness={thickness} />
                         </span>
-                        <span className='sc-area-style__fill__label'>{t.translate(option.label)}</span>
+                        <span className='sc-area-style__fill__label'>{localize(option.label)}</span>
                     </Option>
                 ))}
             </Group>
@@ -161,7 +162,7 @@ const AreaStyleControls = observer(() => {
                 {/* "Color", not "Colour": the key already exists in every locale,
                     translated for the indicator settings. */}
                 <Group
-                    label={t.translate('Color')}
+                    label={localize('Color')}
                     className='sc-area-style__group--colour'
                     cellsClassName='sc-area-style__colours'
                 >
@@ -169,7 +170,7 @@ const AreaStyleControls = observer(() => {
                         <Option
                             key={option.id}
                             className='sc-area-style__colour'
-                            label={t.translate(option.label)}
+                            label={localize(option.label)}
                             selected={colorId === option.id}
                             onSelect={() => setColor(option.id)}
                         >
@@ -182,7 +183,7 @@ const AreaStyleControls = observer(() => {
                 </Group>
 
                 <Group
-                    label={t.translate('Line thickness')}
+                    label={localize('Line thickness')}
                     className='sc-area-style__group--thickness'
                     cellsClassName='sc-area-style__thicknesses'
                 >
@@ -190,7 +191,7 @@ const AreaStyleControls = observer(() => {
                         <Option
                             key={option.id}
                             className='sc-area-style__thickness'
-                            label={t.translate(option.label)}
+                            label={localize(option.label)}
                             selected={thicknessId === option.id}
                             onSelect={() => setThickness(option.id)}
                         >
@@ -198,7 +199,7 @@ const AreaStyleControls = observer(() => {
                                 className='sc-area-style__thickness__line'
                                 style={{ blockSize: option.thickness, color }}
                             />
-                            <span className='sc-area-style__thickness__label'>{t.translate(option.label)}</span>
+                            <span className='sc-area-style__thickness__label'>{localize(option.label)}</span>
                         </Option>
                     ))}
                 </Group>
@@ -429,7 +430,7 @@ const AreaStyleSection = observer(() => {
                                 aria-controls={panelId}
                                 onClick={onToggle}
                             >
-                                <span>{t.translate('Area settings')}</span>
+                                <span>{localize('Area settings')}</span>
                                 <StandaloneChevronDownRegularIcon
                                     className='sc-area-settings__chevron'
                                     iconSize='sm'
@@ -442,7 +443,7 @@ const AreaStyleSection = observer(() => {
                     ) : (
                         // Nothing to toggle, so nothing to announce - a plain heading, the
                         // same as "Chart type" and "Time interval" on either side of it.
-                        <h2 className='sc-quill-dialog__heading'>{t.translate('Area settings')}</h2>
+                        <h2 className='sc-quill-dialog__heading'>{localize('Area settings')}</h2>
                     )}
 
                     {/* Clipped by the class only until the first measurement, after

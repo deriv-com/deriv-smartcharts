@@ -5,6 +5,7 @@ import { ChangeEvent } from 'react';
 
 import classNames from 'classnames';
 import { ArrayElement, TIcon, TNumberPickerValue } from 'src/types';
+import { localize } from 'src/translations';
 import { debounce } from '../utils/lodash-lite';
 import Scroll from './Scroll';
 import { ArrowIcon, InputNumberPlusIcon, InputNumberMinusIcon, CheckboxIcon, CheckboxActiveIcon } from './Icons';
@@ -519,11 +520,11 @@ export const NumberColorPicker = ({ props, theme, onChange }: TNumberColorPicker
 
     return (
         <span className='sc-numbercolorpicker'>
-            <NumericInput value={value} subtitle={t.translate('Size')} onChange={val => onValueChange(val as string)} />
+            <NumericInput value={value} subtitle={localize('Size')} onChange={val => onValueChange(val as string)} />
             <ColorPicker
                 color={color}
                 theme={theme}
-                subtitle={t.translate('Color')}
+                subtitle={localize('Color')}
                 setColor={val => onColorChange(val)}
             />
         </span>

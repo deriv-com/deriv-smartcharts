@@ -3,7 +3,6 @@
 .eslintrc
 .tern-project
 chart_app/
-crowdin.yml
 css/
 design-v1.js
 docs/
@@ -14,5 +13,8 @@ sass/
 scripts/
 src/
 translation/
+/translations/
+/crowdin/
 webpack.config.js
 yarn.lock
+translations.protected-terms.json

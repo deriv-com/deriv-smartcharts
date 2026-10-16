@@ -168,6 +168,7 @@ Props marked with `*` are **mandatory**:
 | onSettingsChange          | Callback that will be fired each time a setting is changed.                                                                                                                                                                                                                                                                                                      |
 | stateChangeListener       | Callback that will be fired on chart state change, It will return two parameters `(state, option)`. An state, and an option that is related to desire state. Chart has three states that are: `INITIAL` , `READY` and `SCROLL_TO_LEFT`.                                                                                                                          |
 | settings                  | Sets the chart settings. Refer to [Chart Settings](#chart-settings)                                                                                                                                                                                                                                                                                              |
+| translationsCdnUrl        | Base URL of the translation catalogues, read as `<translationsCdnUrl>/translations/<lang>.json`. Pass the folder of your environment, e.g. `https://translations.deriv.com/deriv-smartcharts/staging`. Defaults to the production folder. |
 | barriers                  | Draw chart barriers. Refer to [Barriers API](#barriers-api) for usage details                                                                                                                                                                                                                                                                                    |
 | enableRouting             | Enable routing for dialogs. Defaults to `false`                                                                                                                                                                                                                                                                                                                  |
 | isConnectionOpened        | Sets the connection status. If set, upon reconnection smartcharts will either patch missing tick data or refresh the chart, depending on granularity; if not set, it is assumed that connection is always opened. Defaults to `undefined`.                                                                                                                       |
@@ -648,15 +649,22 @@ To publish to production:
 
 ## Manage translations
 
-All strings that need to be translated must be inside `t.translate()`:
+SmartCharts uses [`@deriv-com/translations`](https://github.com/deriv-com/translations), like the other Deriv front ends: catalogues are keyed by the crc32 of the English text and served from `translations.deriv.com/deriv-smartcharts/<staging|production>/translations/<lang>.json` (see the `translationsCdnUrl` prop). The library bundles its own copy of the package and of i18next, so it never touches the host app's translations.
+
+All strings that need to be translated must go through `localize()` from `src/translations`, with a **string literal** as the first argument - the extractor only collects literals:
 
 ```js
-t.translate("[currency] [amount] payout if the last tick.", {
-  currency: "USD",
-  amount: 43.12,
+import { localize } from 'src/translations';
+
+localize('{{currency}} {{amount}} payout if the last tick.', {
+    currency: 'USD',
+    amount: 43.12,
 });
-t.setLanguage("fr", callback_function); // components need to be rerendered for changes to take affect
 ```
+
+Components that render translated strings must be `observer`s: `localize` subscribes them to language changes.
+
+`npm run translations:extract` writes the extracted strings to `translations/en.json`. The [Sync translations](.github/workflows/sync_translations.yml) workflow translates new strings with Makima and uploads the catalogues; strings stay in English until it has run. Names that must never be translated are listed in `translations.protected-terms.json`.
 
 ### Debugging NPM Package
 

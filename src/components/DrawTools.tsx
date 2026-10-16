@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import DialogTrigger from './DialogTrigger';
 import DrawToolsDialog from './DrawToolsDialog';
 import { DrawingToolsIcon } from './Icons';
@@ -24,7 +25,7 @@ const DrawTools = (_props: TDrawToolsProps) => {
 
     return (
         <>
-            <DialogTrigger store={menuStore} className='sc-dtools' tooltip={t.translate('Drawing tools')}>
+            <DialogTrigger store={menuStore} className='sc-dtools' tooltip={localize('Drawing tools')}>
                 <div className={classNames('sc-dtools__menu', { 'sc-dtools__menu--active': menuOpen })}>
                     <DrawingToolsIcon />
                     <NotificationBadge notificationCount={activeToolsNo} />

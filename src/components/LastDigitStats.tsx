@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
 import { TBar } from 'src/types';
+import { localize } from 'src/translations';
 import '../../sass/components/_last-digits.scss';
 
 const Bar = ({ x, bar }: { x: number; bar: TBar }) => (
@@ -31,7 +32,7 @@ const LastDigitStats = () => {
                 ))}
             </div>
             <div className='cq-bar-footer'>
-                {t.translate('Last digits stats for latest 1000 ticks on ') + marketDisplayName}
+                {`${localize('Last digits stats for latest 1000 ticks on')} ${marketDisplayName}`}
             </div>
         </div>
     );

@@ -1,5 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import FastMarker from './FastMarker';
 
 import '../../sass/components/_highest-lowest-marker.scss';
@@ -18,7 +19,7 @@ const HighestLowestMarker = () => {
             >
                 <span className='spot__shape-circule spot__fill-blue' />
                 <span className='spot__label' data-label-pos='top'>
-                    <span>{`${t.translate('H')}: `}</span>
+                    <span>{`${localize('H')}: `}</span>
                     <span className='spot__value' />
                 </span>
             </FastMarker>
@@ -31,7 +32,7 @@ const HighestLowestMarker = () => {
             >
                 <span className='spot__shape-circule spot__fill-red' />
                 <span className='spot__label' data-label-pos='bottom'>
-                    <span>{`${t.translate('L')} : `}</span>
+                    <span>{`${localize('L')} : `}</span>
                     <span className='spot__value' />
                 </span>
             </FastMarker>

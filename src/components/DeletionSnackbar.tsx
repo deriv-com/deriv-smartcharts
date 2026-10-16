@@ -2,6 +2,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
+import { localize } from 'src/translations';
 import { useStores } from '../store';
 import { markHandled } from './DialogShell';
 import { getDrawTools } from '../Constant';
@@ -28,9 +29,9 @@ const DeletionSnackbar = observer(({ className }: TDeletionSnackbarProps) => {
         // Find tool by deletedToolName
         const tool = Object.values(drawToolsConfig).find(t => t.id === deletedToolName.replace('dt_', ''));
         if (tool) {
-            // Extract the tool name from the text, removing [num] placeholder
-            const toolName = tool.text.replace(' [num]', '');
-            return `${toolName} ${t.translate('removed')}`;
+            // The tool name without its number: fill the {{num}} placeholder with nothing
+            const toolName = localize(tool.text, { num: '' }).trim();
+            return `${toolName} ${localize('removed')}`;
         }
     }, [deletedToolName]);
 
@@ -97,7 +98,7 @@ const DeletionSnackbar = observer(({ className }: TDeletionSnackbarProps) => {
                 <button
                     className='sc-deletion-snackbar__close'
                     onClick={onDismiss}
-                    aria-label={t.translate('Close')}
+                    aria-label={localize('Close')}
                     type='button'
                 >
                     <CloseIcon />

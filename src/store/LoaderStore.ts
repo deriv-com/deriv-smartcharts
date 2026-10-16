@@ -1,4 +1,5 @@
 import { observable, action, makeObservable } from 'mobx';
+import { localize } from 'src/translations';
 
 export default class LoaderStore {
     isActive = false;
@@ -15,10 +16,10 @@ export default class LoaderStore {
         });
 
         this.states = {
-            'chart-engine': t.translate('Retrieving Chart Engine...'),
-            'market-symbol': t.translate('Retrieving Market Symbols...'),
-            'trading-time': t.translate('Retrieving Trading Times...'),
-            'chart-data': t.translate('Retrieving Chart Data...'),
+            'chart-engine': localize('Retrieving Chart Engine...'),
+            'market-symbol': localize('Retrieving Market Symbols...'),
+            'trading-time': localize('Retrieving Trading Times...'),
+            'chart-data': localize('Retrieving Chart Data...'),
         };
     }
 

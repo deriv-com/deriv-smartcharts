@@ -3,6 +3,7 @@ import { TLanguage, TSettings } from 'src/types';
 import MainStore from '.';
 import Context from '../components/ui/Context';
 import { Languages } from '../Constant';
+import { setLanguage } from '../translations';
 import { LogActions, LogCategories, logEvent } from '../utils/ga';
 import MenuStore from './MenuStore';
 
@@ -173,7 +174,7 @@ export default class ChartSettingStore {
         }
         this.language = this.languages.find(item => (item as TLanguage).key === newLang) || this.defaultLanguage;
         const updatedLanguage = (this.language as TLanguage).key;
-        t.setLanguage(updatedLanguage, () => {
+        setLanguage(updatedLanguage, () => {
             this?.mainStore?.loader?.hide?.();
         });
         logEvent(LogCategories.ChartControl, LogActions.ChartSetting, `Change language to ${updatedLanguage}`);

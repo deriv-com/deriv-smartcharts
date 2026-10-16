@@ -14,6 +14,7 @@ import {
     TNumericInputParameter,
     TObject,
 } from 'src/types';
+import { localize } from 'src/translations';
 import '../../sass/components/_settings-dialog.scss';
 import {
     ColorPicker,
@@ -234,13 +235,13 @@ const SettingsPanel = ({
 
 const ResetButton = ({ onClick }: TResetButtonProps) => (
     <button type='button' className='sc-btn sc-btn--outline-secondary sc-btn--reset' onClick={onClick}>
-        {t.translate('Reset')}
+        {localize('Reset')}
     </button>
 );
 
 const DoneButton = ({ onClick }: TDoneButtonProps) => (
     <button type='button' className='sc-btn sc-btn--primary sc-btn--save' onClick={onClick}>
-        {t.translate('Done')}
+        {localize('Done')}
     </button>
 );
 

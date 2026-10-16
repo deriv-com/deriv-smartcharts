@@ -3,6 +3,7 @@ import dayjs from '../src/utils/dayjs-config';
 import DatePicker from './DateTimePicker/DatePicker';
 import TimePicker from './DateTimePicker/TimePicker';
 import './chart-history.scss';
+import { localize } from '../src/translations';
 
 type TChartHistoryProps = {
     onChange: (date: string) => void;
@@ -46,9 +47,9 @@ const ChartHistory = React.memo(({ onChange }: TChartHistoryProps) => {
     return (
         <div className='ciq-chart-history'>
             <div className='ciq-chart-history__container'>
-                <strong>{t.translate('Historical data')}</strong>
+                <strong>{localize('Historical data')}</strong>
                 <DatePicker
-                    placeholder={t.translate('select date')}
+                    placeholder={localize('select date')}
                     name='date'
                     format='DD MMMM YYYY'
                     focus={focusOnDate}

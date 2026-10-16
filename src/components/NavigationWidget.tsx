@@ -2,6 +2,7 @@
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import CrosshairToggle from './CrosshairToggle';
 import Tooltip from './Tooltip';
 import '../../sass/components/_navigation-widget.scss';
@@ -26,7 +27,7 @@ const NavigationWidget = () => {
         >
             <div className='sc-navigation-widget__buttons'>
                 <Tooltip
-                    content={t.translate('Scale to fit data')}
+                    content={localize('Scale to fit data')}
                     enabled={!isMobile && startWithDataFitMode && !isDataFitModeEnabled}
                     position='top'
                     className={classNames('sc-scale-toggle', {
@@ -39,7 +40,7 @@ const NavigationWidget = () => {
                             'sc-navigation-widget__item--hidden': !startWithDataFitMode,
                             'sc-navigation-widget__item--disabled': isDataFitModeEnabled,
                         })}
-                        aria-label={t.translate('Scale to fit data')}
+                        aria-label={localize('Scale to fit data')}
                         disabled={isDataFitModeEnabled}
                         onClick={toggleDataFitMode}
                     >
@@ -49,7 +50,7 @@ const NavigationWidget = () => {
                 <button
                     type='button'
                     className='sc-navigation-widget__item'
-                    aria-label={t.translate('Zoom out')}
+                    aria-label={localize('Zoom out')}
                     onClick={zoomOut}
                 >
                     <ChartMinusIcon />
@@ -58,7 +59,7 @@ const NavigationWidget = () => {
                 <button
                     type='button'
                     className='sc-navigation-widget__item'
-                    aria-label={t.translate('Zoom in')}
+                    aria-label={localize('Zoom in')}
                     onClick={zoomIn}
                 >
                     <ChartPlusIcon />

@@ -1,5 +1,6 @@
 import { PendingPromise } from '@deriv-com/smartcharts';
 import { TNetworkConfig, TRequestAPI } from 'src/types';
+import { localize } from '../../src/translations';
 // eslint-disable-line import/no-extraneous-dependencies,import/no-unresolved
 
 type TOnStatusUpdated = (config: TNetworkConfig, is_online: boolean) => void;
@@ -18,9 +19,9 @@ class NetworkMonitor {
     getTimeInterval?: ReturnType<typeof setInterval>;
     onStatusUpdated?: TOnStatusUpdated;
     status_config = {
-        online: { class: 'online', tooltip: t.translate('Online') },
-        offline: { class: 'offline', tooltip: t.translate('Offline') },
-        blinking: { class: 'blinker', tooltip: t.translate('Connecting to server') },
+        online: { class: 'online', tooltip: localize('Online') },
+        offline: { class: 'offline', tooltip: localize('Offline') },
+        blinking: { class: 'blinker', tooltip: localize('Connecting to server') },
     };
     last_status?: string;
     last_is_online?: boolean;

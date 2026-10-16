@@ -30,8 +30,7 @@
         }
     },
     "globals": {
-        "CIQ": false,
-        "t": false
+        "CIQ": false
     },
     "rules": {
         "react/no-multi-comp": 0,

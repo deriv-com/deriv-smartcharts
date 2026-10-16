@@ -5,6 +5,7 @@ import './date-picker.scss';
 import { Wrapper } from '../../src/components/Icons';
 import CalendarIC from '../icons/ic-calendar.svg';
 import { usePrevious, useStateCallback } from '../../src/hooks';
+import { localize } from '../../src/translations';
 
 type TDatePickerInputProps = {
     value: string;
@@ -60,7 +61,7 @@ const DatePickerInput = ({
             name={name}
             className={class_name}
             readOnly={is_read_only}
-            placeholder={t.translate(placeholder || (mode === 'duration' ? 'Select a duration' : 'Select date'))}
+            placeholder={localize(placeholder || (mode === 'duration' ? 'Select a duration' : 'Select date'))}
             onChange={onChange}
             onClick={onClick}
             value={input_value}
@@ -197,7 +198,7 @@ const DatePicker = React.memo((props: TDatePickerProps) => {
                     mode={mode}
                     name={name}
                     format={format}
-                    placeholder={t.translate(placeholder)}
+                    placeholder={localize(placeholder)}
                     is_read_only
                     value={value}
                     display_format={display_format}

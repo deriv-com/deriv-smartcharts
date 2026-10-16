@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'src/store';
+import { localize } from 'src/translations';
 import DialogTrigger from './DialogTrigger';
 import DownloadDialog from './DownloadDialog';
 import { ChartDownloadIcon } from './Icons';
@@ -23,7 +24,7 @@ const Share = (_props: TShareProps) => {
 
     return (
         <>
-            <DialogTrigger store={menuStore} className='sc-download-menu' tooltip={t.translate('Download')}>
+            <DialogTrigger store={menuStore} className='sc-download-menu' tooltip={localize('Download')}>
                 <div className={classNames('sc-download__menu', { 'sc-download__menu--active': menuOpen })}>
                     <ChartDownloadIcon />
                 </div>

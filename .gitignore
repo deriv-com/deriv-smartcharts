@@ -35,3 +35,7 @@ chart_app/build/**
 
 *.env
 .env.*
+
+# Output of `npm run translations:extract` (the shared deriv-extract-translations)
+/translations/
+/crowdin/

@@ -11,6 +11,7 @@ import {
 } from 'src/types';
 import { AuditDetailsForExpiredContract, ProposalOpenContract } from 'src/types/api-types';
 import { isDeepEqual } from 'src/utils/object';
+import { setTranslationsCdnUrl } from 'src/translations';
 import { debounce } from '../utils/lodash-lite';
 import MainStore from '.';
 import Theme from '../../sass/_themes.scss';
@@ -253,7 +254,12 @@ class ChartState {
         startWithDataFitMode,
         leftMargin,
         drawingToolFloatingMenuPosition,
+        translationsCdnUrl,
     }: TChartProps) {
+        // First, so the initial setLanguage (ChartSettingStore.setSettings) already reads
+        // the host's catalogue folder.
+        setTranslationsCdnUrl(translationsCdnUrl);
+
         let isSymbolChanged = false;
         let isGranularityChanged = false;
 
