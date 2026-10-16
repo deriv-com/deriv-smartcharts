@@ -222,7 +222,7 @@ npm run build && npm publish
 -   Change language: `setLanguage('fr', callback)` from `src/translations` (driven by `ChartSettingStore.setLanguage`)
 -   Catalogues are keyed by crc32 of the English text and loaded from `<translationsCdnUrl>/translations/<lang>.json` (default `https://translations.deriv.com/deriv-smartcharts/production`)
 -   Translated with Makima by `.github/workflows/sync_translations.yml` (shared `extract_and_sync_translations_makima` action): staging on master pushes and every 12h, production after each publish; dry runs until `MAKIMA_LIVE=true` per environment
--   Terms that must stay in English: `translations.protected-terms.json`
+-   Terms that must stay in English: `translations.protected-terms.json` (the red entries of the localisation team's "Translation/Transliteration of certain words" sheet, plus indicator abbreviations)
 
 ## Important Notes
 
