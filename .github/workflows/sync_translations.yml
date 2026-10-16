@@ -73,7 +73,9 @@ jobs:
                   TARGET_LOCALES: ar,bn,de,es,fr,it,ko,mn,pl,pt,ru,si,sw,ta,th,tr,uz,vi,zh_cn,zh_tw
                   MAKIMA_API_KEY: ${{ secrets.MAKIMA_API_KEY }}
                   MAKIMA_API_BASE: ${{ vars.MAKIMA_API_BASE }}
-                  # Names that must stay in English: indicator abbreviations and the like.
+                  # Terms that stay in English: the red "do not translate" entries of the localisation
+                  # team's "Translation/Transliteration of certain words" sheet (Translation Key and
+                  # Contract names tabs), plus indicator abbreviations. Keep it in sync with the sheet.
                   PROTECTED_TERMS_FILE: translations.protected-terms.json
                   # `== true`: called from publish-smart-charts.yml, event_name is still workflow_dispatch but
                   # inputs has no dry_run, and a bare `inputs.dry_run` would make this an empty string.
