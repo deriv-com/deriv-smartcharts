@@ -19,3 +19,4 @@ jobs:
       LLM_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       AGENT_METRICS_API_URL: ${{ secrets.AGENT_METRICS_API_URL }}
       AGENT_METRICS_API_KEY: ${{ secrets.AGENT_METRICS_API_KEY }}
+      CLICK2FIX_BASE_URL: ${{ secrets.CLICK2FIX_BASE_URL }}
