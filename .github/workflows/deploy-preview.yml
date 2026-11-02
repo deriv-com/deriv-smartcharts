@@ -175,7 +175,7 @@ jobs:
                   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_TEST_LINKS_ACCOUNT_ID }}
                   project_name: 'derivatives-trader'
                   branch_name: ${{ github.head_ref || format('{0}-{1}-{2}', github.event.inputs.smartcharts_ref, github.event.inputs.flutter_chart_ref, github.event.inputs.derivatives_trader_ref) }}
-                  output_dir: derivatives-trader/packages/core/dist
+                  output_dir: derivatives-trader/packages/app/dist
 
             - name: Generate preview link comment
               if: always() && github.event_name == 'pull_request' && steps.post_preview_build_comment.outcome == 'success'
