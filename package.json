@@ -159,6 +159,7 @@
         "@deriv-com/translations": "1.5.4",
         "classnames": "^2.3.1",
         "dayjs": "^1.11.19",
+        "deepmerge": "^4.3.1",
         "event-emitter-es6": "^1.1.5",
         "html2canvas": "^1.4.1",
         "i18next": "23.16.8",
