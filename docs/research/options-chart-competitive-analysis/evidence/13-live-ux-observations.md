@@ -1,0 +1,13 @@
+# Live UX observations — https://dtrader.deriv.com (logged out, no sign-in), 2026-10-27 ~03:40 GMT
+- Sample app (npm start) could NOT compile in worktree: app/index.tsx:38 imports '@deriv-com/quill-ui/dist/assets/quill-ui.css' not exported by installed quill-ui 1.24.9 exports map. Used live public DTrader instead.
+- Trade types menu (live): Directional: Rise/Fall, Touch/No Touch, Higher/Lower; Growth based: Accumulators, Multipliers, Turbos, Vanillas; Digit based: Matches/Differs, Over/Under, Even/Odd. "Fire" badges on Rise/Fall and Accumulators. Markets tabs: Derived, Forex, Stocks & indices, Commodities; market list shows 5-minute sparkline + % change.
+- Rise/Fall pre-purchase: no barrier/expiry preview on chart; just area tick chart with current-spot label. Panel: Duration 5 ticks, Stake, Allow equals, Buy with payout.
+- Touch/No Touch & Higher/Lower pre-purchase: dashed blue barrier line with handle label "≡ +1.32" at the right edge. Automated drag of the handle did NOT change the barrier (stayed +1.32) — inconclusive (could be synthetic-drag limitation); no shading, no probability, no expiry marker on x-axis.
+- Accumulators pre-purchase: shaded range (blue) from current spot forward, ±1.496 labels at top/bottom, plus "Stats" strip of recent ticks-in-range streak counts (11 11 28 7 4 18 3 60 16 14) with expand caret.
+- Matches/Differs: last-digit prediction grid in TRADE PANEL with % frequency per digit, highest green / lowest red (not on chart).
+- Chart toolbar (desktop, bottom-left vertical): chart type/interval, drawing tools (pencil), indicators, download. Zoom -, reset/centre, + at bottom centre.
+- Chart type dialog: Area (gradient/line-only fill, 6 colours, 3 line thicknesses), Candle, Hollow, OHLC. Intervals: 1 tick, 1m, 2m, 3m, 5m, 10m, 15m, 30m, 1h, 2h, 4h, 8h, 1d (no sub-minute; non-tick disabled for digit contracts).
+- Indicators dialog: categories Momentum / Trend / Volatility / Moving averages / Others + Active + Guide; search; OHLC-only indicators greyed on tick chart (e.g. Awesome Oscillator, Stochastic Oscillator).
+- Perf: chart canvas blank ~5–10 s after each page load / contract switch before series appears (barrier line visible earlier on mobile).
+- Mobile (375x812): portrait; chart top, trade params bottom sheet (Higher/Lower toggle, Duration/Barrier/Stake tiles, Buy with payout), bottom nav Home/Trade/Automate/Menu; chart controls collapsed into "⋮" + full-screen toggle.
+- Footer clock "27 Oct 2026 03:39:04 GMT" with status dot; "How to trade X?" link above panel (education).
