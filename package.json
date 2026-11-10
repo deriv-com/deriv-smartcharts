@@ -66,8 +66,8 @@
         "@commitlint/cli": "^19.3.0",
         "@commitlint/config-conventional": "^19.2.2",
         "@commitlint/cz-commitlint": "^19.2.0",
-        "@deriv-com/quill-tokens": "2.0.4",
-        "@deriv-com/quill-ui": "1.24.9",
+        "@deriv-com/quill-tokens": "2.0.32",
+        "@deriv-com/quill-ui": "1.24.13",
         "@deriv/quill-icons": "2.4.16",
         "@semantic-release/changelog": "^6.0.3",
         "@semantic-release/github": "^9.2.6",
@@ -156,7 +156,7 @@
         "webpack-dev-server": "^5.2.4"
     },
     "dependencies": {
-        "@deriv-com/translations": "1.5.4",
+        "@deriv-com/translations": "1.6.1",
         "classnames": "^2.3.1",
         "dayjs": "^1.11.19",
         "deepmerge": "^4.3.1",
@@ -205,16 +205,11 @@
         "webpack-bundle-analyzer": {
             "ws": "^8.18.2"
         },
-        "brace-expansion": "^2.1.7",
-        "sigstore": "^4.1.1",
-        "@sigstore/core": "^3.2.1",
-        "ip-address": "^10.7.1",
-        "undici": "^6.29.1",
+        "tinyglobby": {
+            "picomatch": "4.0.4"
+        },
+        "undici": "6.29.1",
         "tar": "^7.5.18",
-        "minimatch": "^11.0.1",
-        "glob": "^14.0.2",
-        "postcss-selector-parser": "^7.1.6",
-        "picomatch": "^4.0.4",
         "deepmerge": "^4.3.1",
         "@tootallnate/once": "^2.0.1"
     },
