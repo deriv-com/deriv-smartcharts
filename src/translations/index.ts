@@ -5,7 +5,7 @@ import { action, makeObservable, observable } from 'mobx';
 /**
  * SmartCharts' translations, on `@deriv-com/translations` - the same catalogue format
  * (crc32 of the English text -> translation, `{{var}}` placeholders) and the same CDN
- * layout every other Deriv front end uses, so the shared Makima sync action keeps
+ * layout every other Deriv front end uses, so the shared Rosetta sync action keeps
  * `<cdnUrl>/translations/<lang>.json` up to date.
  *
  * The library bundles its own copy of `@deriv-com/translations` and i18next (they are
