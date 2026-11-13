@@ -42,9 +42,9 @@ on:
 
 jobs:
     sync_translations:
-        # Cloudflare in front of the Rosetta API (translation-api.deriv.ai) only admits
-        # allow-listed networks and blocks GitHub-hosted runners (HTTP 403); this self-hosted
-        # group is the one allow-listed for Deriv's AI services.
+        # Cloudflare in front of the Rosetta API (translation-api.deriv.ai) blocks generic
+        # GitHub-hosted runners (HTTP 403). This GitHub-hosted group has static egress IPs, and
+        # a Cloudflare WAF skip rule lets them through to /v1/translate, as it did for Makima.
         runs-on:
             group: github_claude_code_reviewer
         environment: ${{ inputs.environment || 'staging' }}
@@ -61,7 +61,7 @@ jobs:
                   ref: ${{ github.ref }}
 
             - name: Sync SmartCharts translations
-              uses: deriv-com/translations/.github/actions/extract_and_sync_translations_rosetta@da381122b97af36468d63f89194b787137dd292d # v1.7.1
+              uses: deriv-com/translations/.github/actions/extract_and_sync_translations_rosetta@12e856d9fe195a154949e17ac6e058f7dea7cd80 # v1.8.1
               with:
                   PROJECT_NAME: ${{ vars.R2_PROJECT_NAME || 'deriv-smartcharts' }}
                   # src only: app/ is the demo app, which is not shipped.
