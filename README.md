@@ -664,7 +664,7 @@ localize('{{currency}} {{amount}} payout if the last tick.', {
 
 Components that render translated strings must be `observer`s: `localize` subscribes them to language changes.
 
-`npm run translations:extract` writes the extracted strings to `translations/en.json`. The [Sync translations](.github/workflows/sync_translations.yml) workflow translates new strings with Makima and uploads the catalogues; strings stay in English until it has run. Names that must never be translated are listed in `translations.protected-terms.json`.
+`npm run translations:extract` writes the extracted strings to `translations/en.json`. The [Sync translations](.github/workflows/sync_translations.yml) workflow translates new strings with Rosetta and uploads the catalogues; strings stay in English until it has run. Names that must never be translated are listed in `translations.protected-terms.json`.
 
 ### Debugging NPM Package
 

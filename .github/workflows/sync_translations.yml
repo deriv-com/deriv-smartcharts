@@ -1,6 +1,6 @@
 name: Sync translations
 
-# Extracts the `localize()` strings in src, translates the new ones with Makima and uploads
+# Extracts the `localize()` strings in src, translates the new ones with Rosetta and uploads
 # the catalogues to `translations.deriv.com/<R2_PROJECT_NAME>/<environment>/translations`,
 # where the SmartCharts runtime reads them. Same action and setup as the other Deriv front
 # ends (see deriv-com/deriv-blox's sync_translations.yml).
@@ -8,7 +8,7 @@ name: Sync translations
 # Staging: push to master, schedule, or manual dispatch.
 # Production: called by publish-smart-charts.yml after a release (tags pushed by
 # semantic-release with GITHUB_TOKEN trigger no workflows), or manual dispatch.
-# A run is live (R2 upload) only when the environment variable MAKIMA_LIVE is exactly
+# A run is live (R2 upload) only when the environment variable ROSETTA_LIVE is exactly
 # 'true' and, for a manual dispatch, dry_run is unticked. Otherwise it is a dry run that
 # writes the catalogues as a workflow artifact.
 on:
@@ -42,8 +42,9 @@ on:
 
 jobs:
     sync_translations:
-        # Cloudflare in front of the Makima gateway blocks GitHub-hosted runner
-        # IPs (HTTP 403 "Attention Required!"); this self-hosted group is allow-listed.
+        # Cloudflare in front of the Rosetta API (translation-api.deriv.ai) blocks generic
+        # GitHub-hosted runners (HTTP 403). This GitHub-hosted group has static egress IPs, and
+        # a Cloudflare WAF skip rule lets them through to /v1/translate, as it did for Makima.
         runs-on:
             group: github_claude_code_reviewer
         environment: ${{ inputs.environment || 'staging' }}
@@ -60,26 +61,27 @@ jobs:
                   ref: ${{ github.ref }}
 
             - name: Sync SmartCharts translations
-              uses: deriv-com/translations/.github/actions/extract_and_sync_translations_makima@17dbcfe83c92d6622134c29789429e3df484cf61 # v1.5.4
+              uses: deriv-com/translations/.github/actions/extract_and_sync_translations_rosetta@12e856d9fe195a154949e17ac6e058f7dea7cd80 # v1.8.1
               with:
                   PROJECT_NAME: ${{ vars.R2_PROJECT_NAME || 'deriv-smartcharts' }}
                   # src only: app/ is the demo app, which is not shipped.
                   PROJECT_SOURCE_DIRECTORY: 'src'
                   ENVIRONMENT: ${{ inputs.environment || 'staging' }}
-                  # Not km and id: Makima does not support Khmer or Indonesian. Their catalogues
+                  # Not km and id: Rosetta does not support Khmer or Indonesian. Their catalogues
                   # stay on the CDN as they are; new strings show in English.
-                  # zh_cn / zh_tw are the runtime's file names (v1.5.4 maps them to Makima's
+                  # zh_cn / zh_tw are the runtime's file names (the action maps them to
                   # Simplified / Traditional Chinese).
                   TARGET_LOCALES: ar,bn,de,es,fr,it,ko,mn,pl,pt,ru,si,sw,ta,th,tr,uz,vi,zh_cn,zh_tw
-                  MAKIMA_API_KEY: ${{ secrets.MAKIMA_API_KEY }}
-                  MAKIMA_API_BASE: ${{ vars.MAKIMA_API_BASE }}
+                  ROSETTA_API_TOKEN: ${{ secrets.ROSETTA_API_TOKEN }}
+                  # The host only, e.g. https://translation-api.deriv.ai; the action adds /v1/translate.
+                  ROSETTA_API_BASE: ${{ vars.ROSETTA_API_BASE }}
                   # Terms that stay in English: the red "do not translate" entries of the localisation
                   # team's "Translation/Transliteration of certain words" sheet (Translation Key and
                   # Contract names tabs), plus indicator abbreviations. Keep it in sync with the sheet.
                   PROTECTED_TERMS_FILE: translations.protected-terms.json
                   # `== true`: called from publish-smart-charts.yml, event_name is still workflow_dispatch but
                   # inputs has no dry_run, and a bare `inputs.dry_run` would make this an empty string.
-                  DRY_RUN: ${{ vars.MAKIMA_LIVE != 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == true) }}
+                  DRY_RUN: ${{ vars.ROSETTA_LIVE != 'true' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == true) }}
                   R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
                   R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
                   R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}

@@ -221,7 +221,7 @@ npm run build && npm publish
 -   A label stored in a constant is marked with a literal `localize` call where it is defined and passed through `localize` again where it is rendered, so it follows language changes
 -   Change language: `setLanguage('fr', callback)` from `src/translations` (driven by `ChartSettingStore.setLanguage`)
 -   Catalogues are keyed by crc32 of the English text and loaded from `<translationsCdnUrl>/translations/<lang>.json` (default `https://translations.deriv.com/deriv-smartcharts/production`)
--   Translated with Makima by `.github/workflows/sync_translations.yml` (shared `extract_and_sync_translations_makima` action): staging on master pushes and every 12h, production after each publish; dry runs until `MAKIMA_LIVE=true` per environment
+-   Translated with Rosetta (`translation-api.deriv.ai`) by `.github/workflows/sync_translations.yml` (shared `extract_and_sync_translations_rosetta` action; secret `ROSETTA_API_TOKEN`, variable `ROSETTA_API_BASE`): staging on master pushes and every 12h, production after each publish; dry runs until `ROSETTA_LIVE=true` per environment
 -   Terms that must stay in English: `translations.protected-terms.json` (the red entries of the localisation team's "Translation/Transliteration of certain words" sheet, plus indicator abbreviations)
 
 ## Important Notes
