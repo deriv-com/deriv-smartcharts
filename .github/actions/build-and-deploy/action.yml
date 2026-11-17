@@ -19,7 +19,7 @@ inputs:
   node_version:
     description: "Node.js version"
     required: false
-    default: "20.x"
+    default: "24.x"
   flutter_version:
     description: "Flutter version"
     required: false

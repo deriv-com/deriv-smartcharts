@@ -16,7 +16,7 @@ concurrency:
 
 env:
   FLUTTER_VERSION: '3.24.1'
-  NODE_VERSION: '22.x'
+  NODE_VERSION: '24.x'
 permissions:
   contents: read
 jobs:

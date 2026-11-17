@@ -27,7 +27,7 @@ The deployment system consists of two main workflows and one reusable action:
 **Environment Variables:**
 - `FLUTTER_VERSION`: Flutter SDK version (default: 3.24.1)
 - `FLUTTER_WEB_RENDERER`: Flutter web renderer (default: html)
-- `NODE_VERSION`: Node.js version (default: 20.x)
+- `NODE_VERSION`: Node.js version (default: 24.x)
 
 **Required Secrets:**
 - `CLOUDFLARE_API_TOKEN`: Cloudflare API token with Pages permissions
@@ -68,7 +68,7 @@ Handles the complete build and deployment process for both production and previe
 | `cloudflare_account_id` | ✅ | - | Cloudflare Account ID |
 | `project_name` | ✅ | - | Cloudflare Pages project name |
 | `branch_name` | ✅ | - | Branch name for deployment |
-| `node_version` | ❌ | 20.x | Node.js version |
+| `node_version` | ❌ | 24.x | Node.js version |
 | `flutter_version` | ❌ | 3.24.1 | Flutter version |
 | `flutter_web_renderer` | ❌ | html | Flutter web renderer |
 | `environment` | ❌ | preview | Deployment environment |
