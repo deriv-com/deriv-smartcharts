@@ -20,6 +20,10 @@ class RealtimeSubscription extends Subscription {
     }
 
     async _startSubscribe(getQuotesRequest: TGetQuotesRequest) {
+        if (this._binaryApi.canSubscribeWithHistory) {
+            return this._startSubscribeWithHistory(getQuotesRequest);
+        }
+
         const contract_info = this.contractInfo as ProposalOpenContract;
         const response = await this._binaryApi.getQuotes(getQuotesRequest);
         const quotes = this._processGetQuotesResponse(response);
@@ -60,6 +64,29 @@ class RealtimeSubscription extends Subscription {
         this._tickCallback = processQuote;
 
         return { quotes, response };
+    }
+
+    // One request: the stream's first response is the history, the rest are ticks or candles.
+    async _startSubscribeWithHistory(getQuotesRequest: TGetQuotesRequest) {
+        const processQuote = (resp: TQuote) => {
+            if (resp.tick || resp.ohlc) {
+                this._onTick(resp);
+            }
+        };
+
+        try {
+            const response = await this._binaryApi.subscribeQuotesWithHistory(getQuotesRequest, processQuote);
+            const quotes = this._processGetQuotesResponse(response);
+            this._tickCallback = processQuote;
+
+            return { quotes, response };
+        } catch (error) {
+            // The stream may already be open on the host's side; release it, unless a newer
+            // subscription for the same symbol and granularity has taken its place.
+            const { symbol, granularity } = getQuotesRequest;
+            this._binaryApi.forget({ symbol, granularity }, processQuote);
+            throw error;
+        }
     }
 
     forget() {

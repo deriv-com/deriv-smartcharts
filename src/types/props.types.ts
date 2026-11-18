@@ -139,6 +139,20 @@ export type TSubscribeQuotes = (
     params: { symbol: string; granularity: TGranularity },
     callback: (quote: TQuote) => void
 ) => () => void;
+/**
+ * Opens one live stream whose first response carries the history, instead of a separate
+ * `getQuotes` request followed by `subscribeQuotes` (with the Deriv API: a single
+ * `ticks_history` request with `count` and `subscribe: 1`).
+ *
+ * Resolve with the history in the same shape `getQuotes` returns, then pass every later
+ * tick or candle to `callback` as `subscribeQuotes` does. Reject if the stream fails before
+ * the history arrives. SmartCharts stops the stream with `unsubscribeQuotes`, as for
+ * `subscribeQuotes`. `start` replaces `count` when it is set.
+ */
+export type TSubscribeQuotesWithHistory = (
+    params: { symbol: string; granularity: TGranularity; count?: number; start?: number },
+    callback: (quote: TQuote) => void
+) => Promise<TGetQuotesResult>;
 export type TNetworkConfig = {
     class: string;
     tooltip: string;
@@ -244,6 +258,9 @@ export type TChartProps = {
     unsubscribeQuotes: BinaryAPI['unsubscribeQuotes'];
     getQuotes?: TGetQuotes;
     subscribeQuotes?: TSubscribeQuotes;
+    // Optional. When set, live streams use it instead of getQuotes + subscribeQuotes;
+    // getQuotes still serves history-only requests (closed markets, delayed feeds, scrolling back).
+    subscribeQuotesWithHistory?: TSubscribeQuotesWithHistory;
     id?: string;
     getMarketsOrder?: (active_symbols: ActiveSymbols) => string[];
     getIndicatorHeightRatio?: TGetIndicatorHeightRatio;

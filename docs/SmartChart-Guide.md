@@ -35,6 +35,7 @@ You must supply data providers and essential props when embedding SmartChart:
 -   unsubscribeQuotes: BinaryAPI['unsubscribeQuotes'] (REQUIRED)
 -   getQuotes: TGetQuotes (RECOMMENDED for history and when endEpoch/static views are used)
 -   subscribeQuotes: TSubscribeQuotes (RECOMMENDED for live streaming)
+-   subscribeQuotesWithHistory: TSubscribeQuotesWithHistory (OPTIONAL; one request for a live stream and its history, see 4.4)
 -   chartData.activeSymbols: ActiveSymbols (RECOMMENDED)
 -   chartData.tradingTimes: Record<symbol, { isOpen, openTime, closeTime }> (RECOMMENDED)
 
@@ -52,6 +53,7 @@ Essential data providers:
 -   unsubscribeQuotes: BinaryAPI['unsubscribeQuotes']
 -   getQuotes?: TGetQuotes
 -   subscribeQuotes?: TSubscribeQuotes
+-   subscribeQuotesWithHistory?: TSubscribeQuotesWithHistory
 
 Data context:
 
@@ -204,6 +206,29 @@ type TUnsubscribeQuotes = (request?: TGetQuotesRequest, callback?: TResponseAPIC
 ```
 
 Used internally alongside subscription management. Implement to stop streaming on symbol/timeframe changes or component unmount.
+
+### 4.4 TSubscribeQuotesWithHistory (optional: one request per live stream)
+
+Without it, a live chart loads its history with `getQuotes` and then opens the stream with `subscribeQuotes`: two requests, with a short window between them in which a tick can be missed. With the Deriv API, a single `ticks_history` request with `count` and `subscribe: 1` does both: its first response is the history and the following ones are the stream.
+
+Signature:
+
+```
+type TSubscribeQuotesWithHistory = (
+  params: { symbol: string; granularity: TGranularity; count?: number; start?: number },
+  callback: (quote: TQuote) => void
+) => Promise<TGetQuotesResult>;
+```
+
+Behavior:
+
+-   Resolve with the history from the stream's first response, in the same shape `getQuotes` returns.
+-   Pass every later tick or candle to `callback`, exactly as for `subscribeQuotes`.
+-   Reject if the stream fails before the history arrives. SmartCharts then calls `unsubscribeQuotes` for it.
+-   `start` replaces `count` when it is set (resuming after a reconnection).
+-   SmartCharts stops the stream with `unsubscribeQuotes`, as for `subscribeQuotes`.
+
+When it is provided, live streams use it instead of `getQuotes` + `subscribeQuotes`. `getQuotes` is still required for history-only requests: closed markets, delayed feeds and scrolling back.
 
 ---
 

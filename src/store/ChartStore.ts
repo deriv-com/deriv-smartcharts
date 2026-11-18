@@ -257,6 +257,7 @@ class ChartStore {
             unsubscribeQuotes,
             getQuotes,
             subscribeQuotes,
+            subscribeQuotesWithHistory,
             isMobile,
             enableRouting,
             onMessage,
@@ -277,6 +278,7 @@ class ChartStore {
                 echo_req: {},
             })),
             subscribeQuotes || (() => (() => { /* Empty function */ })),
+            subscribeQuotesWithHistory,
         );
         this.currentLanguage = localStorage.getItem('current_chart_lang') ?? settings?.language?.toLowerCase();
         // trading times and active symbols can be reused across multiple charts
