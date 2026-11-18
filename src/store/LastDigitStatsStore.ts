@@ -83,6 +83,11 @@ export default class LastDigitStatsStore {
                 count: this.count,
             } as TGetQuotesRequest));
         this.latestData = quotes?.history?.prices ? quotes.history.prices : [];
+        if (response) {
+            // The chart's own history already holds the ticks to count, so the first tick needs no
+            // second request for them. Candles, or a different number of ticks, still need one.
+            this.lastSymbol = this.latestData.length === this.count ? this.marketDisplayName : '';
+        }
 
         if (!this.context || !this.mainStore.chart.currentActiveSymbol) return;
         this.latestData.forEach(price => {
@@ -92,7 +97,12 @@ export default class LastDigitStatsStore {
         this.updateBars();
     }
     onMasterDataUpdate({ Close, tick }: TQuote & { Close: number }) {
-        if (!this.context || !this.mainStore.chart.currentActiveSymbol || !this.mainStore.lastDigitStats.isVisible) return;
+        if (!this.context || !this.mainStore.chart.currentActiveSymbol) return;
+        if (!this.isVisible) {
+            // Counts are not kept up to date while hidden, so count afresh once shown again
+            this.lastSymbol = '';
+            return;
+        }
         this.lastTick = tick;
         if (this.marketDisplayName !== this.lastSymbol) {
             this.lastSymbol = this.marketDisplayName;
